@@ -52,7 +52,7 @@ struct AppPalette {
         isDark ? Color.white.opacity(0.12) : Color.black.opacity(0.08)
     }
 
-    /// Outlines and separators inside the circle, and the key-signature staff.
+    /// Outlines and separators inside the circle.
     var ringStroke: Color {
         isDark ? Color(white: 0.7) : Color(red: 0.15, green: 0.15, blue: 0.15)
     }
@@ -82,11 +82,6 @@ struct AppPalette {
         isDark ? Color(white: 0.3) : Color(white: 0.86)
     }
 
-    /// Relative-key ring (innermost).
-    var relativeFill: Color {
-        isDark ? Color(white: 0.22) : Color(red: 0.94, green: 0.94, blue: 0.95)
-    }
-
     // MARK: Emphasis
 
     /// Chip behind a highlighted formula degree / scale column / selected row.
@@ -95,7 +90,7 @@ struct AppPalette {
         isDark ? Color(red: 0.45, green: 0.34, blue: 0.1) : Color(red: 1.0, green: 0.88, blue: 0.65)
     }
 
-    /// Softer variant behind the characteristic note / chord rows.
+    /// Softer variant behind the characteristic note row.
     var highlightSoft: Color {
         isDark ? Color(red: 0.28, green: 0.22, blue: 0.1) : Color(red: 1.0, green: 0.95, blue: 0.86)
     }

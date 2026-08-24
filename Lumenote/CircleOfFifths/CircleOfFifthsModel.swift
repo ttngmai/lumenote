@@ -20,6 +20,33 @@ final class CircleOfFifthsModel {
         return result
     }
 
+    /// Outer-ring spellings. Dual-common enharmonics are both listed (C♯ above D♭).
+    var displayedOuterSpellings: [Int: [String]] {
+        var result: [Int: [String]] = [:]
+        for position in 1...12 {
+            let pair = Tonic.commonSpellings(atLydianStart: position)
+            if pair.count >= 2 {
+                result[position] = pair.map(\.rawValue)
+            } else {
+                let raw = Tonic.commonSpelling(of: noteNames[position] ?? "")
+                result[position] = raw.isEmpty ? [] : [raw]
+            }
+        }
+        return result
+    }
+
+    /// Inner-ring relative-minor spellings, matching `displayedOuterSpellings`.
+    var displayedRelativeMinorSpellings: [Int: [String]] {
+        var result: [Int: [String]] = [:]
+        for position in 1...12 {
+            let relatives = (displayedOuterSpellings[position] ?? []).compactMap(Self.relativeMinorSpelling(of:))
+            if !relatives.isEmpty {
+                result[position] = relatives
+            }
+        }
+        return result
+    }
+
     /// Seven consecutive active (diatonic) clock positions, in clockwise order.
     var activePositions: [Int] {
         let start = selectedTonic.lydianStartPosition + selectedMode.offset
@@ -44,6 +71,13 @@ final class CircleOfFifthsModel {
             result[position] = Self.makeDegreeSymbol(degree: degrees[ordinal], ordinal: ordinal)
         }
         return result
+    }
+
+    /// Degree labels keyed by screen-clock wedge. Stable when only the tonic changes.
+    var screenDegreeLabels: [Int: String] {
+        Dictionary(uniqueKeysWithValues: degreeLabels.map { position, label in
+            (screenClock(forModelPosition: position), label)
+        })
     }
 
     /// Clock position of the tonic (aligned to the fixed 12 o'clock pointer after rotation).
@@ -75,32 +109,36 @@ final class CircleOfFifthsModel {
         return nil
     }
 
-    /// Relative-minor tonic spelling for the major key whose tonic is at `position`.
-    var relativeMinorNames: [Int: String] {
-        var result: [Int: String] = [:]
-        for position in 1...12 {
-            guard let major = noteNames[position],
-                  let relative = Self.relativeMinor(ofMajor: major) else { continue }
-            result[position] = relative
-        }
-        return result
-    }
-
     /// Rotation (degrees) that brings the selected tonic to 12 o'clock.
     var tonicAlignmentRotationDegrees: Double {
         -Double(tonicArrowPosition % 12) * 30.0
     }
 
-    /// Select the tonic whose Lydian start matches `position`, preferring the current
-    /// enharmonic spelling when possible, otherwise a non-obscure spelling.
+    /// Select the tonic whose Lydian start matches `position`.
+    /// Never picks a rarely used spelling when a common enharmonic exists.
+    /// Among common spellings, prefers the same sharp/flat family as the current tonic.
     func selectTonic(forLydianStart position: Int) {
         let normalized = Self.normalizedClock(position)
         let matches = Tonic.allCases.filter { $0.lydianStartPosition == normalized }
-        if matches.contains(selectedTonic) { return }
-        if let preferred = matches.first(where: { !$0.isObscure }) {
+        let common = matches.filter { !$0.isObscure }
+        let candidates = common.isEmpty ? matches : common
+
+        if candidates.contains(selectedTonic) { return }
+
+        if let preference = selectedTonic.accidentalPreference,
+           let matchingFamily = candidates.first(where: { $0.accidentalPreference == preference }) {
+            selectedTonic = matchingFamily
+            return
+        }
+
+        if selectedTonic.accidentalPreference == nil,
+           let natural = candidates.first(where: { $0.accidentalPreference == nil }) {
+            selectedTonic = natural
+            return
+        }
+
+        if let preferred = candidates.first {
             selectedTonic = preferred
-        } else if let first = matches.first {
-            selectedTonic = first
         }
     }
 
@@ -115,25 +153,48 @@ final class CircleOfFifthsModel {
         selectedTonic.lydianSignature + selectedMode.offset
     }
 
-    var sharpsOrFlatsDescription: String {
-        let index = keySignatureIndex
-        if index == 0 {
-            return "조표 없음"
-        } else if index > 0 {
-            return "♯ \(index)개"
-        } else {
-            return "♭ \(abs(index))개"
+    /// Common enharmonic pair for the selected cell, e.g. C♯ · D♭.
+    var selectedTonicDisplayName: String {
+        let spellings = Tonic.commonSpellings(atLydianStart: selectedTonic.lydianStartPosition)
+        if spellings.count >= 2 {
+            return spellings.map(\.displayName).joined(separator: " · ")
         }
+        return selectedTonic.displayName
+    }
+
+    /// Tonics whose key signatures belong in the hub (one, or a dual-common pair).
+    var displayedKeyTonics: [Tonic] {
+        let spellings = Tonic.commonSpellings(atLydianStart: selectedTonic.lydianStartPosition)
+        return spellings.count >= 2 ? spellings : [selectedTonic]
+    }
+
+    var sharpsOrFlatsDescription: String {
+        displayedKeyTonics.map { tonic in
+            let label = Self.signatureCountDescription(tonic.lydianSignature + selectedMode.offset)
+            return displayedKeyTonics.count > 1 ? "\(tonic.displayName) \(label)" : label
+        }
+        .joined(separator: ", ")
     }
 
     var selectedKeyTitle: String {
-        "\(selectedTonic.displayName) \(selectedMode.shortName)"
+        "\(selectedTonicDisplayName) \(selectedMode.shortName)"
     }
 
     /// Key-signature accidentals in writing order, placed on a treble staff.
     /// Beyond seven, an accidental doubles the one already occupying its slot.
     var keySignatureAccidentals: [KeySignatureAccidental] {
-        let index = keySignatureIndex
+        keySignatureAccidentals(for: selectedTonic)
+    }
+
+    /// One staff per displayed tonic (C♯ above D♭ when both are common).
+    var hubKeySignatures: [HubKeySignature] {
+        displayedKeyTonics.map { tonic in
+            HubKeySignature(id: tonic.rawValue, accidentals: keySignatureAccidentals(for: tonic))
+        }
+    }
+
+    func keySignatureAccidentals(for tonic: Tonic) -> [KeySignatureAccidental] {
+        let index = tonic.lydianSignature + selectedMode.offset
         guard index != 0 else { return [] }
 
         let isSharp = index > 0
@@ -149,6 +210,16 @@ final class CircleOfFifthsModel {
         return (0..<7).compactMap { slot in
             guard let symbol = symbols[slot] else { return nil }
             return KeySignatureAccidental(order: slot, symbol: symbol, staffStep: steps[slot])
+        }
+    }
+
+    private static func signatureCountDescription(_ index: Int) -> String {
+        if index == 0 {
+            return "조표 없음"
+        } else if index > 0 {
+            return "♯ \(index)개"
+        } else {
+            return "♭ \(abs(index))개"
         }
     }
 
@@ -198,7 +269,43 @@ final class CircleOfFifthsModel {
         scaleTones.map(\.note)
     }
 
-    /// Mode character block: one-line comparison, formula, and characteristic note/chord.
+    /// Scale notes (tonic through the octave) placed on a treble staff from C4’s octave.
+    var scaleStaffNotes: [ScaleStaffNote] {
+        let tones = scaleTones
+        guard let first = tones.first,
+              let tonicLetter = Self.letterIndex(of: first.note) else { return [] }
+
+        let startStep = tonicLetter - 2
+        let degreeSymbols = Dictionary(
+            uniqueKeysWithValues: selectedMode.characterProfile.formula.map { ($0.scaleDegree, $0.symbol) }
+        )
+        var notes: [ScaleStaffNote] = []
+        for (index, tone) in tones.enumerated() {
+            guard let letter = Self.letterIndex(of: tone.note) else { continue }
+            let offset = (letter - tonicLetter + 7) % 7
+            notes.append(
+                ScaleStaffNote(
+                    id: index,
+                    name: tone.note,
+                    staffStep: startStep + offset,
+                    degreeLabel: degreeSymbols[tone.scaleDegree] ?? "\(tone.scaleDegree)",
+                    showsCaption: true
+                )
+            )
+        }
+        notes.append(
+            ScaleStaffNote(
+                id: tones.count,
+                name: first.note,
+                staffStep: startStep + 7,
+                degreeLabel: "",
+                showsCaption: false
+            )
+        )
+        return notes
+    }
+
+    /// Mode character block: one-line comparison, formula, and characteristic note.
     var modeCharacter: ModeCharacter {
         let profile = selectedMode.characterProfile
         let tones = scaleTones
@@ -211,7 +318,7 @@ final class CircleOfFifthsModel {
         if let degree = profile.characteristicNoteDegree,
            let tone = tone(atScaleDegree: degree) {
             characteristicNote = ModeCharacter.Highlight(
-                text: "\(tone.note)  \(profile.characteristicIntervalLabel)",
+                text: "\(tone.note) (\(profile.characteristicIntervalLabel))",
                 scaleDegree: degree,
                 clockPosition: tone.clockPosition
             )
@@ -219,26 +326,18 @@ final class CircleOfFifthsModel {
             characteristicNote = nil
         }
 
-        let characteristicChord: ModeCharacter.Highlight?
-        if let degree = profile.characteristicChordDegree,
-           let tone = tone(atScaleDegree: degree) {
-            let quality = chordQuality(at: tone.clockPosition).map(Self.chordQualityEnglishName) ?? ""
-            let qualityPart = quality.isEmpty ? "" : " \(quality)"
-            characteristicChord = ModeCharacter.Highlight(
-                text: "\(tone.note)\(qualityPart) · \(tone.degree)",
-                scaleDegree: degree,
-                clockPosition: tone.clockPosition
-            )
-        } else {
-            characteristicChord = nil
-        }
-
         return ModeCharacter(
             summary: profile.summary,
             formula: profile.formula,
-            characteristicNote: characteristicNote,
-            characteristicChord: characteristicChord
+            characteristicNote: characteristicNote
         )
+    }
+
+    /// Flip to the enharmonic alternate spelling when one exists
+    /// (e.g. C♯ ↔ D♭, B♯ ↔ C, C♭ ↔ B).
+    func toggleTonicAccidental() {
+        guard let alternate = selectedTonic.enharmonicAlternate else { return }
+        selectedTonic = alternate
     }
 
     /// Model-clock positions temporarily emphasized (e.g. characteristic note tap).
@@ -270,7 +369,35 @@ final class CircleOfFifthsModel {
         Self.normalizedClock(position - tonicArrowPosition)
     }
 
+    /// Model-clock position currently shown in a fixed screen wedge.
+    func modelClock(forScreenClock position: Int) -> Int {
+        Self.normalizedClock(position + tonicArrowPosition)
+    }
+
     // MARK: - Types
+
+    /// One hub staff, identified by the tonic it represents.
+    struct HubKeySignature: Identifiable, Equatable {
+        let id: String
+        let accidentals: [KeySignatureAccidental]
+    }
+
+    /// Picker cell: a single tonic, or a dual-common enharmonic pair.
+    struct TonicPickerOption: Identifiable, Equatable {
+        let members: [Tonic]
+
+        var id: String { members.map(\.rawValue).joined(separator: "|") }
+
+        var displayName: String {
+            members.map(\.displayName).joined(separator: " · ")
+        }
+
+        var representative: Tonic { members[0] }
+
+        func contains(_ tonic: Tonic) -> Bool {
+            members.contains(tonic)
+        }
+    }
 
     /// One accidental of a key signature on a treble staff.
     struct KeySignatureAccidental: Identifiable, Equatable {
@@ -292,11 +419,27 @@ final class CircleOfFifthsModel {
         var id: String { "\(scaleDegree)-\(degree)-\(note)" }
     }
 
+    /// One scale pitch on a treble staff, plus the repeating tonic at the octave.
+    struct ScaleStaffNote: Identifiable, Equatable {
+        let id: Int
+        let name: String
+        /// Half-space steps above the bottom staff line (E4 = 0, F4 = 1, C4 = −2).
+        let staffStep: Int
+        /// Mode formula label (e.g. "1", "♭3", "♯4"). Empty when `showsCaption` is false.
+        let degreeLabel: String
+        /// The octave tonic is drawn without a name or degree caption.
+        let showsCaption: Bool
+
+        var accidentalGlyph: String? {
+            let rest = String(name.dropFirst())
+            return rest.isEmpty ? nil : rest
+        }
+    }
+
     struct ModeCharacter: Equatable {
         let summary: String
         let formula: [FormulaTone]
         let characteristicNote: Highlight?
-        let characteristicChord: Highlight?
 
         struct FormulaTone: Identifiable, Equatable {
             let scaleDegree: Int
@@ -319,7 +462,6 @@ final class CircleOfFifthsModel {
         /// Nil for Ionian / Aeolian (no distinctive note beyond the parent scale).
         let characteristicNoteDegree: Int?
         let characteristicIntervalLabel: String
-        let characteristicChordDegree: Int?
     }
 
     enum Tonic: String, CaseIterable, Identifiable {
@@ -351,13 +493,58 @@ final class CircleOfFifthsModel {
             Self.formatNoteName(rawValue)
         }
 
-        /// Rare tonics shown gray in the original table.
+        /// Sharp / flat family implied by this spelling, if any.
+        var accidentalPreference: AccidentalPreference? {
+            let accidentals = String(rawValue.dropFirst())
+            if accidentals.contains("#") { return .sharp }
+            if accidentals.contains("b") { return .flat }
+            return nil
+        }
+
+        /// Other spelling at the same circle position, if any (e.g. C ↔ B♯, F♯ ↔ G♭).
+        var enharmonicAlternate: Tonic? {
+            Self.allCases.first {
+                $0.lydianStartPosition == lydianStartPosition && $0 != self
+            }
+        }
+
+        /// Dual-common pairs stay in one picker button, so the swap control is unused.
+        var canToggleEnharmonicSpelling: Bool {
+            let pair = Tonic.commonSpellings(atLydianStart: lydianStartPosition)
+            guard pair.count < 2 else { return false }
+            guard let alternate = enharmonicAlternate else { return false }
+            return !alternate.isObscure
+        }
+
+        /// Rare tonics omitted from the picker and enharmonic swap; rewritten on the circle.
         var isObscure: Bool {
             switch self {
             case .bSharp, .eSharp, .aSharp, .dSharp, .gSharp, .fFlat:
                 return true
             default:
                 return false
+            }
+        }
+
+        /// Rewrites a rare spelling to the everyday enharmonic (F♭ → E, B♯ → C).
+        static func commonSpelling(of name: String) -> String {
+            guard let tonic = Tonic(rawValue: name), tonic.isObscure else { return name }
+            guard let alternate = tonic.enharmonicAlternate, !alternate.isObscure else { return name }
+            return alternate.rawValue
+        }
+
+        /// Common spellings that share a clock cell, sharp/natural then flat (C♯, D♭).
+        static func commonSpellings(atLydianStart position: Int) -> [Tonic] {
+            allCases
+                .filter { $0.lydianStartPosition == position && !$0.isObscure }
+                .sorted { displayRank($0) < displayRank($1) }
+        }
+
+        private static func displayRank(_ tonic: Tonic) -> Int {
+            switch tonic.accidentalPreference {
+            case .sharp: return 0
+            case nil: return 1
+            case .flat: return 2
             }
         }
 
@@ -430,15 +617,53 @@ final class CircleOfFifthsModel {
             }
             return name
         }
+
+        /// Chromatic picker order from C: C, C♯, D♭, D, … (B♯ follows B; C♭ wraps after B).
+        static var chromaticPickerOrder: [Tonic] {
+            allCases
+                .filter { !$0.isObscure }
+                .sorted { $0.chromaticPickerRank < $1.chromaticPickerRank }
+        }
+
+        /// Picker rows with dual-common enharmonics grouped (C♯ · D♭).
+        static var chromaticPickerOptions: [TonicPickerOption] {
+            var seenPositions = Set<Int>()
+            var options: [TonicPickerOption] = []
+            for tonic in chromaticPickerOrder {
+                let position = tonic.lydianStartPosition
+                guard seenPositions.insert(position).inserted else { continue }
+                let spellings = commonSpellings(atLydianStart: position)
+                options.append(TonicPickerOption(members: spellings.isEmpty ? [tonic] : spellings))
+            }
+            return options
+        }
+
+        /// Letter C=0 … B=6, accidental ♭=−1 / natural=0 / ♯=+1. C♭ uses index 7 so the grid starts at C.
+        private var chromaticPickerRank: Int {
+            let letters: [Character] = ["C", "D", "E", "F", "G", "A", "B"]
+            guard let first = rawValue.first, var letterIndex = letters.firstIndex(of: first) else {
+                return Int.max
+            }
+            let accidentalOffset: Int
+            switch accidentalPreference {
+            case nil: accidentalOffset = 0
+            case .sharp: accidentalOffset = 1
+            case .flat: accidentalOffset = -1
+            }
+            if letterIndex == 0 && accidentalOffset < 0 {
+                letterIndex = 7
+            }
+            return letterIndex * 10 + accidentalOffset
+        }
     }
 
     enum MusicalMode: String, CaseIterable, Identifiable {
-        case lydian
         case ionian
-        case mixolydian
         case dorian
-        case aeolian
         case phrygian
+        case lydian
+        case mixolydian
+        case aeolian
         case locrian
 
         var id: String { rawValue }
@@ -467,6 +692,11 @@ final class CircleOfFifthsModel {
             }
         }
 
+        /// Key signatures are shown in the hub only for the two parent scales.
+        var showsKeySignatureStaff: Bool {
+            self == .ionian || self == .aeolian
+        }
+
         /// Steps counterclockwise from Lydian.
         var offset: Int {
             switch self {
@@ -480,11 +710,6 @@ final class CircleOfFifthsModel {
             }
         }
 
-        /// Short subtitle for the mode picker (same as Mode Character summary).
-        var characterSummary: String {
-            characterProfile.summary
-        }
-
         var characterProfile: ModeCharacterProfile {
             switch self {
             case .lydian:
@@ -495,8 +720,7 @@ final class CircleOfFifthsModel {
                         (4, "♯4", true), (5, "5", false), (6, "6", false), (7, "7", false)
                     ]),
                     characteristicNoteDegree: 4,
-                    characteristicIntervalLabel: "Augmented 4th",
-                    characteristicChordDegree: 2
+                    characteristicIntervalLabel: "Augmented 4th"
                 )
             case .ionian:
                 return ModeCharacterProfile(
@@ -506,8 +730,7 @@ final class CircleOfFifthsModel {
                         (4, "4", false), (5, "5", false), (6, "6", false), (7, "7", false)
                     ]),
                     characteristicNoteDegree: nil,
-                    characteristicIntervalLabel: "",
-                    characteristicChordDegree: nil
+                    characteristicIntervalLabel: ""
                 )
             case .mixolydian:
                 return ModeCharacterProfile(
@@ -517,8 +740,7 @@ final class CircleOfFifthsModel {
                         (4, "4", false), (5, "5", false), (6, "6", false), (7, "♭7", true)
                     ]),
                     characteristicNoteDegree: 7,
-                    characteristicIntervalLabel: "Minor 7th",
-                    characteristicChordDegree: 7
+                    characteristicIntervalLabel: "Minor 7th"
                 )
             case .dorian:
                 return ModeCharacterProfile(
@@ -528,8 +750,7 @@ final class CircleOfFifthsModel {
                         (4, "4", false), (5, "5", false), (6, "6", true), (7, "♭7", true)
                     ]),
                     characteristicNoteDegree: 6,
-                    characteristicIntervalLabel: "Major 6th",
-                    characteristicChordDegree: 4
+                    characteristicIntervalLabel: "Major 6th"
                 )
             case .aeolian:
                 return ModeCharacterProfile(
@@ -539,8 +760,7 @@ final class CircleOfFifthsModel {
                         (4, "4", false), (5, "5", false), (6, "♭6", false), (7, "♭7", false)
                     ]),
                     characteristicNoteDegree: nil,
-                    characteristicIntervalLabel: "",
-                    characteristicChordDegree: nil
+                    characteristicIntervalLabel: ""
                 )
             case .phrygian:
                 return ModeCharacterProfile(
@@ -550,8 +770,7 @@ final class CircleOfFifthsModel {
                         (4, "4", false), (5, "5", false), (6, "♭6", true), (7, "♭7", true)
                     ]),
                     characteristicNoteDegree: 2,
-                    characteristicIntervalLabel: "Minor 2nd",
-                    characteristicChordDegree: 2
+                    characteristicIntervalLabel: "Minor 2nd"
                 )
             case .locrian:
                 return ModeCharacterProfile(
@@ -561,8 +780,7 @@ final class CircleOfFifthsModel {
                         (4, "4", false), (5, "♭5", true), (6, "♭6", true), (7, "♭7", true)
                     ]),
                     characteristicNoteDegree: 5,
-                    characteristicIntervalLabel: "Diminished 5th",
-                    characteristicChordDegree: 5
+                    characteristicIntervalLabel: "Diminished 5th"
                 )
             }
         }
@@ -585,14 +803,6 @@ final class CircleOfFifthsModel {
             case 3, 4, 5: return .minor
             default: return .diminished
             }
-        }
-    }
-
-    private static func chordQualityEnglishName(_ quality: ChordQuality) -> String {
-        switch quality {
-        case .major: return "Major"
-        case .minor: return "Minor"
-        case .diminished: return "Dim"
         }
     }
 
@@ -678,28 +888,34 @@ final class CircleOfFifthsModel {
         return (pc % 12 + 12) % 12
     }
 
-    /// Relative minor tonic of a major tonic note (minor 3rd below), with matching spelling.
-    private static func relativeMinor(ofMajor name: String) -> String? {
-        guard let majorPC = pitchClass(of: name), let first = name.first else { return nil }
+    private static func letterIndex(of name: String) -> Int? {
         let letters: [Character] = ["C", "D", "E", "F", "G", "A", "B"]
-        guard let letterIndex = letters.firstIndex(of: first) else { return nil }
+        guard let first = name.first else { return nil }
+        return letters.firstIndex(of: first)
+    }
 
-        let minorLetter = letters[(letterIndex + 5) % 7] // two letters down
-        let targetPC = (majorPC - 3 + 12) % 12
-        let basePC = pitchClass(of: String(minorLetter)) ?? 0
-        var accidental = targetPC - basePC
-        if accidental > 6 { accidental -= 12 }
-        if accidental < -6 { accidental += 12 }
-
-        let suffix: String
-        switch accidental {
-        case 2: suffix = "##"
-        case 1: suffix = "#"
-        case 0: suffix = ""
-        case -1: suffix = "b"
-        case -2: suffix = "bb"
+    /// Minor-third below `major`, keeping the expected letter (C → A, F♯ → D♯, D♭ → B♭).
+    private static func relativeMinorSpelling(of major: String) -> String? {
+        let letters: [Character] = ["C", "D", "E", "F", "G", "A", "B"]
+        guard let letter = letterIndex(of: major),
+              let pc = pitchClass(of: major) else {
+            return nil
+        }
+        let relativeLetter = String(letters[(letter + 5) % 7])
+        guard let naturalPC = pitchClass(of: relativeLetter) else { return nil }
+        let targetPC = (pc - 3 + 12) % 12
+        var diff = targetPC - naturalPC
+        if diff > 6 { diff -= 12 }
+        if diff < -6 { diff += 12 }
+        let accidental: String
+        switch diff {
+        case 0: accidental = ""
+        case 1: accidental = "#"
+        case 2: accidental = "##"
+        case -1: accidental = "b"
+        case -2: accidental = "bb"
         default: return nil
         }
-        return String(minorLetter) + suffix
+        return relativeLetter + accidental
     }
 }

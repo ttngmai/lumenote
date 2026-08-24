@@ -14,19 +14,19 @@ struct FeatureMenuView: View {
 
     var body: some View {
         List {
-            NavigationLink(value: Destination.circleOfFifths) {
-                featureRow(
-                    title: "5도권",
-                    subtitle: "조표 · 모드 · 스케일",
-                    systemImage: "circle.circle"
-                )
-            }
-
             NavigationLink(value: Destination.interval) {
                 featureRow(
                     title: "음정",
                     subtitle: "두 음 사이의 거리",
                     systemImage: "ruler"
+                )
+            }
+
+            NavigationLink(value: Destination.circleOfFifths) {
+                featureRow(
+                    title: "5도권",
+                    subtitle: "키 · 조표 · 관계조",
+                    systemImage: "circle.circle"
                 )
             }
         }

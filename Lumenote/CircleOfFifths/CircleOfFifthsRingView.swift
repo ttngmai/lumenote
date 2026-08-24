@@ -4,7 +4,7 @@ import SwiftUI
 
 struct CircleOfFifthsRingView: View {
     @Bindable var model: CircleOfFifthsModel
-    /// When true, color legend sits to the left of the ring (landscape / wide layouts).
+    /// When true, layout is a landscape column: only the top is reserved for interval labels.
     var placesLegendBeside: Bool = false
 
     @Environment(\.appPalette) private var palette
@@ -13,31 +13,30 @@ struct CircleOfFifthsRingView: View {
     @State private var dragRotationDegrees: Double = 0
     @State private var dragStartAngle: Double?
     @State private var rotationAtDragStart: Double = 0
+    @State private var skipWedgeTap = false
 
-    private var chromaticFill: Color { palette.chromaticFill }
-    private var relativeFill: Color { palette.relativeFill }
     private var ringStroke: Color { palette.ringStroke }
+    private var wedgeFill: Color { .white }
+    private var wedgeLabelColor: Color { Color(white: 0.18) }
 
-    /// Base outer radius of the degree ring (outermost).
+    /// Outermost: note names (thickest band).
     private let outerRadiusRatio: CGFloat = 0.48
-    /// Note ring (middle) — thickest band.
-    private let noteOuterRatio: CGFloat = 0.41
-    private let noteInnerRatio: CGFloat = 0.265
-    /// Relative-key ring (innermost).
-    private let relativeInnerRatio: CGFloat = 0.175
+    /// Boundary between the note ring (outer) and the degree ring (inner).
+    private let degreeOuterRatio: CGFloat = 0.275
+    /// Innermost: degree labels. Inner edge also bounds the centre hub.
+    private let degreeInnerRatio: CGFloat = 0.185
     /// How much the 12 o'clock tonic wedge is scaled up (radial + slight angular overlap).
     private let raisedScale: CGFloat = 1.05
     private let raisedAngularPadDegrees: Double = 2.5
-    /// Extra vertical room (as a fraction of ring size) for raised tonic + “완전4/5도” labels.
-    /// Portrait keeps a generous symmetric margin for ScrollView clipping.
-    /// Landscape only reserves the top — affordance labels sit on the upper arc, and bottom gap
-    /// just wastes scarce height.
+    /// Extra vertical room (as a fraction of ring size) for raised tonic + interval labels.
+    /// Interval labels sit on the upper arc, so only the top needs a margin.
+    /// Landscape keeps the ring flush to the bottom of its column.
     private var topLabelMarginRatio: CGFloat {
-        placesLegendBeside ? 0.055 : 0.08
+        placesLegendBeside ? 0.10 : 0.14
     }
 
     private var bottomLabelMarginRatio: CGFloat {
-        placesLegendBeside ? 0 : 0.08
+        0
     }
 
     /// Continuous ring rotation. Avoids C (0°) ↔ F (−330°) long-way animation.
@@ -51,46 +50,25 @@ struct CircleOfFifthsRingView: View {
     }
 
     var body: some View {
-        Group {
-            if placesLegendBeside {
-                landscapeLegendAndRing
-            } else {
-                VStack(spacing: 0) {
-                    ringCanvas
-                    // Pull into the ring's bottom label margin so the swatches sit closer to the circle.
-                    legend(axis: .horizontal)
-                        .padding(.top, -LumenoteSpacing.section)
-                }
-            }
+        if placesLegendBeside {
+            landscapeRing
+        } else {
+            ringCanvas
         }
     }
 
-    /// Legend + ring as one compact group, centered in the leftover landscape column.
-    private var landscapeLegendAndRing: some View {
+    /// Ring centered in the leftover landscape column.
+    private var landscapeRing: some View {
         GeometryReader { geo in
-            let gap = LumenoteSpacing.xs
-            // "Non-diatonic" caption column; keeps the ring from stealing legend width.
-            let legendReserve: CGFloat = 110
-            let size = ringDiameter(
-                in: CGSize(
-                    width: max(geo.size.width - legendReserve - gap, 1),
-                    height: geo.size.height
-                )
-            )
+            let size = ringDiameter(in: geo.size)
 
-            ZStack {
-                HStack(alignment: .center, spacing: gap) {
-                    legend(axis: .vertical)
-                    ringSquare(size: size)
-                        // Taller frame reserves top label room; ring sits on the bottom edge.
-                        .frame(
-                            width: size,
-                            height: size + size * topLabelMarginRatio,
-                            alignment: .bottom
-                        )
-                }
-            }
-            .frame(width: geo.size.width, height: geo.size.height)
+            ringSquare(size: size)
+                .frame(
+                    width: size,
+                    height: size + size * topLabelMarginRatio,
+                    alignment: .bottom
+                )
+                .frame(width: geo.size.width, height: geo.size.height)
         }
     }
 
@@ -111,7 +89,7 @@ struct CircleOfFifthsRingView: View {
                 .position(x: ringOriginX + size / 2, y: ringOriginY + size / 2)
                 .frame(width: geo.size.width, height: geo.size.height)
         }
-        .accessibilityHint("원을 드래그하여 토닉을 변경합니다. 시계 방향은 완전5도, 반시계 방향은 완전4도입니다.")
+        .accessibilityHint("칸을 탭하면 그 음이 1도가 됩니다. 원을 드래그하면 시계 방향은 5도 상행 (4도 하행), 반시계 방향은 4도 상행 (5도 하행)입니다.")
     }
 
     /// Fixed-size ring (drawing + gesture). Used by both portrait and landscape layouts.
@@ -126,13 +104,11 @@ struct CircleOfFifthsRingView: View {
 
             // Raised 12 o'clock wedge drawn above neighbors with a drop shadow.
             RaisedTonicWedgeView(
-                noteColor: noteColor(forScreenClock: 12),
-                relativeFill: relativeFill,
+                noteColor: wedgeFill,
                 ringStroke: ringStroke,
                 outerRadiusRatio: outerRadiusRatio,
-                noteOuterRatio: noteOuterRatio,
-                noteInnerRatio: noteInnerRatio,
-                relativeInnerRatio: relativeInnerRatio,
+                degreeOuterRatio: degreeOuterRatio,
+                degreeInnerRatio: degreeInnerRatio,
                 raisedScale: raisedScale,
                 angularPadDegrees: raisedAngularPadDegrees,
                 isEmphasized: model.emphasizedClockPositions.contains { position in
@@ -144,22 +120,23 @@ struct CircleOfFifthsRingView: View {
             )
 
             // Rotating labels.
-            ZStack {
-                noteLabels(center: localCenter, size: size)
-                relativeMinorLabels(center: localCenter, size: size)
-            }
-            .rotationEffect(.degrees(displayedRotationDegrees))
+            noteLabels(center: localCenter, size: size)
+                .rotationEffect(.degrees(displayedRotationDegrees))
+                .allowsHitTesting(false)
 
-            // Degree numerals stay fixed on screen (aligned to the pinned tonic wedges).
-            degreeLabels(center: localCenter, size: size)
+            relativeMinorLabels(center: localCenter, size: size)
+                .rotationEffect(.degrees(displayedRotationDegrees))
+                .allowsHitTesting(false)
 
             centerHub(size: size)
+                .allowsHitTesting(false)
             rotationAffordances(center: localCenter, size: size)
         }
         .frame(width: size, height: size)
         .animation(.easeInOut(duration: 0.2), value: model.emphasizedClockPositions)
         .contentShape(Circle().scale(1.12))
         .gesture(rotationDragGesture(center: localCenter))
+        .simultaneousGesture(wedgeTapGesture(center: localCenter, size: size))
         .onAppear {
             ringRotationDegrees = canonicalRotationDegrees(for: model.tonicArrowPosition)
         }
@@ -179,7 +156,7 @@ struct CircleOfFifthsRingView: View {
                 : nil,
             value: model.selectedMode
         )
-        .accessibilityHint("원을 드래그하여 토닉을 변경합니다. 시계 방향은 완전5도, 반시계 방향은 완전4도입니다.")
+        .accessibilityHint("칸을 탭하면 그 음이 1도가 됩니다. 원을 드래그하면 시계 방향은 5도 상행 (4도 하행), 반시계 방향은 4도 상행 (5도 하행)입니다.")
     }
 
     /// Diameter limited by width and by height after label margins.
@@ -188,75 +165,30 @@ struct CircleOfFifthsRingView: View {
         return max(min(size.width, heightBudget), 1)
     }
 
-    private enum LegendAxis {
-        case horizontal
-        case vertical
-    }
-
-    @ViewBuilder
-    private func legend(axis: LegendAxis) -> some View {
-        let swatches = Group {
-            LegendSwatch(color: palette.major, title: "Major")
-            LegendSwatch(color: palette.minor, title: "Minor")
-            LegendSwatch(color: palette.diminished, title: "Dim")
-            LegendSwatch(color: palette.chromaticFill, title: "Non-diatonic")
-        }
-
-        switch axis {
-        case .horizontal:
-            HStack(spacing: LumenoteSpacing.xxl) {
-                swatches
-            }
-            .font(LumenoteFont.caption2(.semibold))
-        case .vertical:
-            VStack(alignment: .leading, spacing: LumenoteSpacing.lg) {
-                swatches
-            }
-            .font(LumenoteFont.caption2(.semibold))
-            .fixedSize(horizontal: true, vertical: false)
-            .accessibilityElement(children: .contain)
-        }
-    }
-
     // MARK: - Base rings
 
     private func drawBaseRings(context: GraphicsContext, center: CGPoint, size: CGFloat) {
         let radii = ringRadii(size: size, scale: 1)
 
-        // Outer → inner: degree, note, relative. Skip position 12; raised overlay redraws it.
+        // Outer → inner: note, degree. Skip position 12; raised overlay redraws it.
         for position in 1...12 where position != 12 {
-            let color = noteColor(forScreenClock: position)
-
-            // Degree ring (outermost) — same fill as the related note cell.
-            fillSector(
-                context: context,
-                center: center,
-                inner: radii.degreeInner,
-                outer: radii.degreeOuter,
-                clockPosition: position,
-                color: color,
-                angularPad: 0
-            )
-
-            // Note ring (middle, thickest)
             fillSector(
                 context: context,
                 center: center,
                 inner: radii.noteInner,
                 outer: radii.noteOuter,
                 clockPosition: position,
-                color: color,
+                color: wedgeFill,
                 angularPad: 0
             )
 
-            // Relative-key ring (innermost)
             fillSector(
                 context: context,
                 center: center,
-                inner: radii.relativeInner,
-                outer: radii.relativeOuter,
+                inner: radii.degreeInner,
+                outer: radii.degreeOuter,
                 clockPosition: position,
-                color: relativeFill,
+                color: wedgeFill,
                 angularPad: 0
             )
         }
@@ -265,13 +197,13 @@ struct CircleOfFifthsRingView: View {
         for position in 1...12 {
             let angle = angleForLeadingEdge(of: position)
             var line = Path()
-            line.move(to: point(center: center, radius: radii.relativeInner, angle: angle))
-            line.addLine(to: point(center: center, radius: radii.degreeOuter, angle: angle))
+            line.move(to: point(center: center, radius: radii.degreeInner, angle: angle))
+            line.addLine(to: point(center: center, radius: radii.noteOuter, angle: angle))
             context.stroke(line, with: .color(ringStroke.opacity(0.3)), lineWidth: 0.8)
         }
 
         // Ring outlines
-        for radius in [radii.degreeOuter, radii.noteOuter, radii.noteInner, radii.relativeInner] {
+        for radius in [radii.noteOuter, radii.degreeOuter, radii.degreeInner] {
             var circle = Path()
             circle.addEllipse(
                 in: CGRect(
@@ -284,7 +216,7 @@ struct CircleOfFifthsRingView: View {
             context.stroke(
                 circle,
                 with: .color(ringStroke),
-                lineWidth: radius == radii.degreeOuter ? 1.8 : 1.1
+                lineWidth: radius == radii.noteOuter ? 1.8 : 1.1
             )
         }
 
@@ -298,13 +230,13 @@ struct CircleOfFifthsRingView: View {
         // The stroke is centered on the path, so inset the outline by half the line
         // width (radially and angularly) to keep the border fully inside the cell.
         let radialInset = emphasisLineWidth / 2
-        let angularInsetDegrees = Double(radialInset / radii.degreeOuter) * 180 / .pi
+        let angularInsetDegrees = Double(radialInset / radii.noteOuter) * 180 / .pi
         for screenPosition in emphasizedScreens where screenPosition != 12 {
             fillSector(
                 context: context,
                 center: center,
-                inner: radii.relativeInner,
-                outer: radii.degreeOuter,
+                inner: radii.degreeInner,
+                outer: radii.noteOuter,
                 clockPosition: screenPosition,
                 color: emphasisFill,
                 angularPad: 0
@@ -312,8 +244,8 @@ struct CircleOfFifthsRingView: View {
             strokeSector(
                 context: context,
                 center: center,
-                inner: radii.relativeInner + radialInset,
-                outer: radii.degreeOuter - radialInset,
+                inner: radii.degreeInner + radialInset,
+                outer: radii.noteOuter - radialInset,
                 clockPosition: screenPosition,
                 color: emphasisStroke,
                 lineWidth: emphasisLineWidth,
@@ -325,21 +257,27 @@ struct CircleOfFifthsRingView: View {
     // MARK: - Labels
 
     private func noteLabels(center: CGPoint, size: CGFloat) -> some View {
-        // Midpoint of the note ring (thickest / middle band).
-        let baseRadius = size * ((noteOuterRatio + noteInnerRatio) / 2)
+        // Midpoint of the note ring (thickest / outermost band).
+        let baseRadius = size * ((outerRadiusRatio + degreeOuterRatio) / 2)
         return ForEach(1...12, id: \.self) { position in
-            let name = model.noteNames[position].map(CircleOfFifthsModel.Tonic.formatNoteName) ?? ""
-            let isActive = model.activePositionSet.contains(position)
-            let isTonic = position == model.tonicArrowPosition
+            let lines = (model.displayedOuterSpellings[position] ?? []).map {
+                CircleOfFifthsModel.Tonic.formatNoteName($0)
+            }
+            let isTonic = visualScreenClock(forModelPosition: position) == 12
             let isEmphasized = model.emphasizedClockPositions.contains(position)
+            let isStacked = lines.count > 1
             let radius = isTonic ? baseRadius * raisedScale : baseRadius
-            Text(name)
+            stackedRingLabel(lines: lines)
                 .font(LumenoteFont.rounded(
-                    size: size * (isTonic ? 0.055 : 0.048),
+                    size: size * stackedFontRatio(
+                        isStacked: isStacked,
+                        isTonic: isTonic,
+                        stacked: (0.040, 0.034),
+                        single: (0.055, 0.048)
+                    ),
                     weight: .heavy
                 ))
-                .foregroundStyle(isActive ? Color.white : Color.secondary)
-                .shadow(color: isActive ? .black.opacity(0.22) : .clear, radius: 1, y: 0.5)
+                .foregroundStyle(wedgeLabelColor)
                 .padding(isEmphasized ? 3 : 0)
                 .background(
                     Circle()
@@ -352,72 +290,73 @@ struct CircleOfFifthsRingView: View {
     }
 
     private func relativeMinorLabels(center: CGPoint, size: CGFloat) -> some View {
-        // Midpoint of the relative-key ring (innermost).
-        let baseRadius = size * ((noteInnerRatio + relativeInnerRatio) / 2)
-        let names = model.relativeMinorNames
+        let baseRadius = size * ((degreeOuterRatio + degreeInnerRatio) / 2)
         return ForEach(1...12, id: \.self) { position in
-            let raw = names[position] ?? ""
-            let label = CircleOfFifthsModel.Tonic.formatNoteName(raw) + "m"
-            let isActive = model.activePositionSet.contains(position)
-            let isTonic = position == model.tonicArrowPosition
+            let lines = (model.displayedRelativeMinorSpellings[position] ?? []).map {
+                CircleOfFifthsModel.Tonic.formatNoteName($0) + "m"
+            }
+            let isTonic = visualScreenClock(forModelPosition: position) == 12
+            let isStacked = lines.count > 1
             let radius = isTonic ? baseRadius * raisedScale : baseRadius
-            Text(label)
+            stackedRingLabel(lines: lines)
                 .font(LumenoteFont.rounded(
-                    size: size * (isTonic ? 0.032 : 0.028),
+                    size: size * stackedFontRatio(
+                        isStacked: isStacked,
+                        isTonic: isTonic,
+                        stacked: (0.024, 0.021),
+                        single: (0.032, 0.028)
+                    ),
                     weight: .bold
                 ))
-                .lineLimit(1)
-                .fixedSize()
-                .foregroundStyle(isActive ? Color.primary.opacity(0.85) : Color.secondary.opacity(0.55))
+                .foregroundStyle(wedgeLabelColor)
                 .rotationEffect(.degrees(-displayedRotationDegrees))
                 .position(point(center: center, radius: radius, angle: angleForCenter(of: position)))
                 .zIndex(isTonic ? 1 : 0)
         }
     }
 
-    private func degreeLabels(center: CGPoint, size: CGFloat) -> some View {
-        // Midpoint of the degree ring (outermost). Degrees are pinned to screen wedges
-        // (tonic at 12 o'clock) and never rotate with the ring.
-        let baseRadius = size * ((outerRadiusRatio + noteOuterRatio) / 2)
-        return ForEach(Array(model.degreeLabels.keys.sorted()), id: \.self) { position in
-            if let label = model.degreeLabels[position] {
-                let screenPosition = model.screenClock(forModelPosition: position)
-                let isActive = model.activePositionSet.contains(position)
-                let isTonic = screenPosition == 12
-                let radius = isTonic ? baseRadius * raisedScale : baseRadius
-                Text(label)
-                    .font(LumenoteFont.rounded(
-                        size: size * (isTonic ? 0.04 : 0.036),
-                        weight: .bold
-                    ))
+    private func stackedRingLabel(lines: [String]) -> some View {
+        VStack(spacing: 0) {
+            ForEach(Array(lines.enumerated()), id: \.offset) { _, line in
+                Text(line)
                     .lineLimit(1)
-                    .fixedSize()
-                    .foregroundStyle(isActive ? Color.white : Color.secondary)
-                    .shadow(color: isActive ? .black.opacity(0.22) : .clear, radius: 1, y: 0.5)
-                    .position(point(center: center, radius: radius, angle: angleForCenter(of: screenPosition)))
-                    .zIndex(isTonic ? 1 : 0)
+                    .minimumScaleFactor(0.7)
             }
         }
+        .multilineTextAlignment(.center)
+    }
+
+    private func stackedFontRatio(
+        isStacked: Bool,
+        isTonic: Bool,
+        stacked: (CGFloat, CGFloat),
+        single: (CGFloat, CGFloat)
+    ) -> CGFloat {
+        let pair = isStacked ? stacked : single
+        return isTonic ? pair.0 : pair.1
     }
 
     private func centerHub(size: CGFloat) -> some View {
-        VStack(spacing: size * 0.022) {
-            VStack(spacing: LumenoteSpacing.xxs) {
-                Text(model.selectedTonic.displayName)
-                    .font(LumenoteFont.rounded(size: size * 0.06, weight: .heavy))
-                Text(model.selectedMode.shortName)
-                    .font(LumenoteFont.rounded(size: size * 0.028, weight: .semibold))
-                    .foregroundStyle(.secondary)
+        let signatures = model.hubKeySignatures
+        let isDual = signatures.count > 1
+        let hubDiameter = size * degreeInnerRatio * 2
+        return Group {
+            if model.selectedMode.showsKeySignatureStaff {
+                VStack(spacing: isDual ? size * 0.028 : 0) {
+                    ForEach(signatures) { signature in
+                        KeySignatureStaffView(
+                            accidentals: signature.accidentals,
+                            staffSpace: size * 0.022,
+                            lineColor: .primary
+                        )
+                    }
+                }
+                .frame(width: hubDiameter, height: hubDiameter)
+                .clipShape(Circle())
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel(model.sharpsOrFlatsDescription)
             }
-
-            KeySignatureStaffView(
-                accidentals: model.keySignatureAccidentals,
-                staffSpace: size * 0.015,
-                lineColor: ringStroke.opacity(0.85)
-            )
         }
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel("\(model.selectedKeyTitle), \(model.sharpsOrFlatsDescription)")
     }
 
     // MARK: - Rotation affordances
@@ -428,6 +367,9 @@ struct CircleOfFifthsRingView: View {
         let gEnd = -48.0
         let fStart = -108.0
         let fEnd = -132.0
+        let labelFont = LumenoteFont.rounded(size: size * 0.026, weight: .bold)
+        let labelWidth = size * 0.30
+        let labelRadius = radius + size * 0.072
 
         return ZStack {
             directionalArc(
@@ -445,10 +387,14 @@ struct CircleOfFifthsRingView: View {
                 pointingClockwise: true,
                 size: size * 0.024
             )
-            Text("완전5도")
-                .font(LumenoteFont.rounded(size: size * 0.022, weight: .bold))
+            Text("5도 상행\n(4도 하행)")
+                .font(labelFont)
                 .foregroundStyle(.secondary)
-                .position(point(center: center, radius: radius + size * 0.038, angle: .degrees(-60)))
+                .multilineTextAlignment(.center)
+                .lineLimit(2)
+                .minimumScaleFactor(0.8)
+                .frame(width: labelWidth)
+                .position(point(center: center, radius: labelRadius, angle: .degrees(-60)))
 
             directionalArc(
                 center: center,
@@ -465,10 +411,14 @@ struct CircleOfFifthsRingView: View {
                 pointingClockwise: false,
                 size: size * 0.024
             )
-            Text("완전4도")
-                .font(LumenoteFont.rounded(size: size * 0.022, weight: .bold))
+            Text("4도 상행\n(5도 하행)")
+                .font(labelFont)
                 .foregroundStyle(.secondary)
-                .position(point(center: center, radius: radius + size * 0.038, angle: .degrees(-120)))
+                .multilineTextAlignment(.center)
+                .lineLimit(2)
+                .minimumScaleFactor(0.8)
+                .frame(width: labelWidth)
+                .position(point(center: center, radius: labelRadius, angle: .degrees(-120)))
         }
         .allowsHitTesting(false)
         .accessibilityHidden(true)
@@ -515,6 +465,7 @@ struct CircleOfFifthsRingView: View {
     private func rotationDragGesture(center: CGPoint) -> some Gesture {
         DragGesture(minimumDistance: 4)
             .onChanged { value in
+                skipWedgeTap = true
                 let angle = atan2(
                     value.location.y - center.y,
                     value.location.x - center.x
@@ -546,7 +497,44 @@ struct CircleOfFifthsRingView: View {
                     dragRotationDegrees = 0
                 }
                 dragStartAngle = nil
+                DispatchQueue.main.async {
+                    skipWedgeTap = false
+                }
             }
+    }
+
+    private func wedgeTapGesture(center: CGPoint, size: CGFloat) -> some Gesture {
+        SpatialTapGesture()
+            .onEnded { event in
+                guard !skipWedgeTap else { return }
+                selectTonic(at: event.location, center: center, size: size)
+            }
+    }
+
+    private func selectTonic(at location: CGPoint, center: CGPoint, size: CGFloat) {
+        let dx = location.x - center.x
+        let dy = location.y - center.y
+        let distance = hypot(dx, dy)
+        let inner = size * degreeInnerRatio * 0.92
+        let outer = size * outerRadiusRatio * raisedScale * 1.08
+        guard distance >= inner, distance <= outer else { return }
+
+        var clockDegrees = atan2(dy, dx) * 180 / .pi + 90
+        while clockDegrees < 0 { clockDegrees += 360 }
+        while clockDegrees >= 360 { clockDegrees -= 360 }
+
+        var screenClock = Int((clockDegrees / 30.0).rounded())
+        if screenClock == 0 { screenClock = 12 }
+        let modelPosition = model.modelClock(forScreenClock: screenClock)
+        model.selectTonic(forLydianStart: modelPosition)
+    }
+
+    /// Screen wedge occupied by a model-clock note under the current displayed rotation.
+    private func visualScreenClock(forModelPosition position: Int) -> Int {
+        let visualTonic = CircleOfFifthsModel.lydianStartPosition(
+            forRotationDegrees: displayedRotationDegrees
+        )
+        return CircleOfFifthsModel.normalizedClock(position - visualTonic)
     }
 
     /// Canonical alignment for a clock position in (−360, 0] (C/B♯ → 0, G → −30, …, F → −330).
@@ -573,37 +561,21 @@ struct CircleOfFifthsRingView: View {
     // MARK: - Drawing helpers
 
     private struct RingRadii {
-        /// Outermost: degree labels.
-        var degreeOuter: CGFloat
-        var degreeInner: CGFloat
-        /// Middle (thickest): note names.
+        /// Outermost: note names.
         var noteOuter: CGFloat
         var noteInner: CGFloat
-        /// Innermost: relative keys.
-        var relativeOuter: CGFloat
-        var relativeInner: CGFloat
+        /// Innermost: degree labels.
+        var degreeOuter: CGFloat
+        var degreeInner: CGFloat
     }
 
     private func ringRadii(size: CGFloat, scale: CGFloat) -> RingRadii {
         RingRadii(
-            degreeOuter: size * outerRadiusRatio * scale,
-            degreeInner: size * noteOuterRatio * scale,
-            noteOuter: size * noteOuterRatio * scale,
-            noteInner: size * noteInnerRatio * scale,
-            relativeOuter: size * noteInnerRatio * scale,
-            relativeInner: size * relativeInnerRatio * scale
+            noteOuter: size * outerRadiusRatio * scale,
+            noteInner: size * degreeOuterRatio * scale,
+            degreeOuter: size * degreeOuterRatio * scale,
+            degreeInner: size * degreeInnerRatio * scale
         )
-    }
-
-    private func noteColor(forScreenClock position: Int) -> Color {
-        if let quality = model.screenChordQuality(atScreenClock: position) {
-            switch quality {
-            case .major: return palette.major
-            case .minor: return palette.minor
-            case .diminished: return palette.diminished
-            }
-        }
-        return chromaticFill
     }
 
     private func fillSector(
@@ -669,12 +641,10 @@ struct CircleOfFifthsRingView: View {
 
 private struct RaisedTonicWedgeView: View {
     let noteColor: Color
-    let relativeFill: Color
     let ringStroke: Color
     let outerRadiusRatio: CGFloat
-    let noteOuterRatio: CGFloat
-    let noteInnerRatio: CGFloat
-    let relativeInnerRatio: CGFloat
+    let degreeOuterRatio: CGFloat
+    let degreeInnerRatio: CGFloat
     let raisedScale: CGFloat
     let angularPadDegrees: Double
     var isEmphasized: Bool = false
@@ -690,7 +660,7 @@ private struct RaisedTonicWedgeView: View {
                 // Soft contact shadow.
                 AnnularSector(
                     clockPosition: 12,
-                    innerRatio: relativeInnerRatio * raisedScale,
+                    innerRatio: degreeInnerRatio * raisedScale,
                     outerRatio: outerRadiusRatio * raisedScale,
                     angularPadDegrees: angularPadDegrees
                 )
@@ -698,24 +668,18 @@ private struct RaisedTonicWedgeView: View {
                 .offset(y: size * 0.01)
                 .blur(radius: size * 0.014)
 
-                // Outer → inner: degree, note, relative (degree shares note color).
+                // Outer → inner: note, degree (degree shares note color).
                 band(
-                    innerRatio: noteOuterRatio * raisedScale,
+                    innerRatio: degreeOuterRatio * raisedScale,
                     outerRatio: outerRadiusRatio * raisedScale,
                     fill: noteColor,
                     strokeWidth: 1.6
                 )
                 band(
-                    innerRatio: noteInnerRatio * raisedScale,
-                    outerRatio: noteOuterRatio * raisedScale,
+                    innerRatio: degreeInnerRatio * raisedScale,
+                    outerRatio: degreeOuterRatio * raisedScale,
                     fill: noteColor,
                     strokeWidth: 1.1
-                )
-                band(
-                    innerRatio: relativeInnerRatio * raisedScale,
-                    outerRatio: noteInnerRatio * raisedScale,
-                    fill: relativeFill,
-                    strokeWidth: 1.0
                 )
 
                 if isEmphasized {
@@ -729,7 +693,7 @@ private struct RaisedTonicWedgeView: View {
 
                     AnnularSector(
                         clockPosition: 12,
-                        innerRatio: relativeInnerRatio * raisedScale,
+                        innerRatio: degreeInnerRatio * raisedScale,
                         outerRatio: outerRadiusRatio * raisedScale,
                         angularPadDegrees: angularPadDegrees
                     )
@@ -737,7 +701,7 @@ private struct RaisedTonicWedgeView: View {
                     .overlay(
                         AnnularSector(
                             clockPosition: 12,
-                            innerRatio: relativeInnerRatio * raisedScale + insetRatio,
+                            innerRatio: degreeInnerRatio * raisedScale + insetRatio,
                             outerRatio: outerRadiusRatio * raisedScale - insetRatio,
                             angularPadDegrees: angularPadDegrees - angularInsetDegrees
                         )
