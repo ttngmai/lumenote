@@ -8,25 +8,13 @@ struct CircleOfFifthsView: View {
 
     @State private var model = CircleOfFifthsModel()
     @State private var activePicker: ActivePicker?
-    @State private var emphasisClearToken = UUID()
+    @State private var isAccidentalOrderExpanded = false
 
     private enum ActivePicker: Identifiable, Equatable {
         case tonic
-        case mode
 
-        var id: String {
-            switch self {
-            case .tonic: return "tonic"
-            case .mode: return "mode"
-            }
-        }
-
-        var title: String {
-            switch self {
-            case .tonic: return "Tonic"
-            case .mode: return "Mode"
-            }
-        }
+        var id: String { "tonic" }
+        var title: String { "Key" }
     }
 
     var body: some View {
@@ -40,16 +28,16 @@ struct CircleOfFifthsView: View {
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
 
                         ScrollView {
-                            selectors(stacked: true)
+                            selectors
                         }
                         .scrollIndicators(.hidden)
-                        .frame(width: min(260, geo.size.width * 0.28))
+                        .frame(width: min(330, geo.size.width * 0.34))
                     }
                 } else {
                     ScrollView {
-                        VStack(spacing: LumenoteSpacing.xxxl) {
+                        VStack(spacing: LumenoteSpacing.lg) {
                             circleSection(placesLegendBeside: false)
-                            selectors(stacked: false)
+                            selectors
                         }
                     }
                     .scrollIndicators(.hidden)
@@ -90,255 +78,130 @@ struct CircleOfFifthsView: View {
             .padding(.horizontal, placesLegendBeside ? 0 : LumenoteSpacing.xs)
     }
 
-    @ViewBuilder
-    private func selectors(stacked: Bool) -> some View {
-        let tonicButton = pickerButton(
-            title: "Tonic",
-            value: model.selectedTonic.displayName,
-            isActive: activePicker == .tonic
-        ) {
-            togglePicker(.tonic)
+    private var selectors: some View {
+        VStack(spacing: LumenoteSpacing.lg) {
+            tonicPickerControl
+            accidentalOrderCard
         }
-
-        let modeButton = pickerButton(
-            title: "Mode",
-            value: model.selectedMode.displayName,
-            isActive: activePicker == .mode
-        ) {
-            togglePicker(.mode)
-        }
-
-        // Landscape: one selector per row. Portrait: side by side.
-        // Scale table sits under Tonic / Mode in both layouts.
-        VStack(spacing: LumenoteSpacing.xl) {
-            Group {
-                if stacked {
-                    VStack(spacing: LumenoteSpacing.xl) {
-                        tonicButton
-                        modeButton
-                    }
-                } else {
-                    HStack(spacing: LumenoteSpacing.xl) {
-                        tonicButton
-                        modeButton
-                    }
-                }
-            }
-
-            modeCharacterCard
-            scaleNotesTable
-        }
-        // Keep selector chrome height stable so the circle never jumps when a popup opens.
         .frame(maxWidth: .infinity)
-        .onChange(of: model.selectedTonic) { _, _ in
-            model.clearEmphasis()
-        }
-        .onChange(of: model.selectedMode) { _, _ in
-            model.clearEmphasis()
-        }
     }
 
-    private var modeCharacterCard: some View {
-        let character = model.modeCharacter
+    /// Tonic selector.
+    private var tonicPickerControl: some View {
+        let isActive = activePicker == .tonic
 
-        return VStack(alignment: .leading, spacing: LumenoteSpacing.lg) {
-            Text("Mode Character")
-                .font(LumenoteFont.caption(.bold))
-                .foregroundStyle(.secondary)
-
-            Text(character.summary)
-                .font(LumenoteFont.body(.semibold))
-                .foregroundStyle(.primary)
-                .fixedSize(horizontal: false, vertical: true)
-
-            VStack(alignment: .leading, spacing: LumenoteSpacing.sm) {
-                Text("Formula")
-                    .font(LumenoteFont.caption(.bold))
-                    .foregroundStyle(.secondary)
-
-                HStack(spacing: LumenoteSpacing.xxs) {
-                    ForEach(Array(character.formula.enumerated()), id: \.element.id) { index, tone in
-                        if index > 0 {
-                            Text("·")
-                                .font(LumenoteFont.caption(.semibold))
-                                .foregroundStyle(.secondary.opacity(0.5))
-                        }
-
-                        let isLit = model.emphasizedScaleDegrees.contains(tone.scaleDegree)
-                            || (model.emphasizedScaleDegrees.isEmpty && tone.isEmphasized)
-
-                        Button {
-                            flashEmphasis(scaleDegrees: [tone.scaleDegree])
-                        } label: {
-                            Text(tone.symbol)
-                                .font(LumenoteFont.callout(isLit ? .bold : .semibold))
-                                .foregroundStyle(isLit ? Color.primary : Color.secondary)
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, LumenoteSpacing.xs)
-                                .background(HighlightChipBackground(isLit: isLit))
-                        }
-                        .buttonStyle(.plain)
-                        .frame(maxWidth: .infinity)
-                    }
-                }
-            }
-
-            if character.characteristicNote != nil || character.characteristicChord != nil {
-                VStack(alignment: .leading, spacing: LumenoteSpacing.sm) {
-                    if let note = character.characteristicNote {
-                        characteristicRow(symbol: "★", text: note.text) {
-                            flashEmphasis(
-                                scaleDegree: note.scaleDegree,
-                                clockPosition: note.clockPosition
-                            )
-                        }
-                    }
-                    if let chord = character.characteristicChord {
-                        characteristicRow(symbol: "★", text: chord.text) {
-                            flashEmphasis(
-                                scaleDegree: chord.scaleDegree,
-                                clockPosition: chord.clockPosition
-                            )
-                        }
-                    }
-                }
-            }
-        }
-        .padding(.horizontal, LumenoteSpacing.xxl)
-        .padding(.vertical, LumenoteSpacing.xl)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .lumenoteCard()
-        .accessibilityElement(children: .contain)
-        .accessibilityLabel("모드 캐릭터, \(character.summary)")
-    }
-
-    private func characteristicRow(
-        symbol: String,
-        text: String,
-        action: @escaping () -> Void
-    ) -> some View {
-        Button(action: action) {
-            HStack(alignment: .firstTextBaseline, spacing: LumenoteSpacing.sm) {
-                Text(symbol)
-                    .font(LumenoteFont.subheadline(.bold))
-                    .foregroundStyle(palette.star)
-                Text(text)
-                    .font(LumenoteFont.subheadline(.semibold))
-                    .foregroundStyle(.primary)
-                    .multilineTextAlignment(.leading)
-                Spacer(minLength: 0)
-            }
-            .padding(.horizontal, LumenoteSpacing.md)
-            .padding(.vertical, LumenoteSpacing.sm)
-            .background(
-                RoundedRectangle(cornerRadius: LumenoteRadius.softRow, style: .continuous)
-                    .fill(palette.highlightSoft)
+        return Button {
+            togglePicker(.tonic)
+        } label: {
+            pickerLabel(
+                title: "Key",
+                value: model.selectedTonicDisplayName,
+                isActive: isActive,
+                showsChevron: true
             )
+            // Plain buttons only hit-test opaque content; expand to the full label frame.
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .frame(maxWidth: .infinity)
+        .lumenoteCard(isActive: isActive)
     }
 
-    private func flashEmphasis(scaleDegree: Int, clockPosition: Int) {
-        model.emphasize(scaleDegree: scaleDegree, clockPosition: clockPosition)
-        scheduleEmphasisClear()
-    }
-
-    private func flashEmphasis(scaleDegrees: [Int]) {
-        model.emphasize(scaleDegrees: Set(scaleDegrees))
-        scheduleEmphasisClear()
-    }
-
-    private func scheduleEmphasisClear() {
-        let token = UUID()
-        emphasisClearToken = token
-        Task { @MainActor in
-            try? await Task.sleep(for: .milliseconds(1200))
-            guard emphasisClearToken == token else { return }
-            model.clearEmphasis()
-        }
-    }
-
-    private var scaleNotesTable: some View {
+    private var accidentalOrderCard: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text("Scale")
-                .font(LumenoteFont.caption(.bold))
-                .foregroundStyle(.secondary)
-                .padding(.horizontal, LumenoteSpacing.xxl)
-                .padding(.top, LumenoteSpacing.xl)
-                .padding(.bottom, LumenoteSpacing.lg)
-
-            HStack(spacing: 0) {
-                ForEach(Array(model.scaleTones.enumerated()), id: \.element.id) { index, tone in
-                    if index > 0 {
-                        Rectangle()
-                            .fill(palette.divider)
-                            .frame(width: 1)
-                            .padding(.vertical, LumenoteSpacing.xs)
-                    }
-
-                    let isLit = model.emphasizedScaleDegrees.contains(tone.scaleDegree)
-
-                    VStack(spacing: LumenoteSpacing.sm) {
-                        Text(tone.degree)
-                            .font(LumenoteFont.caption2(.semibold))
-                            .foregroundStyle(isLit ? Color.primary : .secondary)
-                        Text(tone.note)
-                            .font(LumenoteFont.body(index == 0 || isLit ? .bold : .semibold))
-                            .foregroundStyle(.primary)
-                            .minimumScaleFactor(0.7)
-                            .lineLimit(1)
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, LumenoteSpacing.xs)
-                    .background(
-                        HighlightChipBackground(
-                            isLit: isLit,
-                            cornerRadius: LumenoteRadius.scaleCell
-                        )
-                    )
+            Button {
+                withAnimation(.easeOut(duration: 0.18)) {
+                    isAccidentalOrderExpanded.toggle()
                 }
-            }
-            .padding(.horizontal, LumenoteSpacing.lg)
-            .padding(.bottom, LumenoteSpacing.xl)
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .lumenoteCard()
-        .accessibilityElement(children: .contain)
-        .accessibilityLabel("스케일 구성음")
-    }
-
-    private func pickerButton(
-        title: String,
-        value: String,
-        isActive: Bool,
-        action: @escaping () -> Void
-    ) -> some View {
-        Button(action: action) {
-            VStack(alignment: .leading, spacing: LumenoteSpacing.xs) {
+            } label: {
                 HStack(spacing: LumenoteSpacing.xs) {
-                    Text(title)
+                    Text("조표 붙는 순서")
                         .font(LumenoteFont.caption(.bold))
                         .foregroundStyle(.secondary)
                     Spacer(minLength: 0)
                     Image(systemName: "chevron.down")
                         .font(LumenoteFont.rounded(size: 11, weight: .bold))
                         .foregroundStyle(.secondary)
+                        .rotationEffect(.degrees(isAccidentalOrderExpanded ? 180 : 0))
+                }
+                .padding(.horizontal, LumenoteSpacing.xxl)
+                .padding(.vertical, LumenoteSpacing.xl)
+                .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("조표 붙는 순서")
+            .accessibilityHint(isAccidentalOrderExpanded ? "접기" : "펼치기")
+            .accessibilityAddTraits(isAccidentalOrderExpanded ? .isSelected : [])
+
+            if isAccidentalOrderExpanded {
+                VStack(alignment: .leading, spacing: LumenoteSpacing.xl) {
+                    accidentalOrderRow(
+                        title: "♯",
+                        sequence: "F → C → G → D → A → E → B"
+                    )
+                    accidentalOrderRow(
+                        title: "♭",
+                        sequence: "B → E → A → D → G → C → F",
+                        footnote: "♯이 붙는 순서의 역순입니다."
+                    )
+                }
+                .padding(.horizontal, LumenoteSpacing.xxl)
+                .padding(.bottom, LumenoteSpacing.xxl)
+                .transition(.opacity.combined(with: .move(edge: .top)))
+            }
+        }
+        .lumenoteCard()
+    }
+
+    private func accidentalOrderRow(title: String, sequence: String, footnote: String? = nil) -> some View {
+        VStack(alignment: .leading, spacing: LumenoteSpacing.xs) {
+            Text(title)
+                .font(LumenoteFont.caption(.bold))
+                .foregroundStyle(.secondary)
+            Text(sequence)
+                .font(LumenoteFont.body(.semibold))
+                .foregroundStyle(.primary)
+                .fixedSize(horizontal: false, vertical: true)
+            if let footnote {
+                Text(footnote)
+                    .font(LumenoteFont.caption(.medium))
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private func pickerLabel(
+        title: String,
+        value: String,
+        isActive: Bool,
+        showsChevron: Bool
+    ) -> some View {
+        VStack(alignment: .leading, spacing: LumenoteSpacing.xs) {
+            HStack(spacing: LumenoteSpacing.xs) {
+                Text(title)
+                    .font(LumenoteFont.caption(.bold))
+                    .foregroundStyle(.secondary)
+                Spacer(minLength: 0)
+                if showsChevron {
+                    Image(systemName: "chevron.down")
+                        .font(LumenoteFont.rounded(size: 11, weight: .bold))
+                        .foregroundStyle(.secondary)
                         .rotationEffect(.degrees(isActive ? 180 : 0))
                 }
-
-                Text(value)
-                    .font(LumenoteFont.body(.semibold))
-                    .foregroundStyle(.primary)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.8)
-                    .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .padding(.horizontal, LumenoteSpacing.xxl)
-            .padding(.vertical, LumenoteSpacing.xl)
-            .frame(maxWidth: .infinity, minHeight: 64, alignment: .leading)
-            .lumenoteCard(isActive: isActive)
+
+            Text(value)
+                .font(LumenoteFont.body(.semibold))
+                .foregroundStyle(.primary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+                .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .buttonStyle(.plain)
+        .padding(.horizontal, LumenoteSpacing.xxl)
+        .padding(.vertical, LumenoteSpacing.xl)
+        .frame(maxWidth: .infinity, minHeight: 64, alignment: .leading)
     }
 
     private func togglePicker(_ picker: ActivePicker) {
@@ -355,161 +218,119 @@ struct CircleOfFifthsView: View {
 
     @ViewBuilder
     private func selectionPopup(for picker: ActivePicker) -> some View {
-        ZStack {
-            palette.scrim
-                .ignoresSafeArea()
-                .onTapGesture(perform: dismissPicker)
+        GeometryReader { geo in
+            let verticalPad = LumenoteSpacing.lg
+            let availableHeight = max(geo.size.height - verticalPad * 2, 180)
 
-            VStack(spacing: 0) {
-                HStack {
-                    Text(picker.title)
-                        .font(LumenoteFont.headline(.bold))
-                    Spacer()
-                    Button(action: dismissPicker) {
-                        Image(systemName: "xmark.circle.fill")
-                            .font(LumenoteFont.rounded(size: 22, weight: .regular))
-                            .symbolRenderingMode(.hierarchical)
-                            .foregroundStyle(.secondary)
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityLabel("닫기")
+            ZStack {
+                palette.scrim
+                    .ignoresSafeArea()
+                    .onTapGesture(perform: dismissPicker)
+
+                ViewThatFits(in: .vertical) {
+                    pickerCard(for: picker, scrolling: false)
+                        .fixedSize(horizontal: false, vertical: true)
+
+                    pickerCard(for: picker, scrolling: true)
+                        .frame(maxHeight: availableHeight)
                 }
-                .padding(.horizontal, LumenoteSpacing.xxxl)
-                .padding(.vertical, LumenoteSpacing.xxl)
-                .background(palette.popupHeaderBackground)
-                .foregroundStyle(palette.popupHeaderForeground)
-
-                popupList(for: picker)
+                .padding(.horizontal, LumenoteSpacing.popupInset)
+                .padding(.vertical, verticalPad)
             }
-            .frame(maxWidth: 360)
-            // Fixed popup height prevents the card (and surrounding layout) from resizing
-            // as the list content or selection changes.
-            .frame(height: 420)
-            .lumenotePopup()
-            .padding(.horizontal, LumenoteSpacing.popupInset)
+            .frame(width: geo.size.width, height: geo.size.height)
         }
+    }
+
+    private func pickerCard(for picker: ActivePicker, scrolling: Bool) -> some View {
+        VStack(spacing: 0) {
+            HStack {
+                Text(picker.title)
+                    .font(LumenoteFont.headline(.bold))
+                Spacer()
+                Button(action: dismissPicker) {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(LumenoteFont.rounded(size: 22, weight: .regular))
+                        .symbolRenderingMode(.hierarchical)
+                        .foregroundStyle(.secondary)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("닫기")
+            }
+            .padding(.horizontal, LumenoteSpacing.xxxl)
+            .padding(.vertical, LumenoteSpacing.xxl)
+            .background(palette.popupHeaderBackground)
+            .foregroundStyle(palette.popupHeaderForeground)
+
+            if scrolling {
+                ScrollView {
+                    popupContent(for: picker)
+                }
+            } else {
+                popupContent(for: picker)
+            }
+        }
+        .frame(maxWidth: 360)
+        .lumenotePopup()
     }
 
     @ViewBuilder
-    private func popupList(for picker: ActivePicker) -> some View {
+    private func popupContent(for picker: ActivePicker) -> some View {
         switch picker {
         case .tonic:
-            optionList(
-                rows: CircleOfFifthsModel.Tonic.allCases.map { tonic in
-                    SelectionRow(
-                        id: tonic.rawValue,
-                        label: tonic.displayName,
-                        subtitle: nil,
-                        isObscure: tonic.isObscure,
-                        isSelected: model.selectedTonic == tonic
-                    ) {
-                        model.selectedTonic = tonic
-                        dismissPicker()
-                    }
-                }
-            )
-        case .mode:
-            optionList(
-                rows: CircleOfFifthsModel.MusicalMode.allCases.map { mode in
-                    SelectionRow(
-                        id: mode.rawValue,
-                        label: mode.displayName,
-                        subtitle: mode.characterSummary,
-                        isObscure: false,
-                        isSelected: model.selectedMode == mode
-                    ) {
-                        model.selectedMode = mode
-                        dismissPicker()
-                    }
-                }
-            )
+            tonicOptionGrid
         }
     }
 
-    private func optionList(rows: [SelectionRow]) -> some View {
-        ScrollViewReader { proxy in
-            ScrollView {
-                LazyVStack(spacing: 0) {
-                    ForEach(rows) { row in
-                        Button {
-                            row.action()
-                        } label: {
-                            HStack {
-                                VStack(alignment: .leading, spacing: LumenoteSpacing.xxs) {
-                                    Text(row.label)
-                                        .font(LumenoteFont.body(.semibold))
-                                        .foregroundStyle(.primary)
-                                    if let subtitle = row.subtitle {
-                                        Text(subtitle)
-                                            .font(LumenoteFont.caption(.medium))
-                                            .foregroundStyle(.secondary)
-                                    }
-                                }
-                                Spacer(minLength: 0)
-                                if row.isSelected {
-                                    Image(systemName: "checkmark")
-                                        .font(LumenoteFont.rounded(size: 14, weight: .bold))
-                                        .foregroundStyle(.primary)
-                                }
-                            }
-                            .padding(.horizontal, LumenoteSpacing.xxxl)
-                            .padding(.vertical, LumenoteSpacing.xl)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .background(rowBackground(row))
-                        }
-                        .buttonStyle(.plain)
-                        .id(row.id)
+    private var tonicOptionGrid: some View {
+        let options = CircleOfFifthsModel.Tonic.chromaticPickerOptions
+        let columnCount = 3
+
+        return Grid(horizontalSpacing: LumenoteSpacing.md, verticalSpacing: LumenoteSpacing.md) {
+            ForEach(Array(stride(from: 0, to: options.count, by: columnCount)), id: \.self) { start in
+                let end = min(start + columnCount, options.count)
+                GridRow {
+                    ForEach(options[start..<end]) { option in
+                        tonicOptionButton(option)
+                    }
+                    ForEach(0..<(columnCount - (end - start)), id: \.self) { _ in
+                        Color.clear
                     }
                 }
             }
-            .onAppear {
-                scrollToSelected(in: rows, proxy: proxy, animated: false)
-            }
-            .onChange(of: rows.first(where: \.isSelected)?.id) { _, newValue in
-                guard let newValue else { return }
-                withAnimation(.easeInOut(duration: 0.2)) {
-                    proxy.scrollTo(newValue, anchor: .center)
-                }
-            }
         }
+        .padding(LumenoteSpacing.xxxl)
     }
 
-    private func scrollToSelected(
-        in rows: [SelectionRow],
-        proxy: ScrollViewProxy,
-        animated: Bool
-    ) {
-        guard let selected = rows.first(where: \.isSelected) else { return }
-        if animated {
-            withAnimation(.easeInOut(duration: 0.2)) {
-                proxy.scrollTo(selected.id, anchor: .center)
-            }
-        } else {
-            // Defer one run-loop turn so LazyVStack has measured the selected row.
-            DispatchQueue.main.async {
-                proxy.scrollTo(selected.id, anchor: .center)
-            }
+    private func tonicOptionButton(_ option: CircleOfFifthsModel.TonicPickerOption) -> some View {
+        let selected = option.contains(model.selectedTonic)
+        return Button {
+            model.selectedTonic = option.representative
+            dismissPicker()
+        } label: {
+            Text(option.displayName)
+                .font(LumenoteFont.body(selected ? .bold : .semibold))
+                .foregroundStyle(.primary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, LumenoteSpacing.xl)
+                .padding(.horizontal, LumenoteSpacing.sm)
+                .background(
+                    RoundedRectangle(cornerRadius: LumenoteRadius.chip, style: .continuous)
+                        .fill(selected ? palette.highlight : palette.popupBackground)
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: LumenoteRadius.chip, style: .continuous)
+                        .strokeBorder(
+                            selected ? palette.cardBorderActive : palette.divider,
+                            lineWidth: selected ? LumenoteStroke.compact : LumenoteStroke.hairline
+                        )
+                )
         }
+        .buttonStyle(.plain)
+        .accessibilityLabel(option.displayName)
+        .accessibilityAddTraits(selected ? .isSelected : [])
     }
-
-    private func rowBackground(_ row: SelectionRow) -> Color {
-        if row.isSelected {
-            return palette.highlight
-        }
-        if row.isObscure {
-            return palette.obscureRow
-        }
-        return palette.popupBackground
-    }
-}
-
-private struct SelectionRow: Identifiable {
-    let id: String
-    let label: String
-    let subtitle: String?
-    let isObscure: Bool
-    let isSelected: Bool
-    let action: () -> Void
 }
 
 #Preview {
