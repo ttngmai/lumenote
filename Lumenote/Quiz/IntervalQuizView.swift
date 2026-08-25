@@ -47,8 +47,8 @@ struct IntervalQuizView: View {
     private var promptCard: some View {
         VStack(spacing: LumenoteSpacing.xl) {
             Text("다음 두 음의 음정은?")
-                .font(LumenoteFont.caption(.semibold))
-                .foregroundStyle(.secondary)
+                .font(LumenoteFont.callout(.medium))
+                .foregroundStyle(.primary)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
             IntervalStaffView(

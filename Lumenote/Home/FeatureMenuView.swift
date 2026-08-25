@@ -30,7 +30,7 @@ struct FeatureMenuView: View {
                 NavigationLink(value: Destination.scale) {
                     featureRow(
                         title: "음계",
-                        subtitle: "스케일 구성 규칙",
+                        subtitle: "일정한 음정 규칙에 따라 배열된 음들의 체계",
                         systemImage: "music.quarternote.3"
                     )
                 }
@@ -49,7 +49,7 @@ struct FeatureMenuView: View {
                     featureRow(
                         title: "음정 퀴즈",
                         subtitle: "두 음의 음정을 맞춰 보세요",
-                        systemImage: "questionmark.circle"
+                        systemImage: "ruler"
                     )
                 }
 
