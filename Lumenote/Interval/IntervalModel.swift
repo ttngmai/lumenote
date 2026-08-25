@@ -216,6 +216,8 @@ final class IntervalModel {
     private static func koreanName(intervalNumber: Int, offset: Int) -> String? {
         if perfectIntervalNumbers.contains(intervalNumber) {
             switch offset {
+            case -2 where intervalNumber != 1:
+                return "겹감\(intervalNumber)도"
             case -1 where intervalNumber != 1:
                 return "감\(intervalNumber)도"
             case 0:
@@ -227,6 +229,8 @@ final class IntervalModel {
             case 1:
                 if intervalNumber == 8 { return "증7도" }
                 return "증\(intervalNumber)도"
+            case 2 where intervalNumber != 8:
+                return "겹증\(intervalNumber)도"
             default:
                 return nil
             }
@@ -246,6 +250,8 @@ final class IntervalModel {
 
         if perfectIntervalNumbers.contains(intervalNumber) {
             switch offset {
+            case -2 where intervalNumber != 1:
+                return "Doubly Diminished \(ordinal)"
             case -1 where intervalNumber != 1:
                 return "Diminished \(ordinal)"
             case 0:
@@ -257,6 +263,8 @@ final class IntervalModel {
             case 1:
                 if intervalNumber == 8 { return "Augmented 7th" }
                 return "Augmented \(ordinal)"
+            case 2 where intervalNumber != 8:
+                return "Doubly Augmented \(ordinal)"
             default:
                 return nil
             }

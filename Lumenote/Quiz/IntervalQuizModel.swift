@@ -22,22 +22,8 @@ final class IntervalQuizModel {
         "F#", "Gb", "G", "G#", "Ab", "A", "A#", "Bb", "B",
     ]
 
-    private let commonIntervalNames: [String] = [
-        "완전1도",
-        "단2도",
-        "장2도",
-        "단3도",
-        "장3도",
-        "완전4도",
-        "증4도",
-        "감5도",
-        "완전5도",
-        "단6도",
-        "장6도",
-        "단7도",
-        "장7도",
-        "완전8도",
-    ]
+    /// All ascending interval names reachable from the quiz spelling pool.
+    private let intervalNames: [String]
 
     private(set) var question: Question
     private(set) var selectedAnswer: String?
@@ -51,6 +37,7 @@ final class IntervalQuizModel {
     }
 
     init() {
+        intervalNames = Self.collectIntervalNames(for: spellings)
         question = Question(
             rootDisplayName: "C",
             targetDisplayName: "E",
@@ -88,9 +75,9 @@ final class IntervalQuizModel {
             explorer.rootSpelling = root
             explorer.targetSpelling = target
             let correct = explorer.ascendingIntervalName
-            guard commonIntervalNames.contains(correct) else { continue }
+            guard intervalNames.contains(correct) else { continue }
 
-            let distractors = commonIntervalNames
+            let distractors = intervalNames
                 .filter { $0 != correct }
                 .shuffled()
                 .prefix(3)
@@ -120,5 +107,18 @@ final class IntervalQuizModel {
             choices: ["장3도", "단3도", "완전4도", "완전5도"].shuffled(),
             correctAnswer: "장3도"
         )
+    }
+
+    private static func collectIntervalNames(for spellings: [String]) -> [String] {
+        let explorer = IntervalModel()
+        var names = Set<String>()
+        for root in spellings {
+            for target in spellings {
+                explorer.rootSpelling = root
+                explorer.targetSpelling = target
+                names.insert(explorer.ascendingIntervalName)
+            }
+        }
+        return names.sorted()
     }
 }
