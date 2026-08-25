@@ -11,6 +11,7 @@ struct FeatureMenuView: View {
         case circleOfFifths
         case interval
         case intervalQuiz
+        case keySignatureQuiz
     }
 
     var body: some View {
@@ -41,6 +42,14 @@ struct FeatureMenuView: View {
                         systemImage: "questionmark.circle"
                     )
                 }
+
+                NavigationLink(value: Destination.keySignatureQuiz) {
+                    featureRow(
+                        title: "키 · 조표 퀴즈",
+                        subtitle: "키와 조표를 맞춰 보세요",
+                        systemImage: "music.note.list"
+                    )
+                }
             }
         }
         .listStyle(.insetGrouped)
@@ -57,6 +66,8 @@ struct FeatureMenuView: View {
                 IntervalView()
             case .intervalQuiz:
                 IntervalQuizView()
+            case .keySignatureQuiz:
+                KeySignatureQuizView()
             }
         }
     }
