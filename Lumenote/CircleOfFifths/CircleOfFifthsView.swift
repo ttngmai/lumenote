@@ -36,8 +36,8 @@ struct CircleOfFifthsView: View {
                     .scrollIndicators(.hidden)
                 }
             }
-            .padding(.horizontal, isWide ? LumenoteSpacing.lg : LumenoteSpacing.xxxl)
-            .padding(.top, isWide ? LumenoteSpacing.lg : LumenoteSpacing.xxxl)
+            .padding(.horizontal, isWide ? LumenoteSpacing.lg : LumenoteSpacing.xl)
+            .padding(.top, isWide ? LumenoteSpacing.lg : LumenoteSpacing.xl)
             .padding(.bottom, isWide ? 0 : LumenoteSpacing.xxxl)
             .frame(width: geo.size.width, height: geo.size.height, alignment: isWide ? .center : .top)
         }
@@ -60,7 +60,6 @@ struct CircleOfFifthsView: View {
         CircleOfFifthsRingView(model: model, placesLegendBeside: placesLegendBeside)
             // Portrait keeps a readable cap; landscape uses the full leftover column.
             .frame(maxWidth: placesLegendBeside ? .infinity : 520)
-            .padding(.horizontal, placesLegendBeside ? 0 : LumenoteSpacing.xs)
     }
 
     private var selectors: some View {

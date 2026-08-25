@@ -19,12 +19,15 @@ struct CircleOfFifthsRingView: View {
     private var wedgeFill: Color { .white }
     private var wedgeLabelColor: Color { Color(white: 0.18) }
 
-    /// Outermost: note names (thickest band).
-    private let outerRadiusRatio: CGFloat = 0.48
+    /// Outermost: sharp/flat counts.
+    /// Keep `signatureOuterRatio * raisedScale ≤ 0.48` so the raised tonic stays inside the square.
+    private let signatureOuterRatio: CGFloat = 0.47
+    /// Boundary between signature ring and note names.
+    private let outerRadiusRatio: CGFloat = 0.40
     /// Boundary between the note ring (outer) and the degree ring (inner).
-    private let degreeOuterRatio: CGFloat = 0.275
+    private let degreeOuterRatio: CGFloat = 0.255
     /// Innermost: degree labels. Inner edge also bounds the centre hub.
-    private let degreeInnerRatio: CGFloat = 0.185
+    private let degreeInnerRatio: CGFloat = 0.16
     /// How much the 12 o'clock tonic wedge is scaled up (radial + slight angular overlap).
     private let raisedScale: CGFloat = 1.05
     private let raisedAngularPadDegrees: Double = 2.5
@@ -82,7 +85,8 @@ struct CircleOfFifthsRingView: View {
         GeometryReader { geo in
             let size = ringDiameter(in: geo.size)
             let ringOriginX = (geo.size.width - size) / 2
-            let ringOriginY = (geo.size.height - size) / 2
+            // Keep the reserved label margin above the square (not split top/bottom).
+            let ringOriginY = size * topLabelMarginRatio
 
             ringSquare(size: size)
                 .frame(width: size, height: size)
@@ -106,6 +110,7 @@ struct CircleOfFifthsRingView: View {
             RaisedTonicWedgeView(
                 noteColor: wedgeFill,
                 ringStroke: ringStroke,
+                signatureOuterRatio: signatureOuterRatio,
                 outerRadiusRatio: outerRadiusRatio,
                 degreeOuterRatio: degreeOuterRatio,
                 degreeInnerRatio: degreeInnerRatio,
@@ -120,6 +125,10 @@ struct CircleOfFifthsRingView: View {
             )
 
             // Rotating labels.
+            signatureCountLabels(center: localCenter, size: size)
+                .rotationEffect(.degrees(displayedRotationDegrees))
+                .allowsHitTesting(false)
+
             noteLabels(center: localCenter, size: size)
                 .rotationEffect(.degrees(displayedRotationDegrees))
                 .allowsHitTesting(false)
@@ -170,8 +179,18 @@ struct CircleOfFifthsRingView: View {
     private func drawBaseRings(context: GraphicsContext, center: CGPoint, size: CGFloat) {
         let radii = ringRadii(size: size, scale: 1)
 
-        // Outer → inner: note, degree. Skip position 12; raised overlay redraws it.
+        // Outer → inner: signature, note, degree. Skip position 12; raised overlay redraws it.
         for position in 1...12 where position != 12 {
+            fillSector(
+                context: context,
+                center: center,
+                inner: radii.signatureInner,
+                outer: radii.signatureOuter,
+                clockPosition: position,
+                color: wedgeFill,
+                angularPad: 0
+            )
+
             fillSector(
                 context: context,
                 center: center,
@@ -198,12 +217,12 @@ struct CircleOfFifthsRingView: View {
             let angle = angleForLeadingEdge(of: position)
             var line = Path()
             line.move(to: point(center: center, radius: radii.degreeInner, angle: angle))
-            line.addLine(to: point(center: center, radius: radii.noteOuter, angle: angle))
+            line.addLine(to: point(center: center, radius: radii.signatureOuter, angle: angle))
             context.stroke(line, with: .color(ringStroke.opacity(0.3)), lineWidth: 0.8)
         }
 
         // Ring outlines
-        for radius in [radii.noteOuter, radii.degreeOuter, radii.degreeInner] {
+        for radius in [radii.signatureOuter, radii.noteOuter, radii.degreeOuter, radii.degreeInner] {
             var circle = Path()
             circle.addEllipse(
                 in: CGRect(
@@ -216,7 +235,7 @@ struct CircleOfFifthsRingView: View {
             context.stroke(
                 circle,
                 with: .color(ringStroke),
-                lineWidth: radius == radii.noteOuter ? 1.8 : 1.1
+                lineWidth: radius == radii.signatureOuter ? 1.8 : 1.1
             )
         }
 
@@ -230,13 +249,13 @@ struct CircleOfFifthsRingView: View {
         // The stroke is centered on the path, so inset the outline by half the line
         // width (radially and angularly) to keep the border fully inside the cell.
         let radialInset = emphasisLineWidth / 2
-        let angularInsetDegrees = Double(radialInset / radii.noteOuter) * 180 / .pi
+        let angularInsetDegrees = Double(radialInset / radii.signatureOuter) * 180 / .pi
         for screenPosition in emphasizedScreens where screenPosition != 12 {
             fillSector(
                 context: context,
                 center: center,
                 inner: radii.degreeInner,
-                outer: radii.noteOuter,
+                outer: radii.signatureOuter,
                 clockPosition: screenPosition,
                 color: emphasisFill,
                 angularPad: 0
@@ -245,7 +264,7 @@ struct CircleOfFifthsRingView: View {
                 context: context,
                 center: center,
                 inner: radii.degreeInner + radialInset,
-                outer: radii.noteOuter - radialInset,
+                outer: radii.signatureOuter - radialInset,
                 clockPosition: screenPosition,
                 color: emphasisStroke,
                 lineWidth: emphasisLineWidth,
@@ -256,8 +275,38 @@ struct CircleOfFifthsRingView: View {
 
     // MARK: - Labels
 
+    private func signatureCountLabels(center: CGPoint, size: CGFloat) -> some View {
+        let baseRadius = size * ((signatureOuterRatio + outerRadiusRatio) / 2)
+        return ForEach(1...12, id: \.self) { position in
+            let lines = model.displayedSignatureCountLabels[position] ?? []
+            let isTonic = visualScreenClock(forModelPosition: position) == 12
+            let isEmphasized = model.emphasizedClockPositions.contains(position)
+            let isStacked = lines.count > 1
+            let radius = isTonic ? baseRadius * raisedScale : baseRadius
+            stackedRingLabel(lines: lines)
+                .font(LumenoteFont.rounded(
+                    size: size * stackedFontRatio(
+                        isStacked: isStacked,
+                        isTonic: isTonic,
+                        stacked: (0.026, 0.022),
+                        single: (0.034, 0.030)
+                    ),
+                    weight: .bold
+                ))
+                .foregroundStyle(wedgeLabelColor.opacity(0.85))
+                .padding(isEmphasized ? 2 : 0)
+                .background(
+                    Circle()
+                        .fill(isEmphasized ? palette.emphasisStroke.opacity(0.9) : .clear)
+                )
+                .rotationEffect(.degrees(-displayedRotationDegrees))
+                .position(point(center: center, radius: radius, angle: angleForCenter(of: position)))
+                .zIndex(isTonic || isEmphasized ? 1 : 0)
+        }
+    }
+
     private func noteLabels(center: CGPoint, size: CGFloat) -> some View {
-        // Midpoint of the note ring (thickest / outermost band).
+        // Midpoint of the note ring (thickest / outermost name band).
         let baseRadius = size * ((outerRadiusRatio + degreeOuterRatio) / 2)
         return ForEach(1...12, id: \.self) { position in
             let lines = (model.displayedOuterSpellings[position] ?? []).map {
@@ -362,7 +411,7 @@ struct CircleOfFifthsRingView: View {
     // MARK: - Rotation affordances
 
     private func rotationAffordances(center: CGPoint, size: CGFloat) -> some View {
-        let radius = size * 0.52
+        let radius = size * 0.51
         let gStart = -72.0
         let gEnd = -48.0
         let fStart = -108.0
@@ -516,7 +565,7 @@ struct CircleOfFifthsRingView: View {
         let dy = location.y - center.y
         let distance = hypot(dx, dy)
         let inner = size * degreeInnerRatio * 0.92
-        let outer = size * outerRadiusRatio * raisedScale * 1.08
+        let outer = size * signatureOuterRatio * raisedScale * 1.08
         guard distance >= inner, distance <= outer else { return }
 
         var clockDegrees = atan2(dy, dx) * 180 / .pi + 90
@@ -561,7 +610,10 @@ struct CircleOfFifthsRingView: View {
     // MARK: - Drawing helpers
 
     private struct RingRadii {
-        /// Outermost: note names.
+        /// Outermost: sharp/flat counts.
+        var signatureOuter: CGFloat
+        var signatureInner: CGFloat
+        /// Note names.
         var noteOuter: CGFloat
         var noteInner: CGFloat
         /// Innermost: degree labels.
@@ -571,6 +623,8 @@ struct CircleOfFifthsRingView: View {
 
     private func ringRadii(size: CGFloat, scale: CGFloat) -> RingRadii {
         RingRadii(
+            signatureOuter: size * signatureOuterRatio * scale,
+            signatureInner: size * outerRadiusRatio * scale,
             noteOuter: size * outerRadiusRatio * scale,
             noteInner: size * degreeOuterRatio * scale,
             degreeOuter: size * degreeOuterRatio * scale,
@@ -642,6 +696,7 @@ struct CircleOfFifthsRingView: View {
 private struct RaisedTonicWedgeView: View {
     let noteColor: Color
     let ringStroke: Color
+    let signatureOuterRatio: CGFloat
     let outerRadiusRatio: CGFloat
     let degreeOuterRatio: CGFloat
     let degreeInnerRatio: CGFloat
@@ -661,14 +716,20 @@ private struct RaisedTonicWedgeView: View {
                 AnnularSector(
                     clockPosition: 12,
                     innerRatio: degreeInnerRatio * raisedScale,
-                    outerRatio: outerRadiusRatio * raisedScale,
+                    outerRatio: signatureOuterRatio * raisedScale,
                     angularPadDegrees: angularPadDegrees
                 )
                 .fill(Color.black.opacity(shadowOpacity))
                 .offset(y: size * 0.01)
                 .blur(radius: size * 0.014)
 
-                // Outer → inner: note, degree (degree shares note color).
+                // Outer → inner: signature, note, degree (degree shares note color).
+                band(
+                    innerRatio: outerRadiusRatio * raisedScale,
+                    outerRatio: signatureOuterRatio * raisedScale,
+                    fill: noteColor,
+                    strokeWidth: 1.6
+                )
                 band(
                     innerRatio: degreeOuterRatio * raisedScale,
                     outerRatio: outerRadiusRatio * raisedScale,
@@ -688,13 +749,13 @@ private struct RaisedTonicWedgeView: View {
                     let emphasisLineWidth: CGFloat = 2.4
                     let insetRatio = emphasisLineWidth / 2 / size
                     let angularInsetDegrees = Double(
-                        (emphasisLineWidth / 2) / (size * outerRadiusRatio * raisedScale)
+                        (emphasisLineWidth / 2) / (size * signatureOuterRatio * raisedScale)
                     ) * 180 / .pi
 
                     AnnularSector(
                         clockPosition: 12,
                         innerRatio: degreeInnerRatio * raisedScale,
-                        outerRatio: outerRadiusRatio * raisedScale,
+                        outerRatio: signatureOuterRatio * raisedScale,
                         angularPadDegrees: angularPadDegrees
                     )
                     .fill(emphasisFill)
@@ -702,7 +763,7 @@ private struct RaisedTonicWedgeView: View {
                         AnnularSector(
                             clockPosition: 12,
                             innerRatio: degreeInnerRatio * raisedScale + insetRatio,
-                            outerRatio: outerRadiusRatio * raisedScale - insetRatio,
+                            outerRatio: signatureOuterRatio * raisedScale - insetRatio,
                             angularPadDegrees: angularPadDegrees - angularInsetDegrees
                         )
                         .stroke(emphasisStroke, lineWidth: emphasisLineWidth)
