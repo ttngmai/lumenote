@@ -2,7 +2,7 @@
 
 import SwiftUI
 
-/// Root feature list: Circle of Fifths and Interval explorer.
+/// Root feature list grouped into tools and quizzes.
 struct FeatureMenuView: View {
     @Environment(\.appPalette) private var palette
     @AppStorage(AppearanceMode.storageKey) private var appearance: AppearanceMode = .system
@@ -10,24 +10,37 @@ struct FeatureMenuView: View {
     private enum Destination: Hashable {
         case circleOfFifths
         case interval
+        case intervalQuiz
     }
 
     var body: some View {
         List {
-            NavigationLink(value: Destination.interval) {
-                featureRow(
-                    title: "음정",
-                    subtitle: "두 음 사이의 거리",
-                    systemImage: "ruler"
-                )
+            Section("도구") {
+                NavigationLink(value: Destination.interval) {
+                    featureRow(
+                        title: "음정",
+                        subtitle: "두 음 사이의 거리",
+                        systemImage: "ruler"
+                    )
+                }
+
+                NavigationLink(value: Destination.circleOfFifths) {
+                    featureRow(
+                        title: "5도권",
+                        subtitle: "키 · 조표 · 관계조",
+                        systemImage: "circle.circle"
+                    )
+                }
             }
 
-            NavigationLink(value: Destination.circleOfFifths) {
-                featureRow(
-                    title: "5도권",
-                    subtitle: "키 · 조표 · 관계조",
-                    systemImage: "circle.circle"
-                )
+            Section("퀴즈") {
+                NavigationLink(value: Destination.intervalQuiz) {
+                    featureRow(
+                        title: "음정 퀴즈",
+                        subtitle: "두 음의 음정을 맞춰 보세요",
+                        systemImage: "questionmark.circle"
+                    )
+                }
             }
         }
         .listStyle(.insetGrouped)
@@ -42,6 +55,8 @@ struct FeatureMenuView: View {
                 CircleOfFifthsView()
             case .interval:
                 IntervalView()
+            case .intervalQuiz:
+                IntervalQuizView()
             }
         }
     }
