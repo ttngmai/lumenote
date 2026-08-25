@@ -9,6 +9,7 @@ struct IntervalView: View {
     @State private var model = IntervalModel()
     @State private var activePicker: NotePickerTarget?
     @State private var stripScrollPosition: String?
+    @State private var showsQualityGuide = false
 
     private enum NotePickerTarget: Equatable {
         case root
@@ -65,7 +66,25 @@ struct IntervalView: View {
         }
         .background(background)
         .lumenoteCompactHeader(title: "음정", showsBackButton: true) {
-            AppearanceToggleButton(appearance: $appearance)
+            HStack(spacing: LumenoteSpacing.sm) {
+                Button {
+                    showsQualityGuide = true
+                } label: {
+                    Image(systemName: "info")
+                        .font(LumenoteFont.rounded(size: 15, weight: .bold))
+                        .foregroundStyle(.primary)
+                        .frame(width: 34, height: 34)
+                        .background(Circle().fill(palette.cardBackground))
+                        .overlay(Circle().strokeBorder(palette.cardBorder, lineWidth: LumenoteStroke.compact))
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("음정 이름 규칙")
+
+                AppearanceToggleButton(appearance: $appearance)
+            }
+        }
+        .sheet(isPresented: $showsQualityGuide) {
+            IntervalQualityGuideView()
         }
     }
 
