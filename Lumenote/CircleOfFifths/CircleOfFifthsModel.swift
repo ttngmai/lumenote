@@ -176,6 +176,19 @@ final class CircleOfFifthsModel {
         .joined(separator: ", ")
     }
 
+    /// Compact ♯/♭ counts for the outermost ring, aligned with `displayedOuterSpellings`.
+    var displayedSignatureCountLabels: [Int: [String]] {
+        var result: [Int: [String]] = [:]
+        for position in 1...12 {
+            let labels = (displayedOuterSpellings[position] ?? []).compactMap { raw -> String? in
+                guard let tonic = Tonic(rawValue: raw) else { return nil }
+                return Self.compactSignatureDescription(tonic.lydianSignature + selectedMode.offset)
+            }
+            result[position] = labels
+        }
+        return result
+    }
+
     var selectedKeyTitle: String {
         "\(selectedTonicDisplayName) \(selectedMode.shortName)"
     }
@@ -220,6 +233,17 @@ final class CircleOfFifthsModel {
             return "♯ \(index)개"
         } else {
             return "♭ \(abs(index))개"
+        }
+    }
+
+    /// Short ring label: `0`, `♯3`, `♭2`.
+    private static func compactSignatureDescription(_ index: Int) -> String {
+        if index == 0 {
+            return "0"
+        } else if index > 0 {
+            return "♯\(index)"
+        } else {
+            return "♭\(abs(index))"
         }
     }
 
