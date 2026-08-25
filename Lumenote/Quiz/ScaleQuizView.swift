@@ -48,7 +48,7 @@ struct ScaleQuizView: View {
     private var promptCard: some View {
         VStack(spacing: LumenoteSpacing.xl) {
             Text(model.question.promptTitle)
-                .font(LumenoteFont.caption(.semibold))
+                .font(LumenoteFont.callout(.medium))
                 .foregroundStyle(.primary)
                 .frame(maxWidth: .infinity, alignment: .leading)
 

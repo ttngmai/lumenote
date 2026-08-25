@@ -47,8 +47,8 @@ struct KeySignatureQuizView: View {
     private var promptCard: some View {
         VStack(spacing: LumenoteSpacing.xl) {
             Text(promptTitle)
-                .font(LumenoteFont.caption(.semibold))
-                .foregroundStyle(.secondary)
+                .font(LumenoteFont.callout(.medium))
+                .foregroundStyle(.primary)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
             switch model.question.kind {
