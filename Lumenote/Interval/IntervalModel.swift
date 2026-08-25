@@ -2,120 +2,138 @@
 
 import Foundation
 
-/// Interactive interval explorer: root pitch + semitone distance on a one-octave ruler.
+/// Interactive interval explorer: root and target note spellings within one octave.
 ///
-/// The ruler visualizes **pitch distance** (semitones / whole tones).
 /// Interval names are derived from root and target **spellings** (letter + accidental),
-/// so enharmonic pairs such as minor 2nd vs augmented unison follow `accidentalPreference`.
+/// so enharmonic pairs such as minor 2nd vs augmented unison follow the chosen spellings.
 @Observable
 final class IntervalModel {
-    /// Pitch class of the root note, 0…11 (C = 0).
-    var rootPitchClass: Int = 0 {
+    /// Chromatic spelling of the root note (e.g. `"C"`, `"C#"`, `"Db"`).
+    var rootSpelling: String = "C" {
         didSet {
-            let clamped = Self.clampPitchClass(rootPitchClass)
-            if clamped != rootPitchClass { rootPitchClass = clamped }
+            if !Self.isKnownSpelling(rootSpelling) {
+                rootSpelling = "C"
+            }
         }
     }
 
-    /// Semitone distance from root to target, 0…12 (one octave).
-    var semitoneDistance: Int = 4 {
+    /// Chromatic spelling of the target note (e.g. `"E"`, `"Fb"`, `"E#"`).
+    var targetSpelling: String = "E" {
         didSet {
-            let clamped = Self.clampDistance(semitoneDistance)
-            if clamped != semitoneDistance { semitoneDistance = clamped }
+            if !Self.isKnownSpelling(targetSpelling) {
+                targetSpelling = "E"
+            }
         }
     }
-
-    /// Sharp (♯) or flat (♭) spelling for chromatic notes and spelling-aware interval names.
-    var accidentalPreference: AccidentalPreference = .sharp
 
     // MARK: - Derived
 
+    var rootPitchClass: Int {
+        Self.pitchClass(for: rootSpelling)
+    }
+
+    var targetPitchClass: Int {
+        Self.pitchClass(for: targetSpelling)
+    }
+
+    /// Semitone distance ascending from root to target, 0…11 (within one octave).
+    var ascendingSemitoneDistance: Int {
+        (targetPitchClass - rootPitchClass + 12) % 12
+    }
+
+    /// Semitone distance descending from root to target, 0…11 (within one octave).
+    var descendingSemitoneDistance: Int {
+        (rootPitchClass - targetPitchClass + 12) % 12
+    }
+
     var rootDisplayName: String {
-        Self.displayName(forPitchClass: rootPitchClass, preference: accidentalPreference)
+        Self.formatNoteName(rootSpelling)
     }
 
-    /// Target note name. Distance 12 reuses the root spelling (octave).
     var targetDisplayName: String {
-        if semitoneDistance == 12 {
-            return rootDisplayName
-        }
-        let pc = (rootPitchClass + semitoneDistance) % 12
-        return Self.displayName(forPitchClass: pc, preference: accidentalPreference)
+        Self.formatNoteName(targetSpelling)
     }
 
-    /// Whole-tone equivalent of the current semitone distance.
-    var wholeTones: Double {
-        Double(semitoneDistance) / 2.0
-    }
-
-    /// Korean interval name from root/target spellings.
-    var intervalName: String {
+    /// Korean name for the ascending interval (root → target upward).
+    var ascendingIntervalName: String {
         Self.koreanIntervalName(
             root: rootSpelling,
             target: targetSpelling,
-            semitones: semitoneDistance
+            semitones: ascendingSemitoneDistance
         )
     }
 
-    /// English interval name from root/target spellings.
-    var intervalNameEnglish: String {
+    /// English name for the ascending interval (root → target upward).
+    var ascendingIntervalNameEnglish: String {
         Self.englishIntervalName(
             root: rootSpelling,
             target: targetSpelling,
-            semitones: semitoneDistance
+            semitones: ascendingSemitoneDistance
         )
     }
 
-    var distanceDescription: String {
-        "\(Self.formatWholeTones(wholeTones))온음 · \(semitoneDistance)반음"
+    /// Korean name for the descending interval (named lower → upper on the staff).
+    var descendingIntervalName: String {
+        Self.koreanIntervalName(
+            root: targetSpelling,
+            target: rootSpelling,
+            semitones: descendingSemitoneDistance
+        )
     }
 
-    /// Chromatic target options for one octave starting at the root (distance 0…12).
-    var targetOptions: [(distance: Int, displayName: String)] {
-        (0...12).map { distance in
-            let name: String
-            if distance == 12 {
-                name = rootDisplayName
-            } else {
-                let pc = (rootPitchClass + distance) % 12
-                name = Self.displayName(forPitchClass: pc, preference: accidentalPreference)
-            }
-            return (distance, name)
-        }
+    /// English name for the descending interval (named lower → upper on the staff).
+    var descendingIntervalNameEnglish: String {
+        Self.englishIntervalName(
+            root: targetSpelling,
+            target: rootSpelling,
+            semitones: descendingSemitoneDistance
+        )
     }
 
-    /// All selectable roots for the picker.
-    var rootOptions: [(pitchClass: Int, displayName: String)] {
-        (0..<12).map { pitchClass in
-            (
-                pitchClass,
-                Self.displayName(forPitchClass: pitchClass, preference: accidentalPreference)
-            )
-        }
+    /// Selectable note spellings for root and target pickers (fixed display order).
+    var noteOptions: [(spelling: String, displayName: String)] {
+        Self.orderedSpellings.map { ($0, Self.formatNoteName($0)) }
     }
 
-    // MARK: - Internal spellings
-
-    private var rootSpelling: String {
-        Self.spelling(forPitchClass: rootPitchClass, preference: accidentalPreference)
+    /// Root then target on a treble staff, ascending by letter.
+    var ascendingStaffNotes: [IntervalStaffNote] {
+        Self.staffNotes(
+            rootSpelling: rootSpelling,
+            targetSpelling: targetSpelling,
+            direction: .ascending
+        )
     }
 
-    private var targetSpelling: String {
-        if semitoneDistance == 12 {
-            return rootSpelling
-        }
-        let pc = (rootPitchClass + semitoneDistance) % 12
-        return Self.spelling(forPitchClass: pc, preference: accidentalPreference)
+    /// Root then target on a treble staff, descending by letter.
+    var descendingStaffNotes: [IntervalStaffNote] {
+        Self.staffNotes(
+            rootSpelling: rootSpelling,
+            targetSpelling: targetSpelling,
+            direction: .descending
+        )
     }
 
     // MARK: - Tables
 
-    private static let chromaticSharp: [String] = [
-        "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"
+    /// Display order for pickers: naturals with both sharp and flat enharmonics where they exist.
+    private static let orderedSpellings: [String] = [
+        "C", "C#", "Db", "D", "D#", "Eb", "E", "Fb", "E#", "F",
+        "F#", "Gb", "G", "G#", "Ab", "A", "A#", "Bb", "B", "Cb", "B#",
     ]
 
-    private static let chromaticFlat: [String] = [
-        "C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B"
+    private static let pitchClassBySpelling: [String: Int] = [
+        "C": 0, "B#": 0,
+        "C#": 1, "Db": 1,
+        "D": 2,
+        "D#": 3, "Eb": 3,
+        "E": 4, "Fb": 4,
+        "E#": 5, "F": 5,
+        "F#": 6, "Gb": 6,
+        "G": 7,
+        "G#": 8, "Ab": 8,
+        "A": 9,
+        "A#": 10, "Bb": 10,
+        "B": 11, "Cb": 11,
     ]
 
     /// Major/perfect reference semitones for diatonic numbers 1…8.
@@ -272,18 +290,101 @@ final class IntervalModel {
         return letterIndices[first]
     }
 
-    // MARK: - Helpers
+    // MARK: - Staff placement
 
-    static func spelling(forPitchClass pc: Int, preference: AccidentalPreference) -> String {
-        let table = preference == .sharp ? chromaticSharp : chromaticFlat
-        return table[clampPitchClass(pc)]
+    private enum StaffDirection {
+        case ascending
+        case descending
     }
 
-    static func displayName(
-        forPitchClass pc: Int,
-        preference: AccidentalPreference
-    ) -> String {
-        formatNoteName(spelling(forPitchClass: pc, preference: preference))
+    private static func staffNotes(
+        rootSpelling: String,
+        targetSpelling: String,
+        direction: StaffDirection
+    ) -> [IntervalStaffNote] {
+        guard let rootLetter = letterIndex(of: rootSpelling),
+              let targetLetter = letterIndex(of: targetSpelling)
+        else { return [] }
+
+        // Fixed letter → staff mapping in the C4 octave: C = −2, D = −1, E = 0, …, B = 4.
+        // Only ±7 (octave) shifts are allowed afterward so the written letter never changes.
+        var rootStep = rootLetter - 2
+        var targetStep: Int
+        switch direction {
+        case .ascending:
+            let up = (targetLetter - rootLetter + 7) % 7
+            targetStep = rootStep + up
+        case .descending:
+            let down = (rootLetter - targetLetter + 7) % 7
+            if down == 0, pitchClass(for: rootSpelling) != pitchClass(for: targetSpelling) {
+                // Same letter, different pitch (e.g. E♭ → E as a 7th): drop one octave.
+                targetStep = rootStep - 7
+            } else {
+                targetStep = rootStep - down
+            }
+        }
+
+        while min(rootStep, targetStep) < -4 {
+            rootStep += 7
+            targetStep += 7
+        }
+        while max(rootStep, targetStep) > 12 {
+            rootStep -= 7
+            targetStep -= 7
+        }
+
+        let sharesStaffDegree = rootStep == targetStep
+        return [
+            IntervalStaffNote(
+                id: 0,
+                spelling: rootSpelling,
+                staffStep: rootStep,
+                accidentalSymbol: accidentalSymbol(for: rootSpelling)
+            ),
+            IntervalStaffNote(
+                id: 1,
+                spelling: targetSpelling,
+                staffStep: targetStep,
+                accidentalSymbol: staffAccidentalSymbol(
+                    for: targetSpelling,
+                    previousSpelling: rootSpelling,
+                    sharesStaffDegree: sharesStaffDegree
+                )
+            ),
+        ]
+    }
+
+    private static func accidentalSymbol(for spelling: String) -> String? {
+        if spelling.hasSuffix("##") { return "𝄪" }
+        if spelling.hasSuffix("#") { return "♯" }
+        if spelling.hasSuffix("bb") { return "𝄫" }
+        if spelling.hasSuffix("b") { return "♭" }
+        return nil
+    }
+
+    /// Courtesy accidental for the second note when it shares a staff degree with the first.
+    /// Example: E♭ then E on the same line needs ♮ on E.
+    private static func staffAccidentalSymbol(
+        for spelling: String,
+        previousSpelling: String,
+        sharesStaffDegree: Bool
+    ) -> String? {
+        let own = accidentalSymbol(for: spelling)
+        guard sharesStaffDegree else { return own }
+        if accidentalSymbol(for: previousSpelling) != nil, own == nil {
+            return "♮"
+        }
+        return own
+    }
+
+    // MARK: - Helpers
+
+    static func pitchClass(for spelling: String) -> Int {
+        pitchClassBySpelling[spelling] ?? 0
+    }
+
+    static func isKnownSpelling(_ spelling: String) -> Bool {
+        pitchClassBySpelling[spelling] != nil
     }
 
     static func formatNoteName(_ name: String) -> String {
@@ -302,20 +403,17 @@ final class IntervalModel {
         return name
     }
 
-    static func formatWholeTones(_ value: Double) -> String {
-        if value.rounded() == value {
-            return String(Int(value))
-        }
-        return String(format: "%.1f", value)
-    }
-
-    static func clampPitchClass(_ value: Int) -> Int {
-        var v = value % 12
-        if v < 0 { v += 12 }
-        return v
-    }
-
     static func clampDistance(_ value: Int) -> Int {
         min(12, max(0, value))
     }
+}
+
+/// One notehead placement on a treble staff for the interval explorer.
+struct IntervalStaffNote: Identifiable, Equatable {
+    let id: Int
+    let spelling: String
+    /// Half-space steps above the bottom staff line (E4 = 0, F4 = 1, C4 = −2).
+    let staffStep: Int
+    /// ♯ / ♭ / … drawn to the left of the notehead, if any.
+    let accidentalSymbol: String?
 }

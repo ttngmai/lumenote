@@ -5,273 +5,274 @@ import SwiftUI
 struct IntervalView: View {
     @Environment(\.appPalette) private var palette
     @AppStorage(AppearanceMode.storageKey) private var appearance: AppearanceMode = .system
-    @AppStorage(AccidentalPreference.storageKey) private var accidentalPreferenceRaw = AccidentalPreference.sharp.rawValue
 
     @State private var model = IntervalModel()
-    @State private var showRootPicker = false
-    @State private var showTargetPicker = false
+    @State private var activePicker: NotePickerTarget?
+    @State private var stripScrollPosition: String?
 
-    private var accidentalPreference: AccidentalPreference {
-        AccidentalPreference(rawValue: accidentalPreferenceRaw) ?? .sharp
+    private enum NotePickerTarget: Equatable {
+        case root
+        case target
+
+        var title: String {
+            switch self {
+            case .root: return "기준음"
+            case .target: return "목표음"
+            }
+        }
     }
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: LumenoteSpacing.section) {
-                headerLabels
-                metricCards
-                    .animation(.easeOut(duration: 0.2), value: model.semitoneDistance)
-                IntervalRulerView(
-                    semitoneDistance: $model.semitoneDistance,
-                    targetOptions: model.targetOptions
-                )
-                .id("\(model.rootPitchClass)-\(accidentalPreferenceRaw)")
-                .padding(.top, LumenoteSpacing.sm)
+        GeometryReader { geo in
+            let isWide = geo.size.width > geo.size.height * 0.9
+
+            VStack(spacing: 0) {
+                ScrollView {
+                    VStack(spacing: LumenoteSpacing.section) {
+                        staffCards(isWide: isWide)
+                            .overlay {
+                                if activePicker != nil {
+                                    Color.clear
+                                        .contentShape(Rectangle())
+                                        .onTapGesture { activePicker = nil }
+                                }
+                            }
+
+                        noteSelectionCard
+                    }
+                    .padding(.horizontal, LumenoteSpacing.popupInset)
+                    .padding(.vertical, LumenoteSpacing.xxxl)
+                    .animation(.easeOut(duration: 0.2), value: model.rootSpelling)
+                    .animation(.easeOut(duration: 0.2), value: model.targetSpelling)
+                    .frame(maxWidth: .infinity)
+                    .background {
+                        if activePicker != nil {
+                            Color.clear
+                                .contentShape(Rectangle())
+                                .onTapGesture { activePicker = nil }
+                        }
+                    }
+                }
+                .scrollIndicators(.hidden)
+
+                if let activePicker {
+                    notePickerStrip(for: activePicker)
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                }
             }
-            .padding(LumenoteSpacing.xxxl)
+            .frame(width: geo.size.width, height: geo.size.height, alignment: .top)
+            .animation(.easeOut(duration: 0.22), value: activePicker)
         }
-        .scrollIndicators(.hidden)
         .background(background)
         .lumenoteCompactHeader(title: "음정", showsBackButton: true) {
             AppearanceToggleButton(appearance: $appearance)
-        }
-        .overlay {
-            if showRootPicker {
-                notePickerPopup(
-                    title: "루트음",
-                    options: model.rootOptions.map { (id: $0.pitchClass, label: $0.displayName) },
-                    isSelected: { model.rootPitchClass == $0 },
-                    onSelect: { model.rootPitchClass = $0 },
-                    onDismiss: { showRootPicker = false }
-                )
-                .transition(.opacity)
-            }
-            if showTargetPicker {
-                notePickerPopup(
-                    title: "목표음",
-                    options: model.targetOptions.map { (id: $0.distance, label: $0.displayName) },
-                    isSelected: { model.semitoneDistance == $0 },
-                    onSelect: { model.semitoneDistance = $0 },
-                    onDismiss: { showTargetPicker = false }
-                )
-                .transition(.opacity)
-            }
-        }
-        .animation(.easeOut(duration: 0.18), value: showRootPicker)
-        .animation(.easeOut(duration: 0.18), value: showTargetPicker)
-        .onAppear {
-            model.accidentalPreference = accidentalPreference
-        }
-        .onChange(of: accidentalPreferenceRaw) { _, newValue in
-            model.accidentalPreference = AccidentalPreference(rawValue: newValue) ?? .sharp
         }
     }
 
     // MARK: - Sections
 
-    private var headerLabels: some View {
-        HStack(alignment: .top, spacing: LumenoteSpacing.md) {
-            Button {
-                showRootPicker = true
-            } label: {
-                VStack(alignment: .leading, spacing: LumenoteSpacing.xxs) {
-                    Text("루트음")
-                        .font(LumenoteFont.caption2(.semibold))
-                        .foregroundStyle(.secondary)
-                    Text(model.rootDisplayName)
-                        .font(LumenoteFont.rounded(size: 34, weight: .bold))
-                        .foregroundStyle(.primary)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.7)
-                }
-            }
-            .buttonStyle(.plain)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .accessibilityLabel("루트음 \(model.rootDisplayName)")
-            .accessibilityHint("루트음을 변경하려면 두 번 탭하세요")
+    @ViewBuilder
+    private func staffCards(isWide: Bool) -> some View {
+        let ascending = intervalStaffSection(
+            title: "상행",
+            directionIcon: "arrow.up",
+            notes: model.ascendingStaffNotes,
+            englishName: model.ascendingIntervalNameEnglish,
+            koreanName: model.ascendingIntervalName
+        )
+        let descending = intervalStaffSection(
+            title: "하행",
+            directionIcon: "arrow.down",
+            notes: model.descendingStaffNotes,
+            englishName: model.descendingIntervalNameEnglish,
+            koreanName: model.descendingIntervalName
+        )
 
-            intervalTitleCenter
-                .frame(maxWidth: .infinity)
-                .animation(.easeOut(duration: 0.2), value: model.semitoneDistance)
-                .animation(.easeOut(duration: 0.2), value: accidentalPreferenceRaw)
-
-            Button {
-                showTargetPicker = true
-            } label: {
-                VStack(alignment: .trailing, spacing: LumenoteSpacing.xxs) {
-                    Text("목표음")
-                        .font(LumenoteFont.caption2(.semibold))
-                        .foregroundStyle(.secondary)
-                    Text(model.targetDisplayName)
-                        .font(LumenoteFont.rounded(size: 34, weight: .bold))
-                        .foregroundStyle(.primary)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.7)
-                }
+        if isWide {
+            HStack(alignment: .top, spacing: LumenoteSpacing.section) {
+                ascending
+                descending
             }
-            .buttonStyle(.plain)
-            .frame(maxWidth: .infinity, alignment: .trailing)
-            .accessibilityLabel("목표음 \(model.targetDisplayName)")
-            .accessibilityHint("목표음을 변경하려면 두 번 탭하세요")
+        } else {
+            ascending
+            descending
         }
     }
 
-    private var intervalTitleCenter: some View {
-        VStack(spacing: LumenoteSpacing.xs) {
-            Text(model.intervalNameEnglish)
-                .font(LumenoteFont.rounded(size: 18, weight: .bold))
-                .foregroundStyle(palette.minor)
-                .lineLimit(1)
-                .minimumScaleFactor(0.65)
-                .allowsTightening(true)
-                .frame(maxWidth: .infinity)
-                .frame(height: 22)
-
-            Text(model.intervalName)
-                .font(LumenoteFont.caption(.medium))
-                .foregroundStyle(.secondary)
-                .lineLimit(1)
-                .minimumScaleFactor(0.8)
-                .frame(maxWidth: .infinity)
-                .frame(height: 16)
-
-            AccidentalPreferenceToggle(
-                preference: Binding(
-                    get: { accidentalPreference },
-                    set: { accidentalPreferenceRaw = $0.rawValue }
-                )
-            )
-        }
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(model.intervalNameEnglish), \(model.intervalName)")
-    }
-
-    private var metricCards: some View {
-        GeometryReader { geo in
-            let cardWidth = max((geo.size.width - LumenoteSpacing.xl) / 2, 1)
-            HStack(spacing: LumenoteSpacing.xl) {
-                metricCard(
-                    value: "\(model.semitoneDistance)",
-                    korean: "반음",
-                    english: "Semi-tones",
-                    accent: palette.minor,
-                    cardWidth: cardWidth
-                )
-                metricCard(
-                    value: IntervalModel.formatWholeTones(model.wholeTones),
-                    korean: "온음",
-                    english: "Whole tones",
-                    accent: palette.diminished,
-                    cardWidth: cardWidth
-                )
-            }
-        }
-        .frame(height: 72)
-    }
-
-    private func metricCard(
-        value: String,
-        korean: String,
-        english: String,
-        accent: Color,
-        cardWidth: CGFloat
-    ) -> some View {
-        let valueFontSize = metricValueFontSize(for: cardWidth, value: value)
-
-        return HStack(spacing: LumenoteSpacing.md) {
-            Text(value)
-                .font(LumenoteFont.rounded(size: valueFontSize, weight: .bold))
-                .foregroundStyle(accent)
-                .monospacedDigit()
-                .lineLimit(1)
-                .minimumScaleFactor(0.65)
-                .frame(minWidth: cardWidth * 0.28, alignment: .leading)
-
-            VStack(alignment: .leading, spacing: 1) {
-                Text(korean)
-                    .font(LumenoteFont.callout(.bold))
-                    .foregroundStyle(accent)
-                    .lineLimit(1)
-                Text(english)
-                    .font(LumenoteFont.caption2(.medium))
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.8)
+    private var noteSelectionCard: some View {
+        HStack(alignment: .center, spacing: LumenoteSpacing.md) {
+            noteHeaderButton(
+                title: "기준음",
+                displayName: model.rootDisplayName,
+                alignment: .leading,
+                isActive: activePicker == .root,
+                accessibilityHint: "기준음을 변경하려면 두 번 탭하세요"
+            ) {
+                togglePicker(.root)
             }
 
-            Spacer(minLength: 0)
+            intervalArrow
+                .frame(maxWidth: .infinity)
+
+            noteHeaderButton(
+                title: "목표음",
+                displayName: model.targetDisplayName,
+                alignment: .trailing,
+                isActive: activePicker == .target,
+                accessibilityHint: "목표음을 변경하려면 두 번 탭하세요"
+            ) {
+                togglePicker(.target)
+            }
         }
-        .padding(.horizontal, LumenoteSpacing.lg)
-        .padding(.vertical, LumenoteSpacing.xl)
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+        .padding(.horizontal, LumenoteSpacing.popupInset)
+        .padding(.vertical, LumenoteSpacing.xxl)
+        .frame(maxWidth: .infinity)
         .background(palette.cardBackground)
         .clipShape(RoundedRectangle(cornerRadius: LumenoteRadius.card, style: .continuous))
         .overlay(
             RoundedRectangle(cornerRadius: LumenoteRadius.card, style: .continuous)
                 .strokeBorder(palette.divider, lineWidth: LumenoteStroke.compact)
         )
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(value) \(korean)")
     }
 
-    private func metricValueFontSize(for cardWidth: CGFloat, value: String) -> CGFloat {
-        let base: CGFloat = 36
-        let available = cardWidth * 0.42
-        let estimated = available / max(CGFloat(value.count) * 0.58, 1)
-        return min(base, max(22, estimated))
-    }
-
-    // MARK: - Note pickers
-
-    private func notePickerPopup<ID: Hashable>(
+    private func noteHeaderButton(
         title: String,
-        options: [(id: ID, label: String)],
-        isSelected: @escaping (ID) -> Bool,
-        onSelect: @escaping (ID) -> Void,
-        onDismiss: @escaping () -> Void
+        displayName: String,
+        alignment: HorizontalAlignment,
+        isActive: Bool,
+        accessibilityHint: String,
+        action: @escaping () -> Void
     ) -> some View {
-        ZStack {
-            palette.scrim
-                .ignoresSafeArea()
-                .onTapGesture { onDismiss() }
+        let frameAlignment: Alignment = alignment == .leading ? .leading : .trailing
 
-            VStack(spacing: 0) {
-                HStack {
-                    Text(title)
-                        .font(LumenoteFont.headline(.bold))
-                    Spacer()
-                    Button(action: onDismiss) {
-                        Image(systemName: "xmark.circle.fill")
-                            .font(LumenoteFont.rounded(size: 22, weight: .regular))
-                            .symbolRenderingMode(.hierarchical)
-                            .foregroundStyle(.secondary)
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityLabel("닫기")
+        return Button(action: action) {
+            VStack(alignment: alignment, spacing: LumenoteSpacing.xxs) {
+                Text(title)
+                    .font(LumenoteFont.caption2(.semibold))
+                    .foregroundStyle(isActive ? palette.minor : .secondary)
+                Text(displayName)
+                    .font(.system(size: 34, weight: .bold))
+                    .foregroundStyle(isActive ? palette.minor : .primary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+            }
+        }
+        .buttonStyle(.plain)
+        .frame(maxWidth: .infinity, alignment: frameAlignment)
+        .accessibilityLabel("\(title) \(displayName)")
+        .accessibilityHint(accessibilityHint)
+        .accessibilityAddTraits(isActive ? .isSelected : [])
+    }
+
+    private var intervalArrow: some View {
+        HStack(spacing: 0) {
+            Capsule()
+                .fill(palette.minor.opacity(0.5))
+                .frame(height: 2)
+            IntervalArrowHead()
+                .fill(palette.minor)
+                .frame(width: 8, height: 10)
+        }
+        .frame(maxWidth: 88)
+        .frame(maxWidth: .infinity)
+        .accessibilityHidden(true)
+    }
+
+    private func intervalStaffSection(
+        title: String,
+        directionIcon: String,
+        notes: [IntervalStaffNote],
+        englishName: String,
+        koreanName: String
+    ) -> some View {
+        VStack(spacing: LumenoteSpacing.lg) {
+            HStack(spacing: LumenoteSpacing.md) {
+                Text(title)
+                    .font(LumenoteFont.caption(.semibold))
+                Image(systemName: directionIcon)
+                    .font(LumenoteFont.caption(.semibold))
+            }
+            .foregroundStyle(.secondary)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel(title)
+
+            IntervalStaffView(
+                notes: notes,
+                staffSpace: 12,
+                lineColor: Color.primary.opacity(0.75),
+                noteColor: Color.primary
+            )
+            .frame(maxWidth: .infinity)
+
+            VStack(spacing: LumenoteSpacing.xxs) {
+                Text(englishName)
+                    .font(LumenoteFont.rounded(size: 20, weight: .bold))
+                    .foregroundStyle(palette.minor)
+                    .multilineTextAlignment(.center)
+                Text(koreanName)
+                    .font(LumenoteFont.callout(.medium))
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+            }
+            .frame(maxWidth: .infinity)
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel("\(title), \(englishName), \(koreanName)")
+        }
+        .padding(LumenoteSpacing.xxl)
+        .frame(maxWidth: .infinity)
+        .background(palette.cardBackground)
+        .clipShape(RoundedRectangle(cornerRadius: LumenoteRadius.card, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: LumenoteRadius.card, style: .continuous)
+                .strokeBorder(palette.divider, lineWidth: LumenoteStroke.compact)
+        )
+    }
+
+    // MARK: - Bottom note picker strip
+
+    /// Fixed chip width so naturals, sharps, and flats share one generous size.
+    private let noteChipWidth: CGFloat = 64
+
+    private func notePickerStrip(for target: NotePickerTarget) -> some View {
+        let selectedSpelling = target == .root ? model.rootSpelling : model.targetSpelling
+
+        return VStack(spacing: LumenoteSpacing.lg) {
+            HStack {
+                Text(target.title)
+                    .font(LumenoteFont.caption(.semibold))
+                    .foregroundStyle(palette.minor)
+                Spacer()
+                Button {
+                    activePicker = nil
+                } label: {
+                    Image(systemName: "chevron.down")
+                        .font(LumenoteFont.caption(.semibold))
+                        .foregroundStyle(.secondary)
+                        .frame(width: 28, height: 28)
+                        .contentShape(Rectangle())
                 }
-                .padding(.horizontal, LumenoteSpacing.xxxl)
-                .padding(.vertical, LumenoteSpacing.xxl)
-                .background(palette.popupHeaderBackground)
-                .foregroundStyle(palette.popupHeaderForeground)
+                .buttonStyle(.plain)
+                .accessibilityLabel("선택 닫기")
+            }
+            .padding(.horizontal, LumenoteSpacing.popupInset)
 
-                LazyVGrid(
-                    columns: Array(repeating: GridItem(.flexible(), spacing: LumenoteSpacing.md), count: 4),
-                    spacing: LumenoteSpacing.md
-                ) {
-                    ForEach(options, id: \.id) { option in
-                        let selected = isSelected(option.id)
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: LumenoteSpacing.md) {
+                    ForEach(model.noteOptions, id: \.spelling) { option in
+                        let selected = option.spelling == selectedSpelling
                         Button {
-                            onSelect(option.id)
-                            onDismiss()
+                            selectNote(option.spelling, for: target)
                         } label: {
-                            Text(option.label)
-                                .font(LumenoteFont.body(selected ? .bold : .semibold))
-                                .foregroundStyle(.primary)
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, LumenoteSpacing.xl)
+                            Text(option.displayName)
+                                .font(.system(size: 17, weight: selected ? .bold : .semibold))
+                                .foregroundStyle(selected ? palette.emphasisStroke : .primary)
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.75)
+                                .frame(width: noteChipWidth, height: 40)
                                 .background(
                                     RoundedRectangle(cornerRadius: LumenoteRadius.chip, style: .continuous)
-                                        .fill(selected ? palette.highlight : palette.popupBackground)
+                                        .fill(selected ? palette.highlight : Color.clear)
                                 )
                                 .overlay(
                                     RoundedRectangle(cornerRadius: LumenoteRadius.chip, style: .continuous)
@@ -282,16 +283,51 @@ struct IntervalView: View {
                                 )
                         }
                         .buttonStyle(.plain)
-                        .accessibilityLabel(option.label)
+                        .id(option.spelling)
+                        .accessibilityLabel(option.displayName)
                         .accessibilityAddTraits(selected ? .isSelected : [])
                     }
                 }
-                .padding(LumenoteSpacing.xxxl)
+                .padding(.horizontal, LumenoteSpacing.popupInset)
+                .padding(.bottom, LumenoteSpacing.sm)
             }
-            .frame(maxWidth: 360)
-            .lumenotePopup()
-            .padding(.horizontal, LumenoteSpacing.popupInset)
+            .scrollPosition(id: $stripScrollPosition, anchor: .center)
         }
+        .padding(.top, LumenoteSpacing.xxl)
+        .padding(.bottom, LumenoteSpacing.xl)
+        .frame(maxWidth: .infinity)
+        .background(palette.cardBackground)
+        .overlay(alignment: .top) {
+            Rectangle()
+                .fill(palette.divider)
+                .frame(height: LumenoteStroke.hairline)
+        }
+        .onAppear {
+            stripScrollPosition = selectedSpelling
+        }
+        .onChange(of: target) { _, newTarget in
+            let spelling = newTarget == .root ? model.rootSpelling : model.targetSpelling
+            stripScrollPosition = spelling
+        }
+    }
+
+    private func togglePicker(_ target: NotePickerTarget) {
+        if activePicker == target {
+            activePicker = nil
+        } else {
+            activePicker = target
+            stripScrollPosition = target == .root ? model.rootSpelling : model.targetSpelling
+        }
+    }
+
+    private func selectNote(_ spelling: String, for target: NotePickerTarget) {
+        switch target {
+        case .root:
+            model.rootSpelling = spelling
+        case .target:
+            model.targetSpelling = spelling
+        }
+        stripScrollPosition = spelling
     }
 
     private var background: some View {
@@ -301,6 +337,18 @@ struct IntervalView: View {
             endPoint: .bottomTrailing
         )
         .ignoresSafeArea()
+    }
+}
+
+/// Right-pointing triangle flush against an adjacent shaft (no symbol side bearing).
+private struct IntervalArrowHead: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        path.move(to: CGPoint(x: rect.minX, y: rect.minY))
+        path.addLine(to: CGPoint(x: rect.maxX, y: rect.midY))
+        path.addLine(to: CGPoint(x: rect.minX, y: rect.maxY))
+        path.closeSubpath()
+        return path
     }
 }
 
