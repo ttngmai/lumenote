@@ -10,6 +10,7 @@ struct FeatureMenuView: View {
     private enum Destination: Hashable {
         case circleOfFifths
         case interval
+        case scale
         case intervalQuiz
         case keySignatureQuiz
     }
@@ -22,6 +23,14 @@ struct FeatureMenuView: View {
                         title: "음정",
                         subtitle: "두 음 사이의 거리",
                         systemImage: "ruler"
+                    )
+                }
+
+                NavigationLink(value: Destination.scale) {
+                    featureRow(
+                        title: "음계",
+                        subtitle: "스케일 구성 규칙",
+                        systemImage: "music.quarternote.3"
                     )
                 }
 
@@ -64,6 +73,8 @@ struct FeatureMenuView: View {
                 CircleOfFifthsView()
             case .interval:
                 IntervalView()
+            case .scale:
+                ScaleView()
             case .intervalQuiz:
                 IntervalQuizView()
             case .keySignatureQuiz:
