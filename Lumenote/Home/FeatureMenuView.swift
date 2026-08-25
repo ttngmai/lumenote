@@ -13,6 +13,7 @@ struct FeatureMenuView: View {
         case scale
         case intervalQuiz
         case keySignatureQuiz
+        case scaleQuiz
     }
 
     var body: some View {
@@ -52,6 +53,14 @@ struct FeatureMenuView: View {
                     )
                 }
 
+                NavigationLink(value: Destination.scaleQuiz) {
+                    featureRow(
+                        title: "음계 퀴즈",
+                        subtitle: "구성음 · 패턴 · 도수를 맞춰 보세요",
+                        systemImage: "music.quarternote.3"
+                    )
+                }
+
                 NavigationLink(value: Destination.keySignatureQuiz) {
                     featureRow(
                         title: "키 · 조표 퀴즈",
@@ -79,6 +88,8 @@ struct FeatureMenuView: View {
                 IntervalQuizView()
             case .keySignatureQuiz:
                 KeySignatureQuizView()
+            case .scaleQuiz:
+                ScaleQuizView()
             }
         }
     }
