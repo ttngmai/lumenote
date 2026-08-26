@@ -72,7 +72,7 @@ struct ScaleQuizView: View {
     }
 
     private var identifyScalePrompt: some View {
-        VStack(spacing: LumenoteSpacing.xl) {
+        Group {
             if !model.question.staffNotes.isEmpty {
                 ScaleStaffView(
                     notes: model.question.staffNotes,
@@ -80,14 +80,14 @@ struct ScaleQuizView: View {
                     noteNames: model.question.staffNoteNames,
                     staffSpace: 10,
                     targetWidth: nil,
+                    showsNoteNames: false,
+                    showsIntervalAnnotations: false,
                     lineColor: Color.primary.opacity(0.75),
                     noteColor: Color.primary,
                     accentColor: palette.minor
                 )
                 .frame(maxWidth: .infinity)
             }
-
-            tokenFlow(model.question.promptTokens)
         }
     }
 
