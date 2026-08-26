@@ -181,7 +181,7 @@ final class IntervalModel {
     // MARK: - Spelling-aware interval naming
 
     private static func koreanIntervalName(root: String, target: String, semitones: Int) -> String {
-        guard let number = diatonicNumber(root: root, target: target),
+        guard let number = diatonicNumber(root: root, target: target, semitones: semitones),
               let offset = qualityOffset(intervalNumber: number, semitones: semitones),
               let name = koreanName(intervalNumber: number, offset: offset)
         else {
@@ -191,7 +191,7 @@ final class IntervalModel {
     }
 
     private static func englishIntervalName(root: String, target: String, semitones: Int) -> String {
-        guard let number = diatonicNumber(root: root, target: target),
+        guard let number = diatonicNumber(root: root, target: target, semitones: semitones),
               let offset = qualityOffset(intervalNumber: number, semitones: semitones),
               let name = englishName(intervalNumber: number, offset: offset)
         else {
@@ -200,11 +200,18 @@ final class IntervalModel {
         return name
     }
 
-    private static func diatonicNumber(root: String, target: String) -> Int? {
+    /// Diatonic interval number (1…8) from letter distance.
+    /// Same letter uses semitone distance: short side → 1 (e.g. augmented unison),
+    /// long side → 8 (e.g. diminished octave).
+    private static func diatonicNumber(root: String, target: String, semitones: Int) -> Int? {
         guard let rootLetter = letterIndex(of: root),
               let targetLetter = letterIndex(of: target)
         else { return nil }
         let steps = (targetLetter - rootLetter + 7) % 7
+        if steps == 0 {
+            if semitones == 0 { return 1 }
+            return semitones <= 6 ? 1 : 8
+        }
         return steps + 1
     }
 
@@ -318,17 +325,23 @@ final class IntervalModel {
         // Only ±7 (octave) shifts are allowed afterward so the written letter never changes.
         var rootStep = rootLetter - 2
         var targetStep: Int
+        let rootPC = pitchClass(for: rootSpelling)
+        let targetPC = pitchClass(for: targetSpelling)
         switch direction {
         case .ascending:
             let up = (targetLetter - rootLetter + 7) % 7
             targetStep = rootStep + up
+            // Same letter but lower pitch class (e.g. A → A♭): rise one octave for diminished 8th.
+            if up == 0, targetPC != rootPC, targetPC < rootPC {
+                targetStep += 7
+            }
         case .descending:
             let down = (rootLetter - targetLetter + 7) % 7
-            if down == 0, pitchClass(for: rootSpelling) != pitchClass(for: targetSpelling) {
-                // Same letter, different pitch (e.g. E♭ → E as a 7th): drop one octave.
-                targetStep = rootStep - 7
-            } else {
-                targetStep = rootStep - down
+            targetStep = rootStep - down
+            // Same letter but higher pitch class (e.g. E♭ → E): drop one octave.
+            // Already-lower targets (e.g. A → A♭) stay on the same staff degree (augmented unison).
+            if down == 0, targetPC != rootPC, targetPC > rootPC {
+                targetStep -= 7
             }
         }
 
