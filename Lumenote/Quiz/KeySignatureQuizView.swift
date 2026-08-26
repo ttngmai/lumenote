@@ -151,7 +151,8 @@ struct KeySignatureQuizView: View {
             )
         }
         .buttonStyle(.plain)
-        .disabled(answered)
+        .opacity(answered && !showsCorrect && !showsIncorrect ? 0.45 : 1)
+        .allowsHitTesting(!answered)
         .accessibilityLabel(staffAccessibilityLabel(for: choice))
         .accessibilityAddTraits(isSelected ? .isSelected : [])
         .accessibilityHint(answered ? "" : "답을 선택하려면 두 번 탭하세요")
@@ -190,7 +191,8 @@ struct KeySignatureQuizView: View {
             )
         }
         .buttonStyle(.plain)
-        .disabled(answered)
+        .opacity(answered && !showsCorrect && !showsIncorrect ? 0.45 : 1)
+        .allowsHitTesting(!answered)
         .accessibilityLabel(choice.displayName)
         .accessibilityAddTraits(isSelected ? .isSelected : [])
         .accessibilityHint(answered ? "" : "답을 선택하려면 두 번 탭하세요")
@@ -201,23 +203,23 @@ struct KeySignatureQuizView: View {
         if showsCorrect {
             Image(systemName: "checkmark")
                 .font(LumenoteFont.callout(.bold))
-                .foregroundStyle(palette.minor)
+                .foregroundStyle(palette.quizCorrect)
         } else if showsIncorrect {
             Image(systemName: "xmark")
                 .font(LumenoteFont.callout(.bold))
-                .foregroundStyle(palette.major)
+                .foregroundStyle(palette.quizIncorrect)
         }
     }
 
     private func choiceBackground(showsCorrect: Bool, showsIncorrect: Bool) -> Color {
-        if showsCorrect { return palette.highlightSoft }
-        if showsIncorrect { return palette.major.opacity(0.12) }
+        if showsCorrect { return palette.quizCorrectBackground }
+        if showsIncorrect { return palette.quizIncorrectBackground }
         return palette.cardBackground
     }
 
     private func choiceBorder(showsCorrect: Bool, showsIncorrect: Bool) -> Color {
-        if showsCorrect { return palette.minor.opacity(0.55) }
-        if showsIncorrect { return palette.major.opacity(0.55) }
+        if showsCorrect { return palette.quizCorrect }
+        if showsIncorrect { return palette.quizIncorrect }
         return palette.divider
     }
 

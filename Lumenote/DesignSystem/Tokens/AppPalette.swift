@@ -59,53 +59,84 @@ struct AppPalette {
 
     // MARK: Circle fills
 
+    /// Warm red / neon coral. Dark mode uses a fluorescent tone for readability.
     var major: Color {
         isDark
-            ? Color(red: 0xC9 / 255, green: 0x50 / 255, blue: 0x50 / 255)
+            ? Color(red: 1.0, green: 0.38, blue: 0.48)
             : Color(red: 0xE9 / 255, green: 0x5D / 255, blue: 0x5D / 255)
     }
 
+    /// Cool blue / neon azure.
     var minor: Color {
         isDark
-            ? Color(red: 0x40 / 255, green: 0x6B / 255, blue: 0xCB / 255)
+            ? Color(red: 0.35, green: 0.72, blue: 1.0)
             : Color(red: 0x4F / 255, green: 0x81 / 255, blue: 0xEE / 255)
     }
 
+    /// Purple / neon violet.
     var diminished: Color {
         isDark
-            ? Color(red: 0x80 / 255, green: 0x50 / 255, blue: 0xB8 / 255)
+            ? Color(red: 0.78, green: 0.45, blue: 1.0)
             : Color(red: 0x9A / 255, green: 0x64 / 255, blue: 0xDB / 255)
     }
 
     /// Non-diatonic wedges.
     var chromaticFill: Color {
-        isDark ? Color(white: 0.3) : Color(white: 0.86)
+        isDark ? Color(white: 0.34) : Color(white: 0.86)
+    }
+
+    // MARK: Quiz feedback
+
+    /// Soft green fill behind a correct quiz choice.
+    var quizCorrectBackground: Color {
+        isDark
+            ? Color(red: 0.12, green: 0.32, blue: 0.2)
+            : Color(red: 0.86, green: 0.95, blue: 0.88)
+    }
+
+    /// Green border / checkmark for a correct quiz choice.
+    var quizCorrect: Color {
+        isDark
+            ? Color(red: 0.35, green: 1.0, blue: 0.55)
+            : Color(red: 0.22, green: 0.68, blue: 0.42)
+    }
+
+    /// Soft red fill behind an incorrect selected quiz choice.
+    var quizIncorrectBackground: Color {
+        isDark
+            ? Color(red: 0.36, green: 0.12, blue: 0.16)
+            : Color(red: 0.98, green: 0.90, blue: 0.90)
+    }
+
+    /// Red border / xmark for an incorrect selected quiz choice.
+    var quizIncorrect: Color {
+        major
     }
 
     // MARK: Emphasis
 
     /// Chip behind a highlighted formula degree / scale column / selected row.
-    /// Dark mode needs a dark amber so `.primary` (white) text stays legible.
+    /// Dark mode uses a bright amber that still keeps white text readable.
     var highlight: Color {
-        isDark ? Color(red: 0.45, green: 0.34, blue: 0.1) : Color(red: 1.0, green: 0.88, blue: 0.65)
+        isDark ? Color(red: 0.55, green: 0.42, blue: 0.08) : Color(red: 1.0, green: 0.88, blue: 0.65)
     }
 
     /// Softer variant behind the characteristic note row.
     var highlightSoft: Color {
-        isDark ? Color(red: 0.28, green: 0.22, blue: 0.1) : Color(red: 1.0, green: 0.95, blue: 0.86)
+        isDark ? Color(red: 0.36, green: 0.28, blue: 0.08) : Color(red: 1.0, green: 0.95, blue: 0.86)
     }
 
     var star: Color {
-        isDark ? Color(red: 1.0, green: 0.78, blue: 0.35) : Color(red: 0.85, green: 0.55, blue: 0.1)
+        isDark ? Color(red: 1.0, green: 0.88, blue: 0.28) : Color(red: 0.85, green: 0.55, blue: 0.1)
     }
 
     var emphasisFill: Color {
-        Color(red: 1.0, green: 0.82, blue: 0.28).opacity(isDark ? 0.3 : 0.42)
+        Color(red: 1.0, green: 0.88, blue: 0.2).opacity(isDark ? 0.38 : 0.42)
     }
 
     var emphasisStroke: Color {
         isDark
-            ? Color(red: 1.0, green: 0.72, blue: 0.25)
+            ? Color(red: 1.0, green: 0.85, blue: 0.2)
             : Color(red: 0.92, green: 0.55, blue: 0.08)
     }
 

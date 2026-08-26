@@ -192,11 +192,11 @@ struct ScaleQuizView: View {
                 if showsCorrect {
                     Image(systemName: "checkmark")
                         .font(LumenoteFont.callout(.bold))
-                        .foregroundStyle(palette.minor)
+                        .foregroundStyle(palette.quizCorrect)
                 } else if showsIncorrect {
                     Image(systemName: "xmark")
                         .font(LumenoteFont.callout(.bold))
-                        .foregroundStyle(palette.major)
+                        .foregroundStyle(palette.quizIncorrect)
                 }
             }
             .padding(.horizontal, LumenoteSpacing.xxl)
@@ -215,7 +215,8 @@ struct ScaleQuizView: View {
             )
         }
         .buttonStyle(.plain)
-        .disabled(answered)
+        .opacity(answered && !showsCorrect && !showsIncorrect ? 0.45 : 1)
+        .allowsHitTesting(!answered)
         .accessibilityLabel(choice)
         .accessibilityAddTraits(isSelected ? .isSelected : [])
         .accessibilityHint(answered ? "" : "답을 선택하려면 두 번 탭하세요")
@@ -228,7 +229,7 @@ struct ScaleQuizView: View {
         return VStack(alignment: .leading, spacing: LumenoteSpacing.sm) {
             Text(feedback.headline)
                 .font(LumenoteFont.body(.bold))
-                .foregroundStyle(isCorrect ? palette.minor : .primary)
+                .foregroundStyle(isCorrect ? palette.quizCorrect : .primary)
             if !feedback.detail.isEmpty {
                 Text(feedback.detail)
                     .font(LumenoteFont.callout(.medium))
@@ -240,12 +241,12 @@ struct ScaleQuizView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(
             RoundedRectangle(cornerRadius: LumenoteRadius.card, style: .continuous)
-                .fill(isCorrect ? palette.highlightSoft : palette.major.opacity(0.10))
+                .fill(isCorrect ? palette.quizCorrectBackground : palette.quizIncorrectBackground)
         )
         .overlay(
             RoundedRectangle(cornerRadius: LumenoteRadius.card, style: .continuous)
                 .strokeBorder(
-                    isCorrect ? palette.minor.opacity(0.45) : palette.major.opacity(0.40),
+                    isCorrect ? palette.quizCorrect : palette.quizIncorrect,
                     lineWidth: LumenoteStroke.compact
                 )
         )
@@ -253,14 +254,14 @@ struct ScaleQuizView: View {
     }
 
     private func choiceBackground(showsCorrect: Bool, showsIncorrect: Bool) -> Color {
-        if showsCorrect { return palette.highlightSoft }
-        if showsIncorrect { return palette.major.opacity(0.12) }
+        if showsCorrect { return palette.quizCorrectBackground }
+        if showsIncorrect { return palette.quizIncorrectBackground }
         return palette.cardBackground
     }
 
     private func choiceBorder(showsCorrect: Bool, showsIncorrect: Bool) -> Color {
-        if showsCorrect { return palette.minor.opacity(0.55) }
-        if showsIncorrect { return palette.major.opacity(0.55) }
+        if showsCorrect { return palette.quizCorrect }
+        if showsIncorrect { return palette.quizIncorrect }
         return palette.divider
     }
 
