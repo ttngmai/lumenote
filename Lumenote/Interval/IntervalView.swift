@@ -23,34 +23,45 @@ struct IntervalView: View {
         }
     }
 
+    /// Side-by-side staff cards when the viewport is wide enough (e.g. iPad portrait)
+    /// or landscape-like aspect ratio.
+    private static let sideBySideStaffMinWidth: CGFloat = 700
+
     var body: some View {
         GeometryReader { geo in
-            let isWide = geo.size.width > geo.size.height * 0.9
+            let isWide = geo.size.width >= Self.sideBySideStaffMinWidth
+                || geo.size.width > geo.size.height * 0.9
 
             VStack(spacing: 0) {
                 ScrollView {
                     VStack(spacing: LumenoteSpacing.section) {
                         staffCards(isWide: isWide)
+                            .fixedSize(horizontal: false, vertical: true)
                             .overlay {
                                 if activePicker != nil {
-                                    Color.clear
-                                        .contentShape(Rectangle())
-                                        .onTapGesture { activePicker = nil }
+                                    dismissTapLayer
                                 }
                             }
 
                         noteSelectionCard
+                            .fixedSize(horizontal: false, vertical: true)
+
+                        // Fills leftover viewport so taps below the cards dismiss the strip.
+                        // minHeight (not containerRelativeFrame) avoids compressing cards when
+                        // the bottom picker shortens the ScrollView.
+                        dismissTapLayer
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .layoutPriority(-1)
+                            .allowsHitTesting(activePicker != nil)
                     }
                     .padding(.horizontal, LumenoteSpacing.popupInset)
                     .padding(.vertical, LumenoteSpacing.xxxl)
                     .animation(.easeOut(duration: 0.2), value: model.rootSpelling)
                     .animation(.easeOut(duration: 0.2), value: model.targetSpelling)
-                    .frame(maxWidth: .infinity)
+                    .frame(maxWidth: .infinity, minHeight: geo.size.height, alignment: .top)
                     .background {
                         if activePicker != nil {
-                            Color.clear
-                                .contentShape(Rectangle())
-                                .onTapGesture { activePicker = nil }
+                            dismissTapLayer
                         }
                     }
                 }
@@ -86,6 +97,15 @@ struct IntervalView: View {
         .sheet(isPresented: $showsQualityGuide) {
             IntervalQualityGuideView()
         }
+    }
+
+    /// Nearly-invisible hit target; `Color.clear` alone can miss taps in ScrollView.
+    private var dismissTapLayer: some View {
+        Color.primary.opacity(0.001)
+            .contentShape(Rectangle())
+            .onTapGesture {
+                activePicker = nil
+            }
     }
 
     // MARK: - Sections
