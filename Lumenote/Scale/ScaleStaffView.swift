@@ -10,6 +10,10 @@ struct ScaleStaffView: View {
     let staffSpace: CGFloat
     /// Card inner width used to stretch note spacing (up to a cap) and center the staff.
     var targetWidth: CGFloat? = nil
+    /// When false, note names stay VoiceOver-only (not drawn under the staff).
+    var showsNoteNames: Bool = true
+    /// When false, whole/half-step marks under the staff are omitted entirely.
+    var showsIntervalAnnotations: Bool = true
     let lineColor: Color
     let noteColor: Color
     let accentColor: Color
@@ -58,20 +62,25 @@ struct ScaleStaffView: View {
             }
             .frame(width: contentWidth, height: staffCanvasHeight)
 
-            noteNameRow
-                .frame(width: contentWidth, height: nameRowHeight)
+            if showsNoteNames {
+                noteNameRow
+                    .frame(width: contentWidth, height: nameRowHeight)
+            }
 
-            intervalAnnotations
-                .frame(width: contentWidth, height: annotationHeight)
+            if showsIntervalAnnotations {
+                intervalAnnotations
+                    .frame(width: contentWidth, height: annotationHeight)
+            }
         }
         .frame(width: contentWidth)
         .frame(minWidth: targetWidth ?? contentWidth, alignment: .center)
-        .accessibilityElement(children: .combine)
+        .accessibilityElement(children: .ignore)
         .accessibilityLabel(accessibilitySummary)
     }
 
     private var accessibilitySummary: String {
         let names = noteNames.joined(separator: ", ")
+        guard showsIntervalAnnotations else { return names }
         let steps = intervals.map(\.koreanLabel).joined(separator: ", ")
         return "\(names). 구성: \(steps)"
     }
