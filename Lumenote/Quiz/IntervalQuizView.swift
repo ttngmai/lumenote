@@ -58,17 +58,7 @@ struct IntervalQuizView: View {
                 noteColor: Color.primary
             )
             .frame(maxWidth: .infinity)
-
-            HStack(spacing: LumenoteSpacing.md) {
-                Text(model.question.rootDisplayName)
-                    .font(.system(size: 28, weight: .bold))
-                Image(systemName: "arrow.right")
-                    .font(LumenoteFont.callout(.semibold))
-                    .foregroundStyle(palette.minor)
-                Text(model.question.targetDisplayName)
-                    .font(.system(size: 28, weight: .bold))
-            }
-            .accessibilityElement(children: .combine)
+            .accessibilityElement(children: .ignore)
             .accessibilityLabel("\(model.question.rootDisplayName)에서 \(model.question.targetDisplayName)")
         }
         .padding(LumenoteSpacing.xxl)
