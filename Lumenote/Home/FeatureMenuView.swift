@@ -65,7 +65,7 @@ struct FeatureMenuView: View {
                     featureRow(
                         title: "키 · 조표 퀴즈",
                         subtitle: "키와 조표를 맞춰 보세요",
-                        systemImage: "music.note.list"
+                        glyph: "♯"
                     )
                 }
             }
@@ -95,9 +95,27 @@ struct FeatureMenuView: View {
     }
 
     private func featureRow(title: String, subtitle: String, systemImage: String) -> some View {
-        HStack(spacing: LumenoteSpacing.xxl) {
+        featureRow(title: title, subtitle: subtitle) {
             Image(systemName: systemImage)
                 .font(LumenoteFont.rounded(size: 22, weight: .semibold))
+        }
+    }
+
+    /// Uses a music-glyph label (e.g. ♯) when no matching SF Symbol exists.
+    private func featureRow(title: String, subtitle: String, glyph: String) -> some View {
+        featureRow(title: title, subtitle: subtitle) {
+            Text(glyph)
+                .font(LumenoteFont.rounded(size: 26, weight: .semibold))
+        }
+    }
+
+    private func featureRow<Icon: View>(
+        title: String,
+        subtitle: String,
+        @ViewBuilder icon: () -> Icon
+    ) -> some View {
+        HStack(spacing: LumenoteSpacing.xxl) {
+            icon()
                 .foregroundStyle(.primary)
                 .frame(width: 36, height: 36)
 
