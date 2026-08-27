@@ -244,7 +244,7 @@ enum ChordKind: String, CaseIterable, Identifiable {
         case .minor7:
             return ["\(root)m7", "\(root)-7", "\(root)min7"]
         case .halfDiminished7:
-            return ["\(root)m7♭5", "\(root)-7♭5", "\(root)min7♭5"]
+            return ["\(root)m7♭5", "\(root)ø7", "\(root)-7♭5", "\(root)min7♭5"]
         case .diminished7:
             return ["\(root)dim7", "\(root)°7"]
         }
