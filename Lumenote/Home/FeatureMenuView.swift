@@ -11,6 +11,7 @@ struct FeatureMenuView: View {
         case circleOfFifths
         case interval
         case scale
+        case chord
         case intervalQuiz
         case keySignatureQuiz
         case scaleQuiz
@@ -40,6 +41,14 @@ struct FeatureMenuView: View {
                         title: "5도권",
                         subtitle: "키 · 조표 · 관계조",
                         systemImage: "circle.circle"
+                    )
+                }
+
+                NavigationLink(value: Destination.chord) {
+                    featureRow(
+                        title: "화음",
+                        subtitle: "Triad, 7th 코드의 구성과 표기",
+                        systemImage: "music.note.list"
                     )
                 }
             }
@@ -84,6 +93,8 @@ struct FeatureMenuView: View {
                 IntervalView()
             case .scale:
                 ScaleView()
+            case .chord:
+                ChordView()
             case .intervalQuiz:
                 IntervalQuizView()
             case .keySignatureQuiz:
