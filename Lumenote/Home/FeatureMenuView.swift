@@ -15,6 +15,7 @@ struct FeatureMenuView: View {
         case intervalQuiz
         case keySignatureQuiz
         case scaleQuiz
+        case chordQuiz
     }
 
     var body: some View {
@@ -77,6 +78,14 @@ struct FeatureMenuView: View {
                         glyph: "♯"
                     )
                 }
+
+                NavigationLink(value: Destination.chordQuiz) {
+                    featureRow(
+                        title: "화음 퀴즈",
+                        subtitle: "구성음 · 공식 · 표기를 맞춰 보세요",
+                        systemImage: "music.note.list"
+                    )
+                }
             }
         }
         .listStyle(.insetGrouped)
@@ -101,6 +110,8 @@ struct FeatureMenuView: View {
                 KeySignatureQuizView()
             case .scaleQuiz:
                 ScaleQuizView()
+            case .chordQuiz:
+                ChordQuizView()
             }
         }
     }

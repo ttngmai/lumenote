@@ -9,6 +9,7 @@ struct ChordStaffView: View {
     let degreeLabels: [String]
     let staffSpace: CGFloat
     var targetWidth: CGFloat? = nil
+    var showsToneLabels: Bool = true
     let lineColor: Color
     let noteColor: Color
     let accentColor: Color
@@ -24,7 +25,10 @@ struct ChordStaffView: View {
     private var labelColumnWidth: CGFloat { staffSpace * 5.8 }
 
     private var contentWidth: CGFloat {
-        noteheadX + staffSpace * 0.7 + labelGap + labelColumnWidth + trailingPad
+        if showsToneLabels {
+            return noteheadX + staffSpace * 0.7 + labelGap + labelColumnWidth + trailingPad
+        }
+        return noteheadX + staffSpace * 1.4 + trailingPad
     }
 
     private var canvasHeight: CGFloat {
@@ -39,7 +43,9 @@ struct ChordStaffView: View {
             ForEach(notes) { note in
                 ledgerLines(for: note)
                 notehead(for: note)
-                toneLabel(for: note)
+                if showsToneLabels {
+                    toneLabel(for: note)
+                }
             }
         }
         .frame(width: contentWidth, height: canvasHeight)
@@ -49,10 +55,12 @@ struct ChordStaffView: View {
     }
 
     private var accessibilitySummary: String {
-        let names = zip(noteNames, degreeLabels)
-            .map { "\($0) \($1)" }
-            .joined(separator: ", ")
-        return names
+        if showsToneLabels {
+            return zip(noteNames, degreeLabels)
+                .map { "\($0) \($1)" }
+                .joined(separator: ", ")
+        }
+        return noteNames.joined(separator: ", ")
     }
 
     // MARK: - Staff
