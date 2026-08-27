@@ -141,10 +141,10 @@ enum ChordCategory: String {
     case triad
     case seventh
 
-    var koreanTitle: String {
+    var englishTitle: String {
         switch self {
-        case .triad: return "3화음"
-        case .seventh: return "7화음"
+        case .triad: return "Triad"
+        case .seventh: return "7th"
         }
     }
 }
@@ -172,33 +172,17 @@ enum ChordKind: String, CaseIterable, Identifiable {
         }
     }
 
-    var koreanTitle: String {
-        switch self {
-        case .majorTriad: return "장3화음"
-        case .minorTriad: return "단3화음"
-        case .augmentedTriad: return "증3화음"
-        case .diminishedTriad: return "감3화음"
-        case .major7: return "장7화음"
-        case .dominant7: return "속7화음"
-        case .minorMajor7: return "단장7화음"
-        case .minor7: return "단7화음"
-        case .halfDiminished7: return "반감7화음"
-        case .diminished7: return "감7화음"
-        }
-    }
-
-    /// English names follow the textbook summary table.
     var englishTitle: String {
         switch self {
         case .majorTriad: return "Major Triad"
-        case .minorTriad: return "minor Triad"
+        case .minorTriad: return "Minor Triad"
         case .augmentedTriad: return "Augmented Triad"
         case .diminishedTriad: return "Diminish Triad"
         case .major7: return "Major 7"
         case .dominant7: return "7"
-        case .minorMajor7: return "minor Major 7"
-        case .minor7: return "minor 7"
-        case .halfDiminished7: return "minor 7 ♭5"
+        case .minorMajor7: return "Minor Major 7"
+        case .minor7: return "Minor 7"
+        case .halfDiminished7: return "Minor 7 ♭5"
         case .diminished7: return "Diminish 7"
         }
     }

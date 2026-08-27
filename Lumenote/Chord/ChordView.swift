@@ -19,7 +19,7 @@ struct ChordView: View {
     }
 
     private let noteChipWidth: CGFloat = 64
-    private let kindChipMinWidth: CGFloat = 108
+    private let kindChipMinWidth: CGFloat = 128
 
     var body: some View {
         GeometryReader { geo in
@@ -102,7 +102,7 @@ struct ChordView: View {
 
         return VStack(spacing: LumenoteSpacing.xl) {
             HStack(alignment: .firstTextBaseline) {
-                Text(model.kind.category.koreanTitle)
+                Text(model.kind.category.englishTitle)
                     .font(LumenoteFont.caption(.semibold))
                     .foregroundStyle(.secondary)
                 Spacer()
@@ -120,19 +120,12 @@ struct ChordView: View {
             )
             .padding(.vertical, LumenoteSpacing.xs)
 
-            VStack(spacing: LumenoteSpacing.xxs) {
-                Text(model.kind.englishTitle)
-                    .font(LumenoteFont.rounded(size: 20, weight: .bold))
-                    .foregroundStyle(palette.minor)
-                    .multilineTextAlignment(.center)
-                Text(model.kind.koreanTitle)
-                    .font(LumenoteFont.callout(.medium))
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
-            }
-            .frame(maxWidth: .infinity)
-            .accessibilityElement(children: .combine)
-            .accessibilityLabel("\(model.kind.englishTitle), \(model.kind.koreanTitle)")
+            Text(model.kind.englishTitle)
+                .font(LumenoteFont.rounded(size: 20, weight: .bold))
+                .foregroundStyle(palette.minor)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: .infinity)
+                .accessibilityAddTraits(.isHeader)
 
             formulaBlock
         }
@@ -204,7 +197,7 @@ struct ChordView: View {
 
             selectionHeaderButton(
                 title: "화음",
-                displayName: model.kind.koreanTitle,
+                displayName: model.kind.englishTitle,
                 alignment: .trailing,
                 isActive: activePicker == .kind,
                 accessibilityHint: "화음을 변경하려면 두 번 탭하세요"
@@ -320,8 +313,8 @@ struct ChordView: View {
                 activePicker = nil
             }
 
-            kindChipRow(title: "3화음", kinds: ChordKind.triads, scrollPosition: $triadStripScrollPosition)
-            kindChipRow(title: "7화음", kinds: ChordKind.sevenths, scrollPosition: $seventhStripScrollPosition)
+            kindChipRow(title: ChordCategory.triad.englishTitle, kinds: ChordKind.triads, scrollPosition: $triadStripScrollPosition)
+            kindChipRow(title: ChordCategory.seventh.englishTitle, kinds: ChordKind.sevenths, scrollPosition: $seventhStripScrollPosition)
         }
         .pickerStripChrome()
         .onAppear {
@@ -348,7 +341,7 @@ struct ChordView: View {
                             model.kind = kind
                             scrollPosition.wrappedValue = kind.id
                         } label: {
-                            Text(kind.koreanTitle)
+                            Text(kind.englishTitle)
                                 .font(.system(size: 16, weight: selected ? .bold : .semibold))
                                 .foregroundStyle(selected ? palette.emphasisStroke : .primary)
                                 .lineLimit(1)
@@ -369,7 +362,7 @@ struct ChordView: View {
                         }
                         .buttonStyle(.plain)
                         .id(kind.id)
-                        .accessibilityLabel("\(kind.koreanTitle), \(kind.englishTitle)")
+                        .accessibilityLabel(kind.englishTitle)
                         .accessibilityAddTraits(selected ? .isSelected : [])
                     }
                 }

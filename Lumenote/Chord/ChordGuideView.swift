@@ -12,8 +12,8 @@ struct ChordGuideView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: LumenoteSpacing.section) {
                     summaryCard
-                    chordSection(title: "3화음의 종류", kinds: ChordKind.triads)
-                    chordSection(title: "주요한 7화음의 종류", kinds: ChordKind.sevenths)
+                    chordSection(title: "Triad", kinds: ChordKind.triads)
+                    chordSection(title: "7th", kinds: ChordKind.sevenths)
                 }
                 .padding(.horizontal, LumenoteSpacing.popupInset)
                 .padding(.vertical, LumenoteSpacing.xxxl)
@@ -33,7 +33,7 @@ struct ChordGuideView: View {
     }
 
     private var summaryCard: some View {
-        Text("근음을 C로 둔 3화음과 7화음의 이름, 구성음, 표기입니다. 근음이 바뀌면 같은 간격으로 구성음과 기호가 옮겨집니다.")
+        Text("근음을 C로 둔 Triad와 7th 코드의 이름, 구성음, 표기입니다. 근음이 바뀌면 같은 간격으로 구성음과 기호가 옮겨집니다.")
             .font(LumenoteFont.callout(.medium))
             .foregroundStyle(.primary)
             .fixedSize(horizontal: false, vertical: true)
@@ -95,15 +95,10 @@ struct ChordGuideView: View {
     private func chordRow(_ kind: ChordKind) -> some View {
         VStack(alignment: .leading, spacing: LumenoteSpacing.sm) {
             HStack(alignment: .firstTextBaseline, spacing: LumenoteSpacing.md) {
-                VStack(alignment: .leading, spacing: LumenoteSpacing.xxs) {
-                    Text(kind.koreanTitle)
-                        .font(LumenoteFont.body(.bold))
-                        .foregroundStyle(.primary)
-                    Text(kind.englishTitle)
-                        .font(LumenoteFont.caption(.medium))
-                        .foregroundStyle(palette.minor)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
+                Text(kind.englishTitle)
+                    .font(LumenoteFont.body(.bold))
+                    .foregroundStyle(.primary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
 
                 Text(kind.formulaText)
                     .font(LumenoteFont.callout(.semibold))
@@ -126,7 +121,7 @@ struct ChordGuideView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .accessibilityElement(children: .combine)
         .accessibilityLabel(
-            "\(kind.koreanTitle), \(kind.englishTitle), 구성음 \(kind.formulaText), 표기 \(kind.notations(rootDisplayName: "C").joined(separator: ", "))"
+            "\(kind.englishTitle), 구성음 \(kind.formulaText), 표기 \(kind.notations(rootDisplayName: "C").joined(separator: ", "))"
         )
     }
 
