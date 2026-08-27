@@ -27,6 +27,7 @@ struct ChordView: View {
                 ScrollView {
                     VStack(spacing: LumenoteSpacing.section) {
                         staffCard(availableWidth: geo.size.width - LumenoteSpacing.popupInset * 2)
+                            .fixedSize(horizontal: false, vertical: true)
                             .overlay {
                                 if activePicker != nil {
                                     dismissTapLayer
@@ -34,17 +35,21 @@ struct ChordView: View {
                             }
 
                         selectionCard
+                            .fixedSize(horizontal: false, vertical: true)
 
+                        // Fills leftover viewport so taps below the cards dismiss the strip.
+                        // minHeight (not containerRelativeFrame) avoids compressing cards when
+                        // the bottom picker shortens the ScrollView.
                         dismissTapLayer
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .layoutPriority(-1)
                             .allowsHitTesting(activePicker != nil)
                     }
                     .padding(.horizontal, LumenoteSpacing.popupInset)
                     .padding(.vertical, LumenoteSpacing.xxxl)
                     .animation(.easeOut(duration: 0.2), value: model.rootSpelling)
                     .animation(.easeOut(duration: 0.2), value: model.kind)
-                    .frame(maxWidth: .infinity)
-                    .containerRelativeFrame(.vertical, alignment: .top)
+                    .frame(maxWidth: .infinity, minHeight: geo.size.height, alignment: .top)
                     .background {
                         if activePicker != nil {
                             dismissTapLayer
