@@ -11,6 +11,7 @@ struct FeatureMenuView: View {
         case circleOfFifths
         case interval
         case scale
+        case chord
         case intervalQuiz
         case keySignatureQuiz
         case scaleQuiz
@@ -32,6 +33,14 @@ struct FeatureMenuView: View {
                         title: "음계",
                         subtitle: "일정한 음정 규칙에 따라 배열된 음들의 체계",
                         systemImage: "music.quarternote.3"
+                    )
+                }
+
+                NavigationLink(value: Destination.chord) {
+                    featureRow(
+                        title: "화음",
+                        subtitle: "3화음 · 7화음의 구성과 표기",
+                        systemImage: "music.note.list"
                     )
                 }
 
@@ -84,6 +93,8 @@ struct FeatureMenuView: View {
                 IntervalView()
             case .scale:
                 ScaleView()
+            case .chord:
+                ChordView()
             case .intervalQuiz:
                 IntervalQuizView()
             case .keySignatureQuiz:
