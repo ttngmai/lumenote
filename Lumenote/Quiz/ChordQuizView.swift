@@ -59,19 +59,9 @@ struct ChordQuizView: View {
                 tokenPrompt
             case .identifyNotation:
                 if let emphasis = model.question.promptEmphasis {
-                    let rootName = ScaleModel.formatNoteName(
-                        model.question.explanationContext.rootSpelling
-                    )
-                    VStack(spacing: LumenoteSpacing.sm) {
-                        Text(emphasis)
-                            .font(.system(size: 34, weight: .bold))
-                        Text("근음 \(rootName)")
-                            .font(LumenoteFont.caption(.semibold))
-                            .foregroundStyle(.secondary)
-                    }
-                    .frame(maxWidth: .infinity)
-                    .accessibilityElement(children: .combine)
-                    .accessibilityLabel("\(emphasis), 근음 \(rootName)")
+                    Text(emphasis)
+                        .font(.system(size: 34, weight: .bold))
+                        .frame(maxWidth: .infinity)
                 }
             case .identifyTone:
                 EmptyView()
