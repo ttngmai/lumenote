@@ -135,11 +135,11 @@ struct ChordQuizView: View {
                     .foregroundStyle(palette.minor)
             case .degree(let label):
                 Text(label)
-                    .font(LumenoteFont.callout(.bold))
+                    .font(.system(size: 22, weight: .bold))
                     .foregroundStyle(.primary)
             case .degreeBlank:
                 Text("?")
-                    .font(LumenoteFont.callout(.bold))
+                    .font(.system(size: 22, weight: .bold))
                     .foregroundStyle(palette.minor)
             }
 
