@@ -201,9 +201,6 @@ struct CircleOfFifthsView: View {
         let selected = option.contains(model.selectedTonic)
         return Button {
             model.selectedTonic = option.representative
-            withAnimation(.easeOut(duration: 0.18)) {
-                isTonicExpanded = false
-            }
         } label: {
             Text(option.displayName)
                 .font(LumenoteFont.body(selected ? .bold : .semibold))
