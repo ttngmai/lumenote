@@ -181,21 +181,27 @@ final class IntervalModel {
     // MARK: - Spelling-aware interval naming
 
     private static func koreanIntervalName(root: String, target: String, semitones: Int) -> String {
-        guard let number = diatonicNumber(root: root, target: target, semitones: semitones),
-              let offset = qualityOffset(intervalNumber: number, semitones: semitones),
+        guard let number = diatonicNumber(root: root, target: target, semitones: semitones) else {
+            return fallbackIntervalNames[clampDistance(semitones)]
+        }
+        let actualSemitones = octaveAwareSemitones(intervalNumber: number, wrapped: semitones)
+        guard let offset = qualityOffset(intervalNumber: number, semitones: actualSemitones),
               let name = koreanName(intervalNumber: number, offset: offset)
         else {
-            return fallbackIntervalNames[clampDistance(semitones)]
+            return fallbackIntervalNames[clampDistance(actualSemitones)]
         }
         return name
     }
 
     private static func englishIntervalName(root: String, target: String, semitones: Int) -> String {
-        guard let number = diatonicNumber(root: root, target: target, semitones: semitones),
-              let offset = qualityOffset(intervalNumber: number, semitones: semitones),
+        guard let number = diatonicNumber(root: root, target: target, semitones: semitones) else {
+            return fallbackIntervalNamesEnglish[clampDistance(semitones)]
+        }
+        let actualSemitones = octaveAwareSemitones(intervalNumber: number, wrapped: semitones)
+        guard let offset = qualityOffset(intervalNumber: number, semitones: actualSemitones),
               let name = englishName(intervalNumber: number, offset: offset)
         else {
-            return fallbackIntervalNamesEnglish[clampDistance(semitones)]
+            return fallbackIntervalNamesEnglish[clampDistance(actualSemitones)]
         }
         return name
     }
@@ -220,6 +226,18 @@ final class IntervalModel {
         return semitones - referenceSemitones[intervalNumber]
     }
 
+    /// `% 12` collapses spelling-based 7ths such as B♭→A♯ to 0 semitones.
+    /// Restore the octave when the wrapped distance is far below the diatonic reference.
+    /// Diminished 2nds (C♯→D♭) stay at 0.
+    private static func octaveAwareSemitones(intervalNumber: Int, wrapped: Int) -> Int {
+        guard intervalNumber >= 1, intervalNumber <= 8 else { return wrapped }
+        let reference = referenceSemitones[intervalNumber]
+        if intervalNumber > 1, wrapped < reference - 6 {
+            return wrapped + 12
+        }
+        return wrapped
+    }
+
     private static func koreanName(intervalNumber: Int, offset: Int) -> String? {
         if perfectIntervalNumbers.contains(intervalNumber) {
             switch offset {
@@ -234,7 +252,6 @@ final class IntervalModel {
                 default: return "완전\(intervalNumber)도"
                 }
             case 1:
-                if intervalNumber == 8 { return "증7도" }
                 return "증\(intervalNumber)도"
             case 2 where intervalNumber != 8:
                 return "겹증\(intervalNumber)도"
@@ -244,10 +261,12 @@ final class IntervalModel {
         }
 
         switch offset {
+        case -3: return "겹감\(intervalNumber)도"
         case -2: return "감\(intervalNumber)도"
         case -1: return "단\(intervalNumber)도"
         case 0: return "장\(intervalNumber)도"
         case 1: return "증\(intervalNumber)도"
+        case 2: return "겹증\(intervalNumber)도"
         default: return nil
         }
     }
@@ -268,7 +287,6 @@ final class IntervalModel {
                 default: return "Perfect \(ordinal)"
                 }
             case 1:
-                if intervalNumber == 8 { return "Augmented 7th" }
                 return "Augmented \(ordinal)"
             case 2 where intervalNumber != 8:
                 return "Doubly Augmented \(ordinal)"
@@ -278,10 +296,12 @@ final class IntervalModel {
         }
 
         switch offset {
+        case -3: return "Doubly Diminished \(ordinal)"
         case -2: return "Diminished \(ordinal)"
         case -1: return "Minor \(ordinal)"
         case 0: return "Major \(ordinal)"
         case 1: return "Augmented \(ordinal)"
+        case 2: return "Doubly Augmented \(ordinal)"
         default: return nil
         }
     }
@@ -327,20 +347,23 @@ final class IntervalModel {
         var targetStep: Int
         let rootPC = pitchClass(for: rootSpelling)
         let targetPC = pitchClass(for: targetSpelling)
+        let sameDegreeOffset = sameDegreeSemitoneOffset(rootPC: rootPC, targetPC: targetPC)
         switch direction {
         case .ascending:
             let up = (targetLetter - rootLetter + 7) % 7
             targetStep = rootStep + up
-            // Same letter but lower pitch class (e.g. A → A♭): rise one octave for diminished 8th.
-            if up == 0, targetPC != rootPC, targetPC < rootPC {
+            // Same letter but lower sounding pitch (e.g. A → A♭, C → C♭):
+            // rise one octave for a diminished 8th. Raw `targetPC < rootPC`
+            // fails around C/B♯ (0) vs B/C♭ (11).
+            if up == 0, sameDegreeOffset < 0 {
                 targetStep += 7
             }
         case .descending:
             let down = (rootLetter - targetLetter + 7) % 7
             targetStep = rootStep - down
-            // Same letter but higher pitch class (e.g. E♭ → E): drop one octave.
-            // Already-lower targets (e.g. A → A♭) stay on the same staff degree (augmented unison).
-            if down == 0, targetPC != rootPC, targetPC > rootPC {
+            // Same letter but higher sounding pitch (e.g. E♭ → E, C♭ → C): drop one octave.
+            // Already-lower targets (e.g. A → A♭, C → C♭) stay on the same staff degree (augmented unison).
+            if down == 0, sameDegreeOffset > 0 {
                 targetStep -= 7
             }
         }
@@ -399,6 +422,15 @@ final class IntervalModel {
     }
 
     // MARK: - Helpers
+
+    /// Signed semitone offset of `target` vs `root` on the same staff degree, wrapped to −6…+6.
+    /// Negative means the target sounds lower (C → C♭ is −1, not +11).
+    private static func sameDegreeSemitoneOffset(rootPC: Int, targetPC: Int) -> Int {
+        var offset = targetPC - rootPC
+        if offset > 6 { offset -= 12 }
+        if offset < -6 { offset += 12 }
+        return offset
+    }
 
     static func pitchClass(for spelling: String) -> Int {
         pitchClassBySpelling[spelling] ?? 0
