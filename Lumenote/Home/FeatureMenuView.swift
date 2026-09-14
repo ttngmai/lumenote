@@ -2,7 +2,7 @@
 
 import SwiftUI
 
-/// Root feature list grouped into tools and quizzes.
+/// Root feature list grouped into tools, quizzes, and guitar drills.
 struct FeatureMenuView: View {
     @Environment(\.appPalette) private var palette
     @AppStorage(AppearanceMode.storageKey) private var appearance: AppearanceMode = .system
@@ -16,6 +16,7 @@ struct FeatureMenuView: View {
         case keySignatureQuiz
         case scaleQuiz
         case chordQuiz
+        case fretboardNoteNames
     }
 
     var body: some View {
@@ -87,6 +88,16 @@ struct FeatureMenuView: View {
                     )
                 }
             }
+
+            Section("기타") {
+                NavigationLink(value: Destination.fretboardNoteNames) {
+                    featureRow(
+                        title: "지판 외우기 (음이름)",
+                        subtitle: "지판에서 음의 위치를 찾아 보세요",
+                        systemImage: "guitars"
+                    )
+                }
+            }
         }
         .listStyle(.insetGrouped)
         .scrollContentBackground(.hidden)
@@ -112,6 +123,8 @@ struct FeatureMenuView: View {
                 ScaleQuizView()
             case .chordQuiz:
                 ChordQuizView()
+            case .fretboardNoteNames:
+                FretboardNoteQuizView()
             }
         }
     }

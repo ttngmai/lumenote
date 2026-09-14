@@ -8,6 +8,7 @@ enum AccidentalPreference: String, CaseIterable, Identifiable {
     case flat
 
     static let storageKey = "intervalAccidentalPreference"
+    static let fretboardStorageKey = "fretboardAccidentalPreference"
 
     var id: String { rawValue }
 
