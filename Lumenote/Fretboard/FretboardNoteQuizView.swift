@@ -25,7 +25,7 @@ struct FretboardNoteQuizView: View {
         }
         .scrollIndicators(.hidden)
         .background(background)
-        .lumenoteCompactHeader(title: "지판 외우기", showsBackButton: true) {
+        .lumenoteCompactHeader(title: "지판 퀴즈 (음이름)", showsBackButton: true) {
             HStack(spacing: LumenoteSpacing.sm) {
                 accidentalToggle
                 AppearanceToggleButton(appearance: $appearance)

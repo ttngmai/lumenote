@@ -2,155 +2,148 @@
 
 import SwiftUI
 
-/// Root feature list grouped into tools, quizzes, and guitar drills.
+/// Root menu: pick a domain, then learn or quiz, then a feature.
 struct FeatureMenuView: View {
-    @Environment(\.appPalette) private var palette
     @AppStorage(AppearanceMode.storageKey) private var appearance: AppearanceMode = .system
-
-    private enum Destination: Hashable {
-        case circleOfFifths
-        case interval
-        case scale
-        case chord
-        case intervalQuiz
-        case keySignatureQuiz
-        case scaleQuiz
-        case chordQuiz
-        case fretboardNoteNames
-    }
 
     var body: some View {
         List {
-            Section("도구") {
-                NavigationLink(value: Destination.interval) {
-                    featureRow(
-                        title: "음정",
-                        subtitle: "두 음 사이의 거리",
-                        systemImage: "ruler"
-                    )
-                }
-
-                NavigationLink(value: Destination.scale) {
-                    featureRow(
-                        title: "음계",
-                        subtitle: "일정한 음정 규칙에 따라 배열된 음들의 체계",
-                        systemImage: "music.quarternote.3"
-                    )
-                }
-
-                NavigationLink(value: Destination.circleOfFifths) {
-                    featureRow(
-                        title: "5도권",
-                        subtitle: "키 · 조표 · 관계조",
-                        systemImage: "circle.circle"
-                    )
-                }
-
-                NavigationLink(value: Destination.chord) {
-                    featureRow(
-                        title: "화음",
-                        subtitle: "Triad, 7th 코드의 구성과 표기",
-                        systemImage: "music.note.list"
-                    )
-                }
-            }
-
-            Section("퀴즈") {
-                NavigationLink(value: Destination.intervalQuiz) {
-                    featureRow(
-                        title: "음정 퀴즈",
-                        subtitle: "두 음의 음정을 맞춰 보세요",
-                        systemImage: "ruler"
-                    )
-                }
-
-                NavigationLink(value: Destination.scaleQuiz) {
-                    featureRow(
-                        title: "음계 퀴즈",
-                        subtitle: "구성음 · 패턴 · 도수를 맞춰 보세요",
-                        systemImage: "music.quarternote.3"
-                    )
-                }
-
-                NavigationLink(value: Destination.keySignatureQuiz) {
-                    featureRow(
-                        title: "키 · 조표 퀴즈",
-                        subtitle: "키와 조표를 맞춰 보세요",
-                        glyph: "♯"
-                    )
-                }
-
-                NavigationLink(value: Destination.chordQuiz) {
-                    featureRow(
-                        title: "화음 퀴즈",
-                        subtitle: "구성음 · 공식 · 표기를 맞춰 보세요",
-                        systemImage: "music.note.list"
-                    )
-                }
-            }
-
-            Section("기타") {
-                NavigationLink(value: Destination.fretboardNoteNames) {
-                    featureRow(
-                        title: "지판 외우기 (음이름)",
-                        subtitle: "지판에서 음의 위치를 찾아 보세요",
-                        systemImage: "guitars"
+            ForEach(FeatureDomain.allCases) { domain in
+                NavigationLink(value: domain) {
+                    FeatureMenuRow(
+                        title: domain.title,
+                        subtitle: domain.subtitle,
+                        systemImage: domain.systemImage
                     )
                 }
             }
         }
         .listStyle(.insetGrouped)
         .scrollContentBackground(.hidden)
-        .background(background)
+        .background(FeatureMenuBackground())
         .lumenoteCompactHeader(title: "Lumenote") {
             AppearanceToggleButton(appearance: $appearance)
         }
-        .navigationDestination(for: Destination.self) { destination in
-            switch destination {
-            case .circleOfFifths:
-                CircleOfFifthsView()
-            case .interval:
-                IntervalView()
-            case .scale:
-                ScaleView()
-            case .chord:
-                ChordView()
-            case .intervalQuiz:
-                IntervalQuizView()
-            case .keySignatureQuiz:
-                KeySignatureQuizView()
-            case .scaleQuiz:
-                ScaleQuizView()
-            case .chordQuiz:
-                ChordQuizView()
-            case .fretboardNoteNames:
-                FretboardNoteQuizView()
+        .navigationDestination(for: FeatureDomain.self) { domain in
+            FeatureModeMenuView(domain: domain)
+        }
+        .navigationDestination(for: FeatureCategory.self) { category in
+            FeatureListView(domain: category.domain, mode: category.mode)
+        }
+        .navigationDestination(for: FeatureDestination.self) { destination in
+            featureScreen(for: destination)
+        }
+    }
+
+    @ViewBuilder
+    private func featureScreen(for destination: FeatureDestination) -> some View {
+        switch destination {
+        case .interval:
+            IntervalView()
+        case .scale:
+            ScaleView()
+        case .circleOfFifths:
+            CircleOfFifthsView()
+        case .chord:
+            ChordView()
+        case .intervalQuiz:
+            IntervalQuizView()
+        case .scaleQuiz:
+            ScaleQuizView()
+        case .keySignatureQuiz:
+            KeySignatureQuizView()
+        case .chordQuiz:
+            ChordQuizView()
+        case .fretboardNoteNames:
+            FretboardNoteQuizView()
+        }
+    }
+}
+
+// MARK: - Mode menu
+
+private struct FeatureModeMenuView: View {
+    let domain: FeatureDomain
+
+    var body: some View {
+        List {
+            ForEach(FeatureMode.allCases) { mode in
+                NavigationLink(value: FeatureCategory(domain: domain, mode: mode)) {
+                    FeatureMenuRow(
+                        title: mode.title,
+                        subtitle: mode.subtitle,
+                        systemImage: mode.systemImage
+                    )
+                }
             }
         }
+        .listStyle(.insetGrouped)
+        .scrollContentBackground(.hidden)
+        .background(FeatureMenuBackground())
+        .lumenoteCompactHeader(title: domain.title, showsBackButton: true)
+    }
+}
+
+// MARK: - Feature list
+
+private struct FeatureListView: View {
+    let domain: FeatureDomain
+    let mode: FeatureMode
+
+    private var items: [FeatureItem] {
+        FeatureCatalog.items(in: domain, mode: mode)
     }
 
-    private func featureRow(title: String, subtitle: String, systemImage: String) -> some View {
-        featureRow(title: title, subtitle: subtitle) {
-            Image(systemName: systemImage)
-                .font(LumenoteFont.rounded(size: 22, weight: .semibold))
+    var body: some View {
+        Group {
+            if items.isEmpty {
+                ContentUnavailableView(
+                    "아직 해당되는 메뉴가 없습니다",
+                    systemImage: domain.systemImage
+                )
+            } else {
+                List {
+                    ForEach(items) { item in
+                        NavigationLink(value: item.destination) {
+                            FeatureMenuRow(item)
+                        }
+                    }
+                }
+                .listStyle(.insetGrouped)
+                .scrollContentBackground(.hidden)
+            }
         }
+        .background(FeatureMenuBackground())
+        .lumenoteCompactHeader(title: mode.title, showsBackButton: true)
+    }
+}
+
+// MARK: - Shared chrome
+
+private struct FeatureMenuRow: View {
+    let title: String
+    let subtitle: String
+    let icon: FeatureIcon
+
+    init(_ item: FeatureItem) {
+        self.title = item.title
+        self.subtitle = item.subtitle
+        self.icon = item.icon
     }
 
-    /// Uses a music-glyph label (e.g. ♯) when no matching SF Symbol exists.
-    private func featureRow(title: String, subtitle: String, glyph: String) -> some View {
-        featureRow(title: title, subtitle: subtitle) {
-            Text(glyph)
-                .font(LumenoteFont.rounded(size: 26, weight: .semibold))
-        }
+    init(title: String, subtitle: String, icon: FeatureIcon) {
+        self.title = title
+        self.subtitle = subtitle
+        self.icon = icon
     }
 
-    private func featureRow<Icon: View>(
-        title: String,
-        subtitle: String,
-        @ViewBuilder icon: () -> Icon
-    ) -> some View {
+    init(title: String, subtitle: String, systemImage: String) {
+        self.init(title: title, subtitle: subtitle, icon: .system(systemImage))
+    }
+
+    var body: some View {
         HStack(spacing: LumenoteSpacing.xxl) {
-            icon()
+            iconView
                 .foregroundStyle(.primary)
                 .frame(width: 36, height: 36)
 
@@ -168,7 +161,23 @@ struct FeatureMenuView: View {
         .accessibilityLabel("\(title), \(subtitle)")
     }
 
-    private var background: some View {
+    @ViewBuilder
+    private var iconView: some View {
+        switch icon {
+        case .system(let name):
+            Image(systemName: name)
+                .font(LumenoteFont.rounded(size: 22, weight: .semibold))
+        case .glyph(let glyph):
+            Text(glyph)
+                .font(LumenoteFont.rounded(size: 26, weight: .semibold))
+        }
+    }
+}
+
+private struct FeatureMenuBackground: View {
+    @Environment(\.appPalette) private var palette
+
+    var body: some View {
         LinearGradient(
             colors: palette.backgroundColors,
             startPoint: .topLeading,
