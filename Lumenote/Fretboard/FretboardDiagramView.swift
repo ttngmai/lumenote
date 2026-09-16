@@ -5,10 +5,12 @@ import SwiftUI
 /// Equal-width 6-string fretboard (open string through 12th fret).
 struct FretboardDiagramView: View {
     var accidental: AccidentalPreference
-    var selectedPosition: Fretboard.Position?
-    var targetPitchClass: Int?
-    var hasAnswered: Bool
-    var onSelect: (Fretboard.Position) -> Void
+    var selectedPosition: Fretboard.Position? = nil
+    var targetPitchClass: Int? = nil
+    var hasAnswered: Bool = false
+    /// When set, matching pitch classes are shown in distinct colors and cells are not tappable.
+    var visiblePitchClasses: Set<Int>? = nil
+    var onSelect: (Fretboard.Position) -> Void = { _ in }
 
     @Environment(\.appPalette) private var palette
     @Environment(\.colorScheme) private var colorScheme
@@ -205,19 +207,30 @@ struct FretboardDiagramView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .allowsHitTesting(!hasAnswered)
+        .allowsHitTesting(isInteractive)
         .accessibilityLabel(accessibilityLabel(for: position, markerName: marker?.name))
-        .accessibilityHint(hasAnswered ? "" : "답을 선택하려면 두 번 탭하세요")
+        .accessibilityHint(isInteractive ? "답을 선택하려면 두 번 탭하세요" : "")
         .accessibilityAddTraits(position == selectedPosition ? .isSelected : [])
     }
+
+    private var isExploring: Bool { visiblePitchClasses != nil }
+
+    private var isInteractive: Bool { !isExploring && !hasAnswered }
 
     private func markerStyle(
         for position: Fretboard.Position
     ) -> (fill: Color, stroke: Color, name: String)? {
-        guard hasAnswered else { return nil }
-
         let pitchClass = Fretboard.pitchClass(at: position)
         let name = Fretboard.displayName(pitchClass: pitchClass, accidental: accidental)
+
+        if let visiblePitchClasses {
+            guard visiblePitchClasses.contains(pitchClass) else { return nil }
+            let color = palette.fretboardNote(pitchClass)
+            return (color, color, name)
+        }
+
+        guard hasAnswered else { return nil }
+
         let isMatch = pitchClass == targetPitchClass
         let isSelected = position == selectedPosition
 
@@ -250,13 +263,22 @@ struct FretboardDiagramView: View {
     }
 }
 
-#Preview {
+#Preview("Quiz") {
     FretboardDiagramView(
         accidental: .sharp,
         selectedPosition: Fretboard.Position(stringIndex: 0, fret: 1),
         targetPitchClass: 5,
         hasAnswered: true,
         onSelect: { _ in }
+    )
+    .padding()
+    .lumenotePalette()
+}
+
+#Preview("Explorer") {
+    FretboardDiagramView(
+        accidental: .sharp,
+        visiblePitchClasses: Set(Fretboard.pitchClasses)
     )
     .padding()
     .lumenotePalette()

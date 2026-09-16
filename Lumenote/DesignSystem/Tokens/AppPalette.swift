@@ -149,6 +149,45 @@ struct AppPalette {
     var raisedWedgeShadowOpacity: Double {
         isDark ? 0.45 : 0.2
     }
+
+    // MARK: Fretboard notes
+
+    /// Distinct fill for each pitch class. Tuned so white note names stay readable.
+    func fretboardNote(_ pitchClass: Int) -> Color {
+        let colors = isDark ? Self.darkFretboardNotes : Self.lightFretboardNotes
+        let index = ((pitchClass % 12) + 12) % 12
+        return colors[index]
+    }
+
+    private static let lightFretboardNotes: [Color] = [
+        Color(red: 0.82, green: 0.18, blue: 0.22),
+        Color(red: 0.90, green: 0.38, blue: 0.14),
+        Color(red: 0.90, green: 0.52, blue: 0.08),
+        Color(red: 0.78, green: 0.55, blue: 0.08),
+        Color(red: 0.52, green: 0.68, blue: 0.12),
+        Color(red: 0.18, green: 0.62, blue: 0.32),
+        Color(red: 0.08, green: 0.58, blue: 0.55),
+        Color(red: 0.08, green: 0.58, blue: 0.72),
+        Color(red: 0.16, green: 0.42, blue: 0.82),
+        Color(red: 0.32, green: 0.28, blue: 0.72),
+        Color(red: 0.55, green: 0.22, blue: 0.72),
+        Color(red: 0.78, green: 0.18, blue: 0.48),
+    ]
+
+    private static let darkFretboardNotes: [Color] = [
+        Color(red: 0.95, green: 0.32, blue: 0.36),
+        Color(red: 0.98, green: 0.48, blue: 0.28),
+        Color(red: 0.98, green: 0.62, blue: 0.22),
+        Color(red: 0.90, green: 0.68, blue: 0.18),
+        Color(red: 0.55, green: 0.78, blue: 0.22),
+        Color(red: 0.22, green: 0.78, blue: 0.45),
+        Color(red: 0.15, green: 0.75, blue: 0.70),
+        Color(red: 0.20, green: 0.75, blue: 0.90),
+        Color(red: 0.35, green: 0.58, blue: 1.00),
+        Color(red: 0.52, green: 0.45, blue: 0.98),
+        Color(red: 0.75, green: 0.42, blue: 0.98),
+        Color(red: 0.95, green: 0.38, blue: 0.62),
+    ]
 }
 
 // MARK: - Environment
