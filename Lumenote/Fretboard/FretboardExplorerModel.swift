@@ -11,6 +11,10 @@ final class FretboardExplorerModel {
         self.visiblePitchClasses = visiblePitchClasses
     }
 
+    var areAllVisible: Bool {
+        Fretboard.pitchClasses.allSatisfy { visiblePitchClasses.contains($0) }
+    }
+
     func isVisible(_ pitchClass: Int) -> Bool {
         visiblePitchClasses.contains(pitchClass)
     }
@@ -20,6 +24,14 @@ final class FretboardExplorerModel {
             visiblePitchClasses.remove(pitchClass)
         } else {
             visiblePitchClasses.insert(pitchClass)
+        }
+    }
+
+    func toggleAll() {
+        if areAllVisible {
+            visiblePitchClasses.removeAll()
+        } else {
+            visiblePitchClasses = Set(Fretboard.pitchClasses)
         }
     }
 }
