@@ -2,9 +2,10 @@
 
 import SwiftUI
 
-/// Equal-width 6-string fretboard (open string through 12th fret).
+/// Equal-width 6-string fretboard (open string through `lastFret`).
 struct FretboardDiagramView: View {
     var accidental: AccidentalPreference
+    var lastFret: Int = Fretboard.lastFret
     var selectedPosition: Fretboard.Position? = nil
     var targetPitchClass: Int? = nil
     var hasAnswered: Bool = false
@@ -21,14 +22,20 @@ struct FretboardDiagramView: View {
     static let rowHeight: CGFloat = 36
 
     static var minimumWidth: CGFloat {
-        stringLabelWidth + minFretWidth * CGFloat(Fretboard.frets.count)
+        boardWidth(lastFret: Fretboard.lastFret)
+    }
+
+    static func boardWidth(lastFret: Int) -> CGFloat {
+        stringLabelWidth + minFretWidth * CGFloat(lastFret + 1)
     }
 
     static var preferredHeight: CGFloat {
         rowHeight * CGFloat(Fretboard.stringCount) + fretNumberHeight
     }
 
-    private let inlayFrets: Set<Int> = [3, 5, 7, 9]
+    private var frets: ClosedRange<Int> { 0...lastFret }
+    private let singleInlayFrets: Set<Int> = [3, 5, 7, 9, 15, 17, 19, 21]
+    private let doubleInlayFrets: Set<Int> = [12]
     private let markerSize: CGFloat = 30
 
     var body: some View {
@@ -51,7 +58,7 @@ struct FretboardDiagramView: View {
                 fretNumbers
             }
         }
-        .frame(minWidth: Self.minimumWidth)
+        .frame(minWidth: Self.boardWidth(lastFret: lastFret))
         .accessibilityElement(children: .contain)
     }
 
@@ -69,7 +76,7 @@ struct FretboardDiagramView: View {
 
     private var fretNumbers: some View {
         HStack(spacing: 0) {
-            ForEach(Fretboard.frets, id: \.self) { fret in
+            ForEach(frets, id: \.self) { fret in
                 Text("\(fret)")
                     .font(LumenoteFont.caption2(.medium))
                     .foregroundStyle(.secondary)
@@ -101,7 +108,7 @@ struct FretboardDiagramView: View {
 
     private var fretColumns: some View {
         HStack(spacing: 0) {
-            ForEach(Fretboard.frets, id: \.self) { fret in
+            ForEach(frets, id: \.self) { fret in
                 ZStack {
                     if fret == 0 {
                         palette.cardBackground.opacity(0.55)
@@ -116,7 +123,7 @@ struct FretboardDiagramView: View {
                                 .fill(nutColor)
                                 .frame(width: 5)
                         }
-                    } else if fret < Fretboard.lastFret {
+                    } else if fret < lastFret {
                         HStack {
                             Spacer(minLength: 0)
                             Rectangle()
@@ -133,12 +140,12 @@ struct FretboardDiagramView: View {
 
     @ViewBuilder
     private func inlay(for fret: Int) -> some View {
-        if fret == 12 {
+        if doubleInlayFrets.contains(fret) {
             VStack(spacing: 14) {
                 inlayDot
                 inlayDot
             }
-        } else if inlayFrets.contains(fret) {
+        } else if singleInlayFrets.contains(fret) {
             inlayDot
         }
     }
@@ -172,7 +179,7 @@ struct FretboardDiagramView: View {
         VStack(spacing: 0) {
             ForEach(0..<Fretboard.stringCount, id: \.self) { stringIndex in
                 HStack(spacing: 0) {
-                    ForEach(Fretboard.frets, id: \.self) { fret in
+                    ForEach(frets, id: \.self) { fret in
                         cell(Fretboard.Position(stringIndex: stringIndex, fret: fret))
                     }
                 }
@@ -278,6 +285,7 @@ struct FretboardDiagramView: View {
 #Preview("Explorer") {
     FretboardDiagramView(
         accidental: .sharp,
+        lastFret: Fretboard.explorerLastFret,
         visiblePitchClasses: Set(Fretboard.pitchClasses)
     )
     .padding()

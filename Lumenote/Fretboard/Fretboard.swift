@@ -12,6 +12,7 @@ enum Fretboard {
 
     static let stringCount = 6
     static let lastFret = 12
+    static let explorerLastFret = 22
     static let frets = 0...lastFret
     static let pitchClasses = Array(0..<12)
 
