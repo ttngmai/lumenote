@@ -56,6 +56,8 @@ struct FeatureMenuView: View {
             ChordQuizView()
         case .fretboardNoteNames:
             FretboardNoteQuizView()
+        case .fretboardExplorer:
+            FretboardExplorerView()
         }
     }
 }

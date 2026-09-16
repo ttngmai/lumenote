@@ -13,6 +13,7 @@ enum Fretboard {
     static let stringCount = 6
     static let lastFret = 12
     static let frets = 0...lastFret
+    static let pitchClasses = Array(0..<12)
 
     /// Open-string pitch classes from string 1 (high E) to string 6 (low E).
     static let standardOpenPitchClasses = [4, 11, 7, 2, 9, 4]
