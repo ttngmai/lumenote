@@ -4,56 +4,58 @@ import SwiftUI
 
 struct FretboardNoteQuizView: View {
     @Environment(\.appPalette) private var palette
+    @Environment(\.verticalSizeClass) private var verticalSizeClass
     @AppStorage(AppearanceMode.storageKey) private var appearance: AppearanceMode = .system
-    @AppStorage(AccidentalPreference.fretboardStorageKey) private var accidental: AccidentalPreference = .sharp
 
     @State private var model = FretboardNoteQuizModel()
 
+    private var isCompactHeight: Bool {
+        verticalSizeClass == .compact
+    }
+
     var body: some View {
         ScrollView {
-            VStack(spacing: LumenoteSpacing.section) {
-                scoreRow
-                promptCard
+            VStack(spacing: isCompactHeight ? LumenoteSpacing.md : LumenoteSpacing.section) {
+                promptRow
                 fretboardCard
-                if model.hasAnswered {
-                    nextButton
+                if !isCompactHeight, model.hasAnswered {
+                    nextButton(compact: false)
                 }
             }
-            .padding(.horizontal, LumenoteSpacing.popupInset)
-            .padding(.vertical, LumenoteSpacing.xxxl)
+            .padding(
+                .horizontal,
+                isCompactHeight ? LumenoteSpacing.lg : LumenoteSpacing.popupInset
+            )
+            .padding(
+                .vertical,
+                isCompactHeight ? LumenoteSpacing.sm : LumenoteSpacing.xxxl
+            )
             .frame(maxWidth: .infinity)
         }
         .scrollIndicators(.hidden)
         .background(background)
         .lumenoteCompactHeader(title: "지판 퀴즈 (음이름)", showsBackButton: true) {
-            HStack(spacing: LumenoteSpacing.sm) {
-                accidentalToggle
-                AppearanceToggleButton(appearance: $appearance)
-            }
+            AppearanceToggleButton(appearance: $appearance)
         }
     }
 
-    private var scoreRow: some View {
-        HStack {
-            Text("맞힌 문제")
-                .font(LumenoteFont.caption(.semibold))
-                .foregroundStyle(.secondary)
-            Spacer()
-            Text("\(model.correctCount) / \(model.answeredCount)")
-                .font(LumenoteFont.body(.bold))
-                .foregroundStyle(.primary)
-                .monospacedDigit()
+    private var promptRow: some View {
+        ZStack {
+            promptCard
+            if isCompactHeight, model.hasAnswered {
+                nextButton(compact: true)
+                    .frame(maxWidth: .infinity, alignment: .trailing)
+            }
         }
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel("맞힌 문제 \(model.correctCount)개, 전체 \(model.answeredCount)개")
+        .frame(maxWidth: .infinity)
     }
 
     private var promptCard: some View {
-        Text(model.displayName(accidental: accidental))
+        Text(model.displayName)
             .font(LumenoteFont.rounded(size: 36, weight: .bold))
             .foregroundStyle(.primary)
-            .frame(maxWidth: .infinity)
-            .padding(LumenoteSpacing.xxl)
+            .padding(.horizontal, LumenoteSpacing.xxl)
+            .padding(.vertical, LumenoteSpacing.md)
             .background(palette.cardBackground)
             .clipShape(RoundedRectangle(cornerRadius: LumenoteRadius.card, style: .continuous))
             .overlay(
@@ -61,17 +63,22 @@ struct FretboardNoteQuizView: View {
                     .strokeBorder(palette.divider, lineWidth: LumenoteStroke.compact)
             )
             .accessibilityAddTraits(.isHeader)
-            .accessibilityLabel("목표음 \(model.displayName(accidental: accidental))")
+            .accessibilityLabel("목표음 \(model.displayName)")
     }
 
     private var fretboardCard: some View {
         GeometryReader { geo in
-            let needsScroll = geo.size.width < FretboardDiagramView.minimumWidth
+            let frets = model.question.fretWindow
+            let minWidth = FretboardDiagramView.boardWidth(frets: frets, showsStringLabels: false)
+            let needsScroll = geo.size.width < minWidth
             let diagram = FretboardDiagramView(
-                accidental: accidental,
+                accidental: model.question.accidental,
+                firstFret: frets.lowerBound,
+                lastFret: frets.upperBound,
                 selectedPosition: model.selectedPosition,
                 targetPitchClass: model.question.targetPitchClass,
                 hasAnswered: model.hasAnswered,
+                showsStringLabels: false,
                 onSelect: { model.select($0) }
             )
 
@@ -79,7 +86,7 @@ struct FretboardNoteQuizView: View {
                 if needsScroll {
                     ScrollView(.horizontal, showsIndicators: false) {
                         diagram
-                            .frame(width: FretboardDiagramView.minimumWidth)
+                            .frame(width: minWidth)
                     }
                 } else {
                     diagram
@@ -89,7 +96,7 @@ struct FretboardNoteQuizView: View {
         }
         .frame(height: FretboardDiagramView.preferredHeight)
         .padding(.horizontal, LumenoteSpacing.xs)
-        .padding(.vertical, LumenoteSpacing.xl)
+        .padding(.vertical, isCompactHeight ? LumenoteSpacing.xs : LumenoteSpacing.xl)
         .frame(maxWidth: .infinity)
         .background(palette.cardBackground)
         .clipShape(RoundedRectangle(cornerRadius: LumenoteRadius.card, style: .continuous))
@@ -99,30 +106,16 @@ struct FretboardNoteQuizView: View {
         )
     }
 
-    private var accidentalToggle: some View {
-        Button {
-            accidental = accidental == .sharp ? .flat : .sharp
-        } label: {
-            Text(accidental.symbol)
-                .font(LumenoteFont.rounded(size: 18, weight: .bold))
-                .foregroundStyle(.primary)
-                .frame(width: 34, height: 34)
-                .background(Circle().fill(palette.cardBackground))
-                .overlay(Circle().strokeBorder(palette.cardBorder, lineWidth: LumenoteStroke.compact))
-        }
-        .buttonStyle(.plain)
-        .accessibilityLabel(accidental == .sharp ? "플랫 표기로 전환" : "샵 표기로 전환")
-    }
-
-    private var nextButton: some View {
+    private func nextButton(compact: Bool) -> some View {
         Button {
             model.nextQuestion()
         } label: {
             Text("다음 문제")
                 .font(LumenoteFont.body(.bold))
                 .foregroundStyle(.white)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, LumenoteSpacing.xxl)
+                .padding(.horizontal, compact ? LumenoteSpacing.xxxl : 0)
+                .padding(.vertical, compact ? LumenoteSpacing.md : LumenoteSpacing.xxl)
+                .frame(maxWidth: compact ? nil : .infinity)
                 .background(
                     RoundedRectangle(cornerRadius: LumenoteRadius.card, style: .continuous)
                         .fill(palette.minor)

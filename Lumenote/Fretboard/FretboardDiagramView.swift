@@ -2,13 +2,15 @@
 
 import SwiftUI
 
-/// Equal-width 6-string fretboard (open string through `lastFret`).
+/// Equal-width 6-string fretboard for `firstFret...lastFret`.
 struct FretboardDiagramView: View {
     var accidental: AccidentalPreference
+    var firstFret: Int = 0
     var lastFret: Int = Fretboard.lastFret
     var selectedPosition: Fretboard.Position? = nil
     var targetPitchClass: Int? = nil
     var hasAnswered: Bool = false
+    var showsStringLabels: Bool = true
     /// When set, matching pitch classes are shown in distinct colors and cells are not tappable.
     var visiblePitchClasses: Set<Int>? = nil
     var onSelect: (Fretboard.Position) -> Void = { _ in }
@@ -20,27 +22,36 @@ struct FretboardDiagramView: View {
     static let fretNumberHeight: CGFloat = 22
     static let minFretWidth: CGFloat = 44
     static let rowHeight: CGFloat = 36
+    /// Quiz markers stay on the light-mode green/red so white note names stay readable.
+    private static let lightQuizPalette = AppPalette(colorScheme: .light)
 
     static var minimumWidth: CGFloat {
         boardWidth(lastFret: Fretboard.lastFret)
     }
 
-    static func boardWidth(lastFret: Int) -> CGFloat {
-        stringLabelWidth + minFretWidth * CGFloat(lastFret + 1)
+    static func boardWidth(lastFret: Int, showsStringLabels: Bool = true) -> CGFloat {
+        boardWidth(frets: 0...lastFret, showsStringLabels: showsStringLabels)
+    }
+
+    static func boardWidth(frets: ClosedRange<Int>, showsStringLabels: Bool = true) -> CGFloat {
+        let labelsWidth = showsStringLabels ? stringLabelWidth : 0
+        return labelsWidth + minFretWidth * CGFloat(frets.count)
     }
 
     static var preferredHeight: CGFloat {
         rowHeight * CGFloat(Fretboard.stringCount) + fretNumberHeight
     }
 
-    private var frets: ClosedRange<Int> { 0...lastFret }
+    private var frets: ClosedRange<Int> { firstFret...lastFret }
     private let singleInlayFrets: Set<Int> = [3, 5, 7, 9, 15, 17, 19, 21]
     private let doubleInlayFrets: Set<Int> = [12]
     private let markerSize: CGFloat = 30
 
     var body: some View {
         HStack(alignment: .top, spacing: 0) {
-            stringLabels
+            if showsStringLabels {
+                stringLabels
+            }
             VStack(spacing: 0) {
                 ZStack {
                     boardFill
@@ -58,7 +69,7 @@ struct FretboardDiagramView: View {
                 fretNumbers
             }
         }
-        .frame(minWidth: Self.boardWidth(lastFret: lastFret))
+        .frame(minWidth: Self.boardWidth(frets: frets, showsStringLabels: showsStringLabels))
         .accessibilityElement(children: .contain)
     }
 
@@ -123,12 +134,19 @@ struct FretboardDiagramView: View {
                                 .fill(nutColor)
                                 .frame(width: 5)
                         }
-                    } else if fret < lastFret {
+                    } else {
                         HStack {
+                            if fret == firstFret {
+                                Rectangle()
+                                    .fill(fretColor)
+                                    .frame(width: LumenoteStroke.compact)
+                            }
                             Spacer(minLength: 0)
-                            Rectangle()
-                                .fill(fretColor)
-                                .frame(width: LumenoteStroke.compact)
+                            if fret < lastFret {
+                                Rectangle()
+                                    .fill(fretColor)
+                                    .frame(width: LumenoteStroke.compact)
+                            }
                         }
                     }
                 }
@@ -242,21 +260,14 @@ struct FretboardDiagramView: View {
         let isSelected = position == selectedPosition
 
         if isMatch {
-            let color = correctMarkerColor
+            let color = Self.lightQuizPalette.quizCorrect
             return (color, color, name)
         }
         if isSelected {
-            let color = palette.quizIncorrect.opacity(1)
+            let color = Self.lightQuizPalette.quizIncorrect
             return (color, color, name)
         }
         return nil
-    }
-
-    /// Solid green that keeps white note names readable in both appearances.
-    private var correctMarkerColor: Color {
-        colorScheme == .dark
-            ? Color(red: 0.20, green: 0.64, blue: 0.40)
-            : palette.quizCorrect
     }
 
     private func accessibilityLabel(for position: Fretboard.Position, markerName: String?) -> String {
@@ -273,9 +284,12 @@ struct FretboardDiagramView: View {
 #Preview("Quiz") {
     FretboardDiagramView(
         accidental: .sharp,
-        selectedPosition: Fretboard.Position(stringIndex: 0, fret: 1),
+        firstFret: 12,
+        lastFret: 16,
+        selectedPosition: Fretboard.Position(stringIndex: 0, fret: 13),
         targetPitchClass: 5,
         hasAnswered: true,
+        showsStringLabels: false,
         onSelect: { _ in }
     )
     .padding()

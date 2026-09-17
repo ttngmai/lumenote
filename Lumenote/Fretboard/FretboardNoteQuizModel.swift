@@ -2,17 +2,17 @@
 
 import Foundation
 
-/// Quiz: a pitch class is named, and any matching fret is a correct answer.
+/// Quiz: a pitch class is named, and any matching fret in the visible window is correct.
 @Observable
 final class FretboardNoteQuizModel {
     struct Question: Equatable {
         let targetPitchClass: Int
+        let accidental: AccidentalPreference
+        let fretWindow: ClosedRange<Int>
     }
 
     private(set) var question: Question
     private(set) var selectedPosition: Fretboard.Position?
-    private(set) var correctCount = 0
-    private(set) var answeredCount = 0
 
     var hasAnswered: Bool { selectedPosition != nil }
 
@@ -22,28 +22,29 @@ final class FretboardNoteQuizModel {
     }
 
     var matchingPositions: [Fretboard.Position] {
-        Fretboard.positions(of: question.targetPitchClass)
+        Fretboard.positions(of: question.targetPitchClass, frets: question.fretWindow)
     }
 
     init() {
-        question = Question(targetPitchClass: 0)
+        question = Question(
+            targetPitchClass: 0,
+            accidental: .sharp,
+            fretWindow: 0...(Fretboard.quizWindowLength - 1)
+        )
         question = makeQuestion(avoiding: nil)
     }
 
-    func displayName(accidental: AccidentalPreference) -> String {
+    var displayName: String {
         Fretboard.displayName(
             pitchClass: question.targetPitchClass,
-            accidental: accidental
+            accidental: question.accidental
         )
     }
 
     func select(_ position: Fretboard.Position) {
         guard selectedPosition == nil else { return }
+        guard question.fretWindow.contains(position.fret) else { return }
         selectedPosition = position
-        answeredCount += 1
-        if isSelectionCorrect {
-            correctCount += 1
-        }
     }
 
     func nextQuestion() {
@@ -57,6 +58,22 @@ final class FretboardNoteQuizModel {
         if let previous, pitchClass == previous {
             pitchClass = (pitchClass + 1 + Int.random(in: 0..<11)) % 12
         }
-        return Question(targetPitchClass: pitchClass)
+        let windows = Fretboard.quizFretWindows(containing: pitchClass)
+        let window = windows.randomElement() ?? 0...(Fretboard.quizWindowLength - 1)
+        return Question(
+            targetPitchClass: pitchClass,
+            accidental: accidental(for: pitchClass),
+            fretWindow: window
+        )
+    }
+
+    /// Black keys pick sharp or flat at random; naturals keep sharp spellings for markers.
+    private func accidental(for pitchClass: Int) -> AccidentalPreference {
+        let sharp = Fretboard.displayName(pitchClass: pitchClass, accidental: .sharp)
+        let flat = Fretboard.displayName(pitchClass: pitchClass, accidental: .flat)
+        if sharp == flat {
+            return .sharp
+        }
+        return Bool.random() ? .sharp : .flat
     }
 }
