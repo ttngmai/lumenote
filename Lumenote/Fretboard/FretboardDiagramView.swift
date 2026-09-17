@@ -13,6 +13,8 @@ struct FretboardDiagramView: View {
     var showsStringLabels: Bool = true
     /// When set, matching pitch classes are shown in distinct colors and cells are not tappable.
     var visiblePitchClasses: Set<Int>? = nil
+    var labelMode: Fretboard.LabelMode = .noteName
+    var rootPitchClass: Int = 0
     var onSelect: (Fretboard.Position) -> Void = { _ in }
 
     @Environment(\.appPalette) private var palette
@@ -233,7 +235,7 @@ struct FretboardDiagramView: View {
         }
         .buttonStyle(.plain)
         .allowsHitTesting(isInteractive)
-        .accessibilityLabel(accessibilityLabel(for: position, markerName: marker?.name))
+        .accessibilityLabel(accessibilityLabel(for: position, markerName: markerAccessibilityName(for: position)))
         .accessibilityHint(isInteractive ? "답을 선택하려면 두 번 탭하세요" : "")
         .accessibilityAddTraits(position == selectedPosition ? .isSelected : [])
     }
@@ -246,11 +248,22 @@ struct FretboardDiagramView: View {
         for position: Fretboard.Position
     ) -> (fill: Color, stroke: Color, name: String)? {
         let pitchClass = Fretboard.pitchClass(at: position)
-        let name = Fretboard.displayName(pitchClass: pitchClass, accidental: accidental)
+        let name = Fretboard.displayLabel(
+            pitchClass: pitchClass,
+            accidental: accidental,
+            labelMode: labelMode,
+            rootPitchClass: rootPitchClass
+        )
 
         if let visiblePitchClasses {
             guard visiblePitchClasses.contains(pitchClass) else { return nil }
-            let color = palette.fretboardNote(pitchClass)
+            let color = palette.fretboardNote(
+                Fretboard.swatchPitchClass(
+                    for: pitchClass,
+                    labelMode: labelMode,
+                    rootPitchClass: rootPitchClass
+                )
+            )
             return (color, color, name)
         }
 
@@ -268,6 +281,17 @@ struct FretboardDiagramView: View {
             return (color, color, name)
         }
         return nil
+    }
+
+    private func markerAccessibilityName(for position: Fretboard.Position) -> String? {
+        guard markerStyle(for: position) != nil else { return nil }
+        let pitchClass = Fretboard.pitchClass(at: position)
+        return Fretboard.accessibilityName(
+            pitchClass: pitchClass,
+            accidental: accidental,
+            labelMode: labelMode,
+            rootPitchClass: rootPitchClass
+        )
     }
 
     private func accessibilityLabel(for position: Fretboard.Position, markerName: String?) -> String {
@@ -301,6 +325,18 @@ struct FretboardDiagramView: View {
         accidental: .sharp,
         lastFret: Fretboard.explorerLastFret,
         visiblePitchClasses: Set(Fretboard.pitchClasses)
+    )
+    .padding()
+    .lumenotePalette()
+}
+
+#Preview("Explorer Degrees") {
+    FretboardDiagramView(
+        accidental: .sharp,
+        lastFret: Fretboard.explorerLastFret,
+        visiblePitchClasses: Set(Fretboard.pitchClasses),
+        labelMode: .degree,
+        rootPitchClass: 7
     )
     .padding()
     .lumenotePalette()

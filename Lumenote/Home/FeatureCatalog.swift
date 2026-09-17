@@ -160,7 +160,7 @@ enum FeatureCatalog {
                 FeatureItem(
                     destination: .fretboardExplorer,
                     title: "지판 보기",
-                    subtitle: "음이름별 지판 위치를 살펴보세요",
+                    subtitle: "음이름과 도수로 지판 위치를 살펴보세요",
                     icon: .system("guitars")
                 ),
             ]
