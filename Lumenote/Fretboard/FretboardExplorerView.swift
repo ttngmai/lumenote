@@ -9,6 +9,7 @@ struct FretboardExplorerView: View {
     @AppStorage(AccidentalPreference.fretboardStorageKey) private var accidental: AccidentalPreference = .sharp
 
     @State private var model = FretboardExplorerModel()
+    @State private var isPickingRoot = false
 
     private let noteColumns = Array(repeating: GridItem(.flexible(), spacing: LumenoteSpacing.md), count: 4)
     private let compactNoteColumns = Array(
@@ -51,7 +52,9 @@ struct FretboardExplorerView: View {
             let diagram = FretboardDiagramView(
                 accidental: accidental,
                 lastFret: lastFret,
-                visiblePitchClasses: model.visiblePitchClasses
+                visiblePitchClasses: model.visiblePitchClasses,
+                labelMode: model.labelMode,
+                rootPitchClass: model.rootPitchClass
             )
 
             Group {
@@ -77,22 +80,29 @@ struct FretboardExplorerView: View {
                 .strokeBorder(palette.divider, lineWidth: LumenoteStroke.compact)
         )
         .accessibilityElement(children: .contain)
-        .accessibilityLabel("기타 지판")
+        .accessibilityLabel(fretboardAccessibilityLabel)
     }
 
     private var noteToggleCard: some View {
         Group {
             if isCompactHeight {
-                compactNoteRow
+                compactControls
             } else {
                 VStack(spacing: LumenoteSpacing.xxl) {
-                    HStack {
+                    HStack(spacing: LumenoteSpacing.sm) {
                         allNotesToggle
                         Spacer(minLength: 0)
+                        if model.labelMode == .degree {
+                            rootPickerButton
+                        }
+                        labelModeToggle
                         accidentalToggle
                     }
+                    if showsRootPicker {
+                        rootPickerGrid
+                    }
                     LazyVGrid(columns: noteColumns, spacing: LumenoteSpacing.md) {
-                        ForEach(Fretboard.pitchClasses, id: \.self) { pitchClass in
+                        ForEach(explorerPitchClasses, id: \.self) { pitchClass in
                             noteToggleButton(pitchClass)
                         }
                     }
@@ -110,25 +120,55 @@ struct FretboardExplorerView: View {
         .transaction { $0.animation = nil }
     }
 
+    private var compactControls: some View {
+        VStack(spacing: LumenoteSpacing.xs) {
+            if model.labelMode == .degree {
+                compactRootRow
+            }
+            compactNoteRow
+        }
+    }
+
+    private var compactRootRow: some View {
+        HStack(spacing: LumenoteSpacing.sm) {
+            rootPickerButton
+                .fixedSize()
+            if showsRootPicker {
+                compactRootPickerRow
+            } else {
+                Spacer(minLength: 0)
+            }
+        }
+    }
+
     private var compactNoteRow: some View {
         HStack(spacing: LumenoteSpacing.sm) {
             allNotesToggle
                 .fixedSize()
             ViewThatFits(in: .horizontal) {
                 HStack(spacing: LumenoteSpacing.xs) {
-                    ForEach(Fretboard.pitchClasses, id: \.self) { pitchClass in
+                    ForEach(explorerPitchClasses, id: \.self) { pitchClass in
                         noteToggleButton(pitchClass, compact: true)
                     }
                 }
                 LazyVGrid(columns: compactNoteColumns, spacing: LumenoteSpacing.xs) {
-                    ForEach(Fretboard.pitchClasses, id: \.self) { pitchClass in
+                    ForEach(explorerPitchClasses, id: \.self) { pitchClass in
                         noteToggleButton(pitchClass, compact: true)
                     }
                 }
             }
+            labelModeToggle
+                .fixedSize()
             accidentalToggle
                 .fixedSize()
         }
+    }
+
+    private var explorerPitchClasses: [Int] {
+        Fretboard.explorerPitchClasses(
+            labelMode: model.labelMode,
+            rootPitchClass: model.rootPitchClass
+        )
     }
 
     private var allNotesToggle: some View {
@@ -139,13 +179,18 @@ struct FretboardExplorerView: View {
                 model.toggleAll()
             }
         } label: {
-            Image(systemName: isOn ? "eye.slash.fill" : "eye.fill")
-                .font(LumenoteFont.rounded(size: 15, weight: .bold))
-                .foregroundStyle(.primary)
-                .contentTransition(.identity)
-                .frame(width: 34, height: 34)
-                .background(Circle().fill(palette.cardBackground))
-                .overlay(Circle().strokeBorder(palette.cardBorder, lineWidth: LumenoteStroke.compact))
+            ZStack {
+                Circle()
+                    .fill(palette.cardBackground)
+                if isOn {
+                    Image(systemName: "checkmark")
+                        .font(LumenoteFont.rounded(size: 15, weight: .bold))
+                        .foregroundStyle(.primary)
+                        .contentTransition(.identity)
+                }
+            }
+            .frame(width: 34, height: 34)
+            .overlay(Circle().strokeBorder(palette.cardBorder, lineWidth: LumenoteStroke.compact))
         }
         .buttonStyle(.plain)
         .accessibilityLabel(isOn ? "모든 음 숨기기" : "모든 음 표시")
@@ -165,8 +210,19 @@ struct FretboardExplorerView: View {
     }
 
     private func noteToggleButton(_ pitchClass: Int, compact: Bool = false) -> some View {
-        let name = Fretboard.displayName(pitchClass: pitchClass, accidental: accidental)
-        let color = palette.fretboardNote(pitchClass)
+        let name = Fretboard.displayLabel(
+            pitchClass: pitchClass,
+            accidental: accidental,
+            labelMode: model.labelMode,
+            rootPitchClass: model.rootPitchClass
+        )
+        let color = palette.fretboardNote(
+            Fretboard.swatchPitchClass(
+                for: pitchClass,
+                labelMode: model.labelMode,
+                rootPitchClass: model.rootPitchClass
+            )
+        )
         let isOn = model.isVisible(pitchClass)
 
         return Button {
@@ -177,7 +233,14 @@ struct FretboardExplorerView: View {
             NoteToggleChip(name: name, color: color, isOn: isOn, compact: compact)
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(name)
+        .accessibilityLabel(
+            Fretboard.accessibilityName(
+                pitchClass: pitchClass,
+                accidental: accidental,
+                labelMode: model.labelMode,
+                rootPitchClass: model.rootPitchClass
+            )
+        )
         .accessibilityValue(isOn ? "표시됨" : "숨김")
         .accessibilityHint("지판 표시를 전환하려면 두 번 탭하세요")
         .accessibilityAddTraits(isOn ? .isSelected : [])
@@ -201,6 +264,128 @@ struct FretboardExplorerView: View {
         .accessibilityLabel(accidental == .sharp ? "플랫 표기로 전환" : "샵 표기로 전환")
     }
 
+    private var showsRootPicker: Bool {
+        model.labelMode == .degree && isPickingRoot
+    }
+
+    private var fretboardAccessibilityLabel: String {
+        guard model.labelMode == .degree else { return "기타 지판" }
+        let rootName = Fretboard.displayName(
+            pitchClass: model.rootPitchClass,
+            accidental: accidental
+        )
+        return "기타 지판, 도수 표시, 기준음 \(rootName)"
+    }
+
+    private var labelModeToggle: some View {
+        Button {
+            withoutAnimation {
+                model.labelMode = model.labelMode.next
+                if model.labelMode != .degree {
+                    isPickingRoot = false
+                }
+            }
+        } label: {
+            Text(model.labelMode.title)
+                .font(LumenoteFont.caption(.bold))
+                .foregroundStyle(.primary)
+                .contentTransition(.identity)
+                .minimumScaleFactor(0.7)
+                .lineLimit(1)
+                .padding(.horizontal, LumenoteSpacing.md)
+                .frame(minWidth: 34)
+                .frame(height: 34)
+                .background(
+                    Capsule(style: .continuous)
+                        .fill(palette.cardBackground)
+                )
+                .overlay(
+                    Capsule(style: .continuous)
+                        .strokeBorder(palette.cardBorder, lineWidth: LumenoteStroke.compact)
+                )
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(model.labelMode.toggleAccessibilityLabel)
+        .accessibilityValue(model.labelMode.title)
+    }
+
+    private var rootPickerButton: some View {
+        let name = Fretboard.displayName(pitchClass: model.rootPitchClass, accidental: accidental)
+
+        return Button {
+            withoutAnimation {
+                isPickingRoot.toggle()
+            }
+        } label: {
+            RootPickerButtonLabel(name: name, isPicking: isPickingRoot)
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("기준음 \(name)")
+        .accessibilityHint("기준음을 변경하려면 두 번 탭하세요")
+        .accessibilityAddTraits(isPickingRoot ? .isSelected : [])
+        .accessibilityValue(isPickingRoot ? "선택 열림" : "선택 닫힘")
+    }
+
+    private var rootPickerGrid: some View {
+        LazyVGrid(columns: compactNoteColumns, spacing: LumenoteSpacing.xs) {
+            ForEach(Fretboard.pitchClasses, id: \.self) { pitchClass in
+                rootOptionButton(pitchClass)
+            }
+        }
+        .accessibilityElement(children: .contain)
+    }
+
+    private var compactRootPickerRow: some View {
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: LumenoteSpacing.xs) {
+                ForEach(Fretboard.pitchClasses, id: \.self) { pitchClass in
+                    rootOptionButton(pitchClass, compact: true)
+                }
+            }
+            LazyVGrid(columns: compactNoteColumns, spacing: LumenoteSpacing.xs) {
+                ForEach(Fretboard.pitchClasses, id: \.self) { pitchClass in
+                    rootOptionButton(pitchClass, compact: true)
+                }
+            }
+        }
+        .accessibilityElement(children: .contain)
+    }
+
+    private func rootOptionButton(_ pitchClass: Int, compact: Bool = false) -> some View {
+        let name = Fretboard.displayName(pitchClass: pitchClass, accidental: accidental)
+        let selected = model.rootPitchClass == pitchClass
+
+        return Button {
+            withoutAnimation {
+                model.selectRoot(pitchClass)
+            }
+        } label: {
+            Text(name)
+                .font(compact ? LumenoteFont.caption(.bold) : LumenoteFont.body(.bold))
+                .foregroundStyle(selected ? palette.emphasisStroke : .primary)
+                .contentTransition(.identity)
+                .minimumScaleFactor(0.65)
+                .lineLimit(1)
+                .frame(maxWidth: .infinity)
+                .modifier(NoteToggleChipLayout(compact: compact))
+                .background(
+                    RoundedRectangle(cornerRadius: LumenoteRadius.softRow, style: .continuous)
+                        .fill(selected ? palette.highlight : Color.clear)
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: LumenoteRadius.softRow, style: .continuous)
+                        .strokeBorder(
+                            selected ? palette.cardBorderActive : palette.divider,
+                            lineWidth: selected ? LumenoteStroke.compact : LumenoteStroke.hairline
+                        )
+                )
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(name)
+        .accessibilityAddTraits(selected ? .isSelected : [])
+        .accessibilityHint("기준음으로 설정하려면 두 번 탭하세요")
+    }
+
     private var background: some View {
         LinearGradient(
             colors: palette.backgroundColors,
@@ -214,6 +399,41 @@ struct FretboardExplorerView: View {
         var transaction = Transaction()
         transaction.disablesAnimations = true
         withTransaction(transaction, action)
+    }
+}
+
+private struct RootPickerButtonLabel: View {
+    let name: String
+    let isPicking: Bool
+
+    @Environment(\.appPalette) private var palette
+
+    var body: some View {
+        HStack(spacing: LumenoteSpacing.xs) {
+            Text("기준")
+                .font(LumenoteFont.caption2(.semibold))
+                .foregroundStyle(.secondary)
+            Text(name)
+                .font(LumenoteFont.caption(.bold))
+                .foregroundStyle(.primary)
+        }
+        .contentTransition(.identity)
+        .minimumScaleFactor(0.7)
+        .lineLimit(1)
+        .padding(.horizontal, LumenoteSpacing.md)
+        .frame(minWidth: 34)
+        .frame(height: 34)
+        .background(
+            RoundedRectangle(cornerRadius: LumenoteRadius.softRow, style: .continuous)
+                .fill(isPicking ? Color.primary.opacity(0.12) : palette.cardBackground)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: LumenoteRadius.softRow, style: .continuous)
+                .strokeBorder(
+                    isPicking ? palette.cardBorderActive : palette.cardBorder,
+                    lineWidth: LumenoteStroke.compact
+                )
+        )
     }
 }
 
