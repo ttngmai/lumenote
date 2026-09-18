@@ -113,6 +113,11 @@ struct AppPalette {
         major
     }
 
+    /// Degree-quiz tonic marker. Fixed blue in light and dark so the white "1" stays readable.
+    var fretboardQuizRoot: Color {
+        Color(red: 0x4F / 255, green: 0x81 / 255, blue: 0xEE / 255)
+    }
+
     // MARK: Emphasis
 
     /// Chip behind a highlighted formula degree / scale column / selected row.

@@ -80,6 +80,7 @@ enum FeatureDestination: Hashable {
     case keySignatureQuiz
     case chordQuiz
     case fretboardNoteNames
+    case fretboardDegrees
     case fretboardExplorer
 }
 
@@ -170,6 +171,12 @@ enum FeatureCatalog {
                     destination: .fretboardNoteNames,
                     title: "지판 퀴즈 (음이름)",
                     subtitle: "지판에서 음의 위치를 찾아 보세요",
+                    icon: .system("guitars")
+                ),
+                FeatureItem(
+                    destination: .fretboardDegrees,
+                    title: "지판 퀴즈 (도수)",
+                    subtitle: "1도를 기준으로 도수의 위치를 찾아 보세요",
                     icon: .system("guitars")
                 ),
             ]

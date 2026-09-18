@@ -43,6 +43,8 @@ enum Fretboard {
     static let lastFret = 12
     static let explorerLastFret = 22
     static let quizWindowLength = 5
+    /// Chromatic intervals asked by the fretboard degree quiz. Tonic (0 semitones / 1도) is never the target.
+    static let quizTargetSemitones = 1...11
     static let frets = 0...lastFret
     static let pitchClasses = Array(0..<12)
 
@@ -66,16 +68,24 @@ enum Fretboard {
         }
     }
 
+    /// Consecutive 5-fret windows on the 22-fret board.
+    static func quizFretWindows(
+        lastFret: Int = explorerLastFret
+    ) -> [ClosedRange<Int>] {
+        let length = quizWindowLength
+        guard lastFret >= length - 1 else { return [] }
+        return (0...(lastFret - length + 1)).map { start in
+            start...(start + length - 1)
+        }
+    }
+
     /// Consecutive 5-fret windows on the 22-fret board that contain `pitchClass`.
     static func quizFretWindows(
         containing pitchClass: Int,
         lastFret: Int = explorerLastFret
     ) -> [ClosedRange<Int>] {
-        let length = quizWindowLength
-        guard lastFret >= length - 1 else { return [] }
-        return (0...(lastFret - length + 1)).compactMap { start in
-            let window = start...(start + length - 1)
-            return positions(of: pitchClass, frets: window).isEmpty ? nil : window
+        quizFretWindows(lastFret: lastFret).filter { window in
+            !positions(of: pitchClass, frets: window).isEmpty
         }
     }
 
