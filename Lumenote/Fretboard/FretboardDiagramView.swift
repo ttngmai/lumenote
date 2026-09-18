@@ -10,6 +10,8 @@ struct FretboardDiagramView: View {
     var selectedPosition: Fretboard.Position? = nil
     var targetPitchClass: Int? = nil
     var hasAnswered: Bool = false
+    /// Shown before and after answering, e.g. the degree-quiz tonic.
+    var hintPosition: Fretboard.Position? = nil
     var showsStringLabels: Bool = true
     /// When set, matching pitch classes are shown in distinct colors and cells are not tappable.
     var visiblePitchClasses: Set<Int>? = nil
@@ -236,7 +238,7 @@ struct FretboardDiagramView: View {
         .buttonStyle(.plain)
         .allowsHitTesting(isInteractive)
         .accessibilityLabel(accessibilityLabel(for: position, markerName: markerAccessibilityName(for: position)))
-        .accessibilityHint(isInteractive ? "답을 선택하려면 두 번 탭하세요" : "")
+        .accessibilityHint(accessibilityHint(for: position))
         .accessibilityAddTraits(position == selectedPosition ? .isSelected : [])
     }
 
@@ -267,6 +269,11 @@ struct FretboardDiagramView: View {
             return (color, color, name)
         }
 
+        if position == hintPosition {
+            let color = palette.fretboardQuizRoot
+            return (color, color, name)
+        }
+
         guard hasAnswered else { return nil }
 
         let isMatch = pitchClass == targetPitchClass
@@ -294,6 +301,14 @@ struct FretboardDiagramView: View {
         )
     }
 
+    private func accessibilityHint(for position: Fretboard.Position) -> String {
+        guard isInteractive else { return "" }
+        if position == hintPosition {
+            return "기준음입니다"
+        }
+        return "답을 선택하려면 두 번 탭하세요"
+    }
+
     private func accessibilityLabel(for position: Fretboard.Position, markerName: String?) -> String {
         let location = position.fret == 0
             ? "\(position.stringIndex + 1)번줄 개방현"
@@ -314,6 +329,22 @@ struct FretboardDiagramView: View {
         targetPitchClass: 5,
         hasAnswered: true,
         showsStringLabels: false,
+        onSelect: { _ in }
+    )
+    .padding()
+    .lumenotePalette()
+}
+
+#Preview("Degree Quiz") {
+    FretboardDiagramView(
+        accidental: .sharp,
+        firstFret: 5,
+        lastFret: 9,
+        targetPitchClass: 11,
+        hintPosition: Fretboard.Position(stringIndex: 2, fret: 7),
+        showsStringLabels: false,
+        labelMode: .degree,
+        rootPitchClass: 2,
         onSelect: { _ in }
     )
     .padding()
