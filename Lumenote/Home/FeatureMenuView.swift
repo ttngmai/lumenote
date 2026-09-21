@@ -2,7 +2,7 @@
 
 import SwiftUI
 
-/// Root menu: pick a domain, then learn or quiz, then a feature.
+/// Root menu: pick a domain, then expand learn or quiz to open a feature.
 struct FeatureMenuView: View {
     @AppStorage(AppearanceMode.storageKey) private var appearance: AppearanceMode = .system
 
@@ -26,9 +26,6 @@ struct FeatureMenuView: View {
         }
         .navigationDestination(for: FeatureDomain.self) { domain in
             FeatureModeMenuView(domain: domain)
-        }
-        .navigationDestination(for: FeatureCategory.self) { category in
-            FeatureListView(domain: category.domain, mode: category.mode)
         }
         .navigationDestination(for: FeatureDestination.self) { destination in
             featureScreen(for: destination)
@@ -70,17 +67,16 @@ struct FeatureMenuView: View {
 
 private struct FeatureModeMenuView: View {
     let domain: FeatureDomain
+    @State private var expandedModes: Set<FeatureMode> = []
 
     var body: some View {
         List {
             ForEach(FeatureMode.allCases) { mode in
-                NavigationLink(value: FeatureCategory(domain: domain, mode: mode)) {
-                    FeatureMenuRow(
-                        title: mode.title,
-                        subtitle: mode.subtitle,
-                        systemImage: mode.systemImage
-                    )
-                }
+                FeatureModeSection(
+                    domain: domain,
+                    mode: mode,
+                    isExpanded: expansionBinding(for: mode)
+                )
             }
         }
         .listStyle(.insetGrouped)
@@ -88,39 +84,75 @@ private struct FeatureModeMenuView: View {
         .background(FeatureMenuBackground())
         .lumenoteCompactHeader(title: domain.title, showsBackButton: true)
     }
+
+    private func expansionBinding(for mode: FeatureMode) -> Binding<Bool> {
+        Binding(
+            get: { expandedModes.contains(mode) },
+            set: { isExpanded in
+                if isExpanded {
+                    expandedModes.insert(mode)
+                } else {
+                    expandedModes.remove(mode)
+                }
+            }
+        )
+    }
 }
 
-// MARK: - Feature list
-
-private struct FeatureListView: View {
+private struct FeatureModeSection: View {
     let domain: FeatureDomain
     let mode: FeatureMode
+    @Binding var isExpanded: Bool
 
     private var items: [FeatureItem] {
         FeatureCatalog.items(in: domain, mode: mode)
     }
 
     var body: some View {
-        Group {
-            if items.isEmpty {
-                ContentUnavailableView(
-                    "아직 해당되는 메뉴가 없습니다",
-                    systemImage: domain.systemImage
-                )
-            } else {
-                List {
+        Section {
+            Button {
+                withAnimation(.easeOut(duration: 0.18)) {
+                    isExpanded.toggle()
+                }
+            } label: {
+                HStack(spacing: LumenoteSpacing.md) {
+                    FeatureMenuRow(
+                        title: mode.title,
+                        subtitle: mode.subtitle,
+                        systemImage: mode.systemImage
+                    )
+                    .frame(maxWidth: .infinity, alignment: .leading)
+
+                    Image(systemName: "chevron.down")
+                        .font(LumenoteFont.rounded(size: 11, weight: .bold))
+                        .foregroundStyle(.secondary)
+                        .rotationEffect(.degrees(isExpanded ? 0 : -90))
+                }
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel("\(mode.title), \(mode.subtitle)")
+            .accessibilityHint(isExpanded ? "접기" : "펼치기")
+            .accessibilityAddTraits(.isButton)
+            .accessibilityAddTraits(isExpanded ? .isSelected : [])
+
+            if isExpanded {
+                if items.isEmpty {
+                    Text("아직 해당되는 메뉴가 없습니다")
+                        .font(LumenoteFont.caption(.medium))
+                        .foregroundStyle(.secondary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.vertical, LumenoteSpacing.xs)
+                } else {
                     ForEach(items) { item in
                         NavigationLink(value: item.destination) {
                             FeatureMenuRow(item)
                         }
                     }
                 }
-                .listStyle(.insetGrouped)
-                .scrollContentBackground(.hidden)
             }
         }
-        .background(FeatureMenuBackground())
-        .lumenoteCompactHeader(title: mode.title, showsBackButton: true)
     }
 }
 
@@ -162,6 +194,7 @@ private struct FeatureMenuRow: View {
                     .foregroundStyle(.secondary)
             }
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.vertical, LumenoteSpacing.xs)
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(title), \(subtitle)")

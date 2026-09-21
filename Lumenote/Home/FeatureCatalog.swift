@@ -60,15 +60,6 @@ enum FeatureMode: String, CaseIterable, Hashable, Identifiable {
     }
 }
 
-/// A domain paired with learn or quiz, used as a navigation route.
-struct FeatureCategory: Hashable, Identifiable {
-    let domain: FeatureDomain
-    let mode: FeatureMode
-
-    var id: String { "\(domain.rawValue)-\(mode.rawValue)" }
-    var title: String { mode.title }
-}
-
 /// Leaf screen reached from a feature list.
 enum FeatureDestination: Hashable {
     case interval
