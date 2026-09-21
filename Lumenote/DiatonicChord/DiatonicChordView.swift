@@ -143,13 +143,13 @@ struct DiatonicChordView: View {
                 .padding(.vertical, LumenoteSpacing.sm)
                 .background(
                     RoundedRectangle(cornerRadius: LumenoteRadius.chip, style: .continuous)
-                        .fill(selected ? palette.highlight : palette.highlightSoft)
+                        .fill(selected ? palette.highlight : Color.clear)
                 )
                 .overlay(
                     RoundedRectangle(cornerRadius: LumenoteRadius.chip, style: .continuous)
                         .strokeBorder(
-                            selected ? palette.cardBorderActive : Color.clear,
-                            lineWidth: selected ? LumenoteStroke.compact : 0
+                            selected ? palette.cardBorderActive : palette.divider,
+                            lineWidth: selected ? LumenoteStroke.compact : LumenoteStroke.hairline
                         )
                 )
         }
