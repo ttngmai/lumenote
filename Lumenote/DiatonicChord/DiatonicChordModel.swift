@@ -176,8 +176,8 @@ enum DiatonicVoicing: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .triad: "3화음"
-        case .seventh: "7화음"
+        case .triad: ChordCategory.triad.englishTitle
+        case .seventh: ChordCategory.seventh.englishTitle
         }
     }
 
