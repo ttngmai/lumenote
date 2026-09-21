@@ -27,7 +27,9 @@ struct DiatonicChordView: View {
                     VStack(alignment: .leading, spacing: LumenoteSpacing.section) {
                         conceptCard
                         selectionCard
-                        constructionCard
+                        constructionCard(
+                            availableWidth: geo.size.width - LumenoteSpacing.popupInset * 2
+                        )
                         patternTableCard
                         functionFlowCard
                         functionGroupsCard
@@ -38,6 +40,7 @@ struct DiatonicChordView: View {
                     .animation(.easeOut(duration: 0.2), value: model.tonicSpelling)
                     .animation(.easeOut(duration: 0.2), value: model.kind)
                     .animation(.easeOut(duration: 0.2), value: model.voicing)
+                    .animation(.easeOut(duration: 0.2), value: model.highlightedDegree)
                     .frame(maxWidth: .infinity, minHeight: geo.size.height, alignment: .top)
                 }
                 .scrollIndicators(.hidden)
@@ -71,8 +74,11 @@ struct DiatonicChordView: View {
 
     // MARK: - Construction
 
-    private var constructionCard: some View {
-        lessonCard {
+    private func constructionCard(availableWidth: CGFloat) -> some View {
+        let innerWidth = max(0, availableWidth - LumenoteSpacing.xxl * 2)
+        let staffSpace = staffSpace(for: innerWidth)
+
+        return lessonCard {
             HStack(alignment: .firstTextBaseline) {
                 sectionTitle("만들어지는 원리")
                 Spacer()
@@ -85,21 +91,22 @@ struct DiatonicChordView: View {
 
             scaleNoteRow
 
-            VStack(alignment: .leading, spacing: 0) {
-                ForEach(Array(model.chords.enumerated()), id: \.element.id) { index, chord in
-                    if index > 0 {
-                        Rectangle()
-                            .fill(palette.divider)
-                            .frame(height: LumenoteStroke.hairline)
-                    }
-                    stackingRow(chord)
-                }
+            ScrollView(.horizontal, showsIndicators: false) {
+                DiatonicChordStaffView(
+                    columns: model.staffColumns,
+                    highlightedDegree: model.highlightedDegree,
+                    staffSpace: staffSpace,
+                    targetWidth: innerWidth,
+                    lineColor: Color.primary.opacity(0.75),
+                    noteColor: Color.primary,
+                    highlightColor: palette.minor,
+                    dimmedNoteColor: Color.primary.opacity(0.28),
+                    highlightFill: palette.highlight
+                )
+                .padding(.vertical, LumenoteSpacing.xs)
             }
-            .clipShape(RoundedRectangle(cornerRadius: LumenoteRadius.softRow, style: .continuous))
-            .overlay(
-                RoundedRectangle(cornerRadius: LumenoteRadius.softRow, style: .continuous)
-                    .strokeBorder(palette.divider, lineWidth: LumenoteStroke.hairline)
-            )
+            .accessibilityElement(children: .contain)
+            .accessibilityLabel("다이아토닉 코드 오선")
         }
         .accessibilityElement(children: .contain)
         .accessibilityLabel("만들어지는 원리")
@@ -112,57 +119,44 @@ struct DiatonicChordView: View {
                 .foregroundStyle(.secondary)
 
             HStack(spacing: LumenoteSpacing.sm) {
-                ForEach(Array(model.scaleNoteDisplayNames.enumerated()), id: \.offset) { _, name in
-                    Text(name)
-                        .font(LumenoteFont.caption(.bold))
-                        .foregroundStyle(.primary)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, LumenoteSpacing.sm)
-                        .background(
-                            RoundedRectangle(cornerRadius: LumenoteRadius.chip, style: .continuous)
-                                .fill(palette.highlightSoft)
+                ForEach(DiatonicDegree.allCases) { degree in
+                    scaleNoteButton(degree)
+                }
+            }
+        }
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel("\(model.tonicDisplayName) \(model.kind.englishTitle) 스케일")
+    }
+
+    private func scaleNoteButton(_ degree: DiatonicDegree) -> some View {
+        let names = model.scaleNoteDisplayNames
+        let name = names.indices.contains(degree.rawValue) ? names[degree.rawValue] : ""
+        let selected = model.highlightedDegree == degree
+
+        return Button {
+            model.toggleHighlightedDegree(degree)
+        } label: {
+            Text(name)
+                .font(LumenoteFont.caption(.bold))
+                .foregroundStyle(selected ? palette.emphasisStroke : .primary)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, LumenoteSpacing.sm)
+                .background(
+                    RoundedRectangle(cornerRadius: LumenoteRadius.chip, style: .continuous)
+                        .fill(selected ? palette.highlight : palette.highlightSoft)
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: LumenoteRadius.chip, style: .continuous)
+                        .strokeBorder(
+                            selected ? palette.cardBorderActive : Color.clear,
+                            lineWidth: selected ? LumenoteStroke.compact : 0
                         )
-                }
-            }
+                )
         }
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel(
-            "\(model.tonicDisplayName) \(model.kind.englishTitle) 스케일, \(model.scaleNoteDisplayNames.joined(separator: ", "))"
-        )
-    }
-
-    private func stackingRow(_ chord: DiatonicChordEntry) -> some View {
-        VStack(alignment: .leading, spacing: LumenoteSpacing.xxs) {
-            HStack(alignment: .firstTextBaseline, spacing: LumenoteSpacing.md) {
-                Text(chord.roman)
-                    .font(LumenoteFont.callout(.bold))
-                    .foregroundStyle(.primary)
-                Text(chord.compactName)
-                    .font(LumenoteFont.callout(.semibold))
-                    .foregroundStyle(palette.minor)
-                Spacer(minLength: 0)
-                if model.kind == .major {
-                    Text(chord.degree.function.englishTitle)
-                        .font(LumenoteFont.caption2(.bold))
-                        .foregroundStyle(functionTint(chord.degree.function))
-                }
-            }
-            Text(chord.stackedTonesText)
-                .font(LumenoteFont.caption(.medium))
-                .foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
-        }
-        .padding(.horizontal, LumenoteSpacing.lg)
-        .padding(.vertical, LumenoteSpacing.md)
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel(stackingAccessibility(chord))
-    }
-
-    private func stackingAccessibility(_ chord: DiatonicChordEntry) -> String {
-        if model.kind == .major {
-            return "\(chord.roman), \(chord.compactName), \(chord.stackedTonesText), \(chord.degree.function.englishTitle)"
-        }
-        return "\(chord.roman), \(chord.compactName), \(chord.stackedTonesText)"
+        .buttonStyle(.plain)
+        .accessibilityLabel(name)
+        .accessibilityHint("해당 다이아토닉 코드를 오선에서 보려면 두 번 탭하세요")
+        .accessibilityAddTraits(selected ? .isSelected : [])
     }
 
     // MARK: - Selection
@@ -539,6 +533,11 @@ struct DiatonicChordView: View {
         case .subdominant: palette.minor
         case .dominant: palette.major
         }
+    }
+
+    private func staffSpace(for availableWidth: CGFloat) -> CGFloat {
+        let fitted = availableWidth / 26
+        return min(13, max(8.5, fitted))
     }
 
     // MARK: - Bottom picker strips

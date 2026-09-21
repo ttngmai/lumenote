@@ -15,6 +15,8 @@ final class DiatonicChordModel {
 
     var kind: ScaleKind = .major
     var voicing: DiatonicVoicing = .triad
+    /// Scale-degree button currently lighting a chord on the construction staff.
+    var highlightedDegree: DiatonicDegree?
 
     // MARK: - Derived
 
@@ -46,6 +48,78 @@ final class DiatonicChordModel {
 
     func majorChord(for degree: DiatonicDegree) -> DiatonicChordEntry? {
         majorFunctionChords.first { $0.degree == degree }
+    }
+
+    func toggleHighlightedDegree(_ degree: DiatonicDegree) {
+        if highlightedDegree == degree {
+            highlightedDegree = nil
+        } else {
+            highlightedDegree = degree
+        }
+    }
+
+    /// Root-position staff columns for the seven live diatonic chords, sharing one octave register.
+    var staffColumns: [DiatonicStaffColumn] {
+        let chords = self.chords
+        guard
+            let tonicLetter = Self.letterIndex(of: tonicSpelling),
+            chords.count == DiatonicDegree.allCases.count
+        else { return [] }
+
+        let startStep = tonicLetter - 2
+        let offsets = voicing.letterOffsets
+        let columns: [DiatonicStaffColumn] = chords.map { chord in
+            let rootStep = startStep + chord.degree.rawValue
+            let notes = offsets.enumerated().compactMap { index, offset -> IntervalStaffNote? in
+                guard chord.toneSpellings.indices.contains(index) else { return nil }
+                let spelling = chord.toneSpellings[index]
+                return IntervalStaffNote(
+                    id: chord.degree.rawValue * 10 + index,
+                    spelling: spelling,
+                    staffStep: rootStep + offset,
+                    accidentalSymbol: Self.accidentalSymbol(for: spelling)
+                )
+            }
+            return DiatonicStaffColumn(chord: chord, notes: notes)
+        }
+
+        let steps = columns.flatMap { $0.notes.map(\.staffStep) }
+        guard let minStep = steps.min(), let maxStep = steps.max() else { return columns }
+        var shift = 0
+        while minStep + shift < -4 { shift += 7 }
+        while maxStep + shift > 12 { shift -= 7 }
+        guard shift != 0 else { return columns }
+
+        return columns.map { column in
+            DiatonicStaffColumn(
+                chord: column.chord,
+                notes: column.notes.map { note in
+                    IntervalStaffNote(
+                        id: note.id,
+                        spelling: note.spelling,
+                        staffStep: note.staffStep + shift,
+                        accidentalSymbol: note.accidentalSymbol
+                    )
+                }
+            )
+        }
+    }
+
+    private static let letterIndices: [Character: Int] = [
+        "C": 0, "D": 1, "E": 2, "F": 3, "G": 4, "A": 5, "B": 6,
+    ]
+
+    private static func letterIndex(of spelling: String) -> Int? {
+        guard let first = spelling.first else { return nil }
+        return letterIndices[first]
+    }
+
+    private static func accidentalSymbol(for spelling: String) -> String? {
+        if spelling.hasSuffix("##") { return "𝄪" }
+        if spelling.hasSuffix("#") { return "♯" }
+        if spelling.hasSuffix("bb") { return "𝄫" }
+        if spelling.hasSuffix("b") { return "♭" }
+        return nil
     }
 
     // MARK: - Building
@@ -365,6 +439,13 @@ enum DiatonicChordQuality: Equatable {
     }
 }
 
+struct DiatonicStaffColumn: Identifiable, Equatable {
+    let chord: DiatonicChordEntry
+    let notes: [IntervalStaffNote]
+
+    var id: Int { chord.id }
+}
+
 struct DiatonicChordEntry: Identifiable, Equatable {
     let degree: DiatonicDegree
     let roman: String
@@ -384,10 +465,6 @@ struct DiatonicChordEntry: Identifiable, Equatable {
 
     var toneDisplayNames: [String] {
         toneSpellings.map(ScaleModel.formatNoteName)
-    }
-
-    var stackedTonesText: String {
-        toneDisplayNames.joined(separator: " – ")
     }
 
     var examplePhrase: String {
