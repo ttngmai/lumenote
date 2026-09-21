@@ -44,14 +44,6 @@ final class DiatonicChordModel {
         Self.chords(tonic: tonicSpelling, kind: .major, voicing: .triad)
     }
 
-    var qualityPatternText: String {
-        chords.map(\.quality.patternLabel).joined(separator: " – ")
-    }
-
-    var romanPatternText: String {
-        chords.map(\.degree.functionRoman).joined(separator: " – ")
-    }
-
     func majorChord(for degree: DiatonicDegree) -> DiatonicChordEntry? {
         majorFunctionChords.first { $0.degree == degree }
     }
@@ -306,22 +298,6 @@ enum DiatonicChordQuality: Equatable {
     case halfDiminished7
     case diminished7
     case augmentedMajor7
-
-    var patternLabel: String {
-        switch self {
-        case .major: "Major"
-        case .minor: "minor"
-        case .augmented: "Augmented"
-        case .diminished: "diminished"
-        case .major7: "Major 7"
-        case .minor7: "minor 7"
-        case .dominant7: "7"
-        case .minorMajor7: "minor Major 7"
-        case .halfDiminished7: "minor 7 ♭5"
-        case .diminished7: "diminished 7"
-        case .augmentedMajor7: "Augmented Major 7"
-        }
-    }
 
     var englishNoun: String {
         switch self {

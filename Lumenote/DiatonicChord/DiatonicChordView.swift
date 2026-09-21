@@ -85,11 +85,6 @@ struct DiatonicChordView: View {
 
             scaleNoteRow
 
-            Text(qualityPatternCaption)
-                .font(LumenoteFont.caption(.medium))
-                .foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
-
             VStack(alignment: .leading, spacing: 0) {
                 ForEach(Array(model.chords.enumerated()), id: \.element.id) { index, chord in
                     if index > 0 {
@@ -236,13 +231,6 @@ struct DiatonicChordView: View {
     }
 
     // MARK: - Construction helpers
-
-    private var qualityPatternCaption: String {
-        if model.kind == .major, model.voicing == .triad {
-            return "\(model.qualityPatternText)\n\(model.romanPatternText)"
-        }
-        return model.qualityPatternText
-    }
 
     private var voicingToggle: some View {
         HStack(spacing: LumenoteSpacing.xs) {
