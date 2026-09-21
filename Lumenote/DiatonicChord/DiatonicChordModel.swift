@@ -291,34 +291,16 @@ enum DiatonicDegree: Int, CaseIterable, Identifiable {
     }
 }
 
-enum HarmonicFunction: String, CaseIterable, Identifiable {
+enum HarmonicFunction: String {
     case tonic
     case subdominant
     case dominant
-
-    var id: String { rawValue }
 
     var englishTitle: String {
         switch self {
         case .tonic: "Tonic"
         case .subdominant: "Subdominant"
         case .dominant: "Dominant"
-        }
-    }
-
-    var motionLabel: String {
-        switch self {
-        case .tonic: "안정 · 해결"
-        case .subdominant: "전개 · 이동"
-        case .dominant: "긴장 · 해결 요구"
-        }
-    }
-
-    var memberRomans: String {
-        switch self {
-        case .tonic: "I, iii, vi"
-        case .subdominant: "ii, IV"
-        case .dominant: "V, vii°"
         }
     }
 }

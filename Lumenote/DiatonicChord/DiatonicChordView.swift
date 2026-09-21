@@ -32,7 +32,6 @@ struct DiatonicChordView: View {
                         )
                         patternTableCard
                         functionFlowCard
-                        functionGroupsCard
                         rolesSection
                     }
                     .padding(.horizontal, LumenoteSpacing.popupInset)
@@ -404,31 +403,6 @@ struct DiatonicChordView: View {
         )
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(step.title), \(step.function.englishTitle), \(step.romans)")
-    }
-
-    private var functionGroupsCard: some View {
-        lessonCard {
-            VStack(alignment: .leading, spacing: LumenoteSpacing.md) {
-                ForEach(HarmonicFunction.allCases) { function in
-                    HStack(alignment: .firstTextBaseline, spacing: LumenoteSpacing.md) {
-                        Circle()
-                            .fill(functionTint(function))
-                            .frame(width: 8, height: 8)
-                            .padding(.top, 5)
-                        VStack(alignment: .leading, spacing: LumenoteSpacing.xxs) {
-                            Text("\(function.englishTitle) — \(function.memberRomans)")
-                                .font(LumenoteFont.callout(.bold))
-                                .foregroundStyle(.primary)
-                            Text(function.motionLabel)
-                                .font(LumenoteFont.caption(.medium))
-                                .foregroundStyle(.secondary)
-                        }
-                    }
-                    .accessibilityElement(children: .combine)
-                    .accessibilityLabel("\(function.englishTitle), \(function.memberRomans), \(function.motionLabel)")
-                }
-            }
-        }
     }
 
     // MARK: - Roles
