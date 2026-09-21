@@ -43,15 +43,6 @@ final class DiatonicChordModel {
         Self.chords(tonic: tonicSpelling, kind: kind, voicing: voicing)
     }
 
-    /// Major-key diatonic triads for the selected tonic, used by the function lesson.
-    var majorFunctionChords: [DiatonicChordEntry] {
-        Self.chords(tonic: tonicSpelling, kind: .major, voicing: .triad)
-    }
-
-    func majorChord(for degree: DiatonicDegree) -> DiatonicChordEntry? {
-        majorFunctionChords.first { $0.degree == degree }
-    }
-
     var selectedRole: DiatonicDegreeRole? {
         Self.roles.first { $0.degree == selectedRoleDegree }
     }
@@ -184,15 +175,15 @@ final class DiatonicChordModel {
             function: .tonic,
             functionLabel: "Tonic",
             title: "조성의 중심이 되는 가장 안정적인 코드입니다.",
-            body: "곡의 시작이나 끝에서 자주 사용되며, 다른 코드에서 발생한 긴장이 I 코드로 돌아오면서 해결되는 느낌을 줍니다.",
+            body: "곡의 시작이나 끝에서 자주 사용되며, 다른 코드에서 발생한 긴장이 I로 돌아오면서 해결되는 느낌을 줍니다.",
             takeaway: "안정 · 중심 · 해결"
         ),
         DiatonicDegreeRole(
             degree: .ii,
             function: .subdominant,
             functionLabel: "Subdominant 계열",
-            title: "음악을 토닉에서 벗어나 다른 곳으로 진행시키는 역할을 합니다.",
-            body: "특히 V 코드로 자연스럽게 이어지기 때문에 ii → V → I 진행은 팝, 재즈 등에서 매우 중요하게 사용됩니다.",
+            title: "토닉에서 벗어나 음악을 전개시키며, 특히 도미넌트로 진행하는 역할을 자주 합니다.",
+            body: "특히 V로 자연스럽게 이어지며, ii → V → I은 재즈를 비롯한 다양한 음악에서 자주 사용되는 대표적인 진행입니다.",
             takeaway: "전개 · 이동 · V로 연결"
         ),
         DiatonicDegreeRole(
@@ -200,40 +191,40 @@ final class DiatonicChordModel {
             function: .tonic,
             functionLabel: "Tonic 계열",
             title: "I 코드와 일부 음을 공유하여 비교적 안정적인 성격을 갖습니다.",
-            body: "I만큼 강한 중심감을 갖지는 않으며, 앞뒤 코드에 따라 연결이나 진행을 위한 코드로도 사용됩니다.",
+            body: "I만큼 강한 중심감을 갖지는 않으며, 실제 진행에서는 앞뒤 코드에 따라 다른 코드를 연결하는 역할로도 자주 사용됩니다.",
             takeaway: "비교적 안정 · 연결 · I과 유사한 성격"
         ),
         DiatonicDegreeRole(
             degree: .iv,
             function: .subdominant,
             functionLabel: "Subdominant",
-            title: "대표적인 서브도미넌트 코드로, 안정된 토닉에서 벗어나 음악을 전개시키는 역할을 합니다.",
-            body: "V로 진행하여 긴장을 증가시키거나 다시 I으로 돌아갈 수도 있습니다.",
+            title: "대표적인 서브도미넌트(Subdominant) 코드로, 안정된 토닉(Tonic)에서 벗어나 음악을 전개시키는 역할을 합니다.",
+            body: "V로 진행하여 긴장을 높이거나, 다시 I로 돌아갈 수도 있습니다.",
             takeaway: "전개 · 변화 · 이동"
         ),
         DiatonicDegreeRole(
             degree: .v,
             function: .dominant,
             functionLabel: "Dominant",
-            title: "강한 긴장감을 만들고 I 코드로 해결되려는 성질을 가진 코드입니다.",
-            body: "특히 V 코드의 3음은 조의 Leading Tone(이끈음)이기 때문에 으뜸음으로 반음 위 진행하려는 강한 성질을 갖습니다.",
-            takeaway: "긴장 · 불안정 · I으로 해결"
+            title: "강한 긴장감을 만들고 I로 해결되려는 성질을 가진 코드입니다.",
+            body: "특히 V 코드의 3음은 조의 이끈음(Leading Tone)으로, 반음 위에 있는 으뜸음으로 진행하려는 강한 성질을 갖습니다. C Major에서는 G 코드의 B → C 움직임이 이에 해당합니다.",
+            takeaway: "긴장 · 불안정 · I로 해결"
         ),
         DiatonicDegreeRole(
             degree: .vi,
             function: .tonic,
             functionLabel: "Tonic 계열",
             title: "I 코드와 공통음을 가지고 있어 토닉을 어느 정도 대신할 수 있는 코드입니다.",
-            body: "특히 V 다음에 예상했던 I 대신 vi가 등장하면 거짓종지(Deceptive Cadence)와 같은 효과를 만들 수 있습니다. 관계단조(Relative Minor)의 으뜸화음이기도 합니다.",
+            body: "특히 V 다음에 예상되는 I 대신 vi가 등장하면 거짓종지(Deceptive Cadence)가 만들어질 수 있습니다. 또한 vi는 메이저 키의 관계단조(Relative Minor)에서 으뜸화음이 됩니다.",
             takeaway: "안정 · 토닉 대리 · 분위기 변화"
         ),
         DiatonicDegreeRole(
             degree: .vii,
             function: .dominant,
             functionLabel: "Dominant 계열",
-            title: "매우 불안정하며 I으로 해결되려는 성질이 강한 감3화음입니다.",
-            body: "근음 자체가 Leading Tone이므로 으뜸음으로 반음 위 진행하려는 성질을 가지고 있습니다.",
-            takeaway: "강한 긴장 · 불안정 · I으로 해결"
+            title: "매우 불안정하며 I로 해결되려는 성질이 강한 감3화음입니다.",
+            body: "근음 자체가 이끈음(Leading Tone)이므로 반음 위에 있는 으뜸음으로 진행하려는 강한 성질을 갖습니다. C Major에서는 B Diminished → C Major와 같은 진행에서 이러한 해결 성향을 확인할 수 있습니다.",
+            takeaway: "강한 긴장 · 불안정 · I로 해결"
         ),
     ]
 }
@@ -361,22 +352,6 @@ enum DiatonicChordQuality: Equatable {
     case diminished7
     case augmentedMajor7
 
-    var englishNoun: String {
-        switch self {
-        case .major: "Major"
-        case .minor: "minor"
-        case .augmented: "Augmented"
-        case .diminished: "diminished"
-        case .major7: "Major 7"
-        case .minor7: "minor 7"
-        case .dominant7: "7"
-        case .minorMajor7: "minor Major 7"
-        case .halfDiminished7: "minor 7 ♭5"
-        case .diminished7: "diminished 7"
-        case .augmentedMajor7: "Augmented Major 7"
-        }
-    }
-
     func compactName(rootDisplayName root: String) -> String {
         switch self {
         case .major: root
@@ -453,10 +428,6 @@ struct DiatonicChordEntry: Identifiable, Equatable {
 
     var toneDisplayNames: [String] {
         toneSpellings.map(ScaleModel.formatNoteName)
-    }
-
-    var examplePhrase: String {
-        "\(rootDisplayName) \(quality.englishNoun)"
     }
 }
 

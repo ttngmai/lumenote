@@ -261,18 +261,11 @@ struct DiatonicChordView: View {
 
     private var functionFlowCard: some View {
         lessonCard {
-            sectionTitle("다이아토닉 코드의 기능")
-            Text("메이저 키의 다이아토닉 코드는 화성적 역할에 따라 Tonic, Subdominant, Dominant로 나뉩니다.\n기본적인 흐름은 안정 → 전개 → 긴장 → 해결입니다.")
+            sectionTitle("다이아토닉 코드의 기능 (메이저 키 기준)")
+            Text("다이아토닉 코드는 화성적 역할에 따라 Tonic, Subdominant, Dominant로 나뉩니다.\n\n대표적인 진행은 다음과 같습니다.")
                 .font(LumenoteFont.callout(.medium))
                 .foregroundStyle(.primary)
                 .fixedSize(horizontal: false, vertical: true)
-
-            if model.kind != .major {
-                Text("아래 역할은 메이저 키 기준이며, 코드 이름은 고른 으뜸음의 Major로 보여 줍니다.")
-                    .font(LumenoteFont.caption(.medium))
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
 
             VStack(spacing: LumenoteSpacing.sm) {
                 ForEach(Array(HarmonicMotionStep.allCases.enumerated()), id: \.element.id) { index, step in
@@ -288,7 +281,7 @@ struct DiatonicChordView: View {
             }
         }
         .accessibilityElement(children: .contain)
-        .accessibilityLabel("다이아토닉 코드의 기능, Tonic, Subdominant, Dominant, 안정, 전개, 긴장, 해결")
+        .accessibilityLabel("다이아토닉 코드의 기능, 메이저 키 기준, Tonic, Subdominant, Dominant, 안정, 전개, 긴장, 해결")
     }
 
     private func motionStepRow(_ step: HarmonicMotionStep) -> some View {
@@ -372,8 +365,7 @@ struct DiatonicChordView: View {
     }
 
     private func roleDetail(_ role: DiatonicDegreeRole) -> some View {
-        let example = model.majorChord(for: role.degree)
-        return VStack(alignment: .leading, spacing: LumenoteSpacing.lg) {
+        VStack(alignment: .leading, spacing: LumenoteSpacing.lg) {
             HStack(alignment: .firstTextBaseline, spacing: LumenoteSpacing.md) {
                 Text(role.degree.functionRoman)
                     .font(LumenoteFont.headline(.bold))
@@ -384,19 +376,12 @@ struct DiatonicChordView: View {
                 Spacer(minLength: 0)
             }
 
-            if let example {
-                Text("\(model.tonicDisplayName) Major에서는 \(example.examplePhrase)입니다.")
-                    .font(LumenoteFont.caption(.semibold))
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-
             Text(role.title)
                 .font(LumenoteFont.callout(.bold))
                 .foregroundStyle(.primary)
                 .fixedSize(horizontal: false, vertical: true)
 
-            Text(roleBody(role, example: example))
+            Text(role.body)
                 .font(LumenoteFont.callout(.medium))
                 .foregroundStyle(.primary)
                 .fixedSize(horizontal: false, vertical: true)
@@ -408,25 +393,8 @@ struct DiatonicChordView: View {
         }
         .accessibilityElement(children: .combine)
         .accessibilityLabel(
-            "\(role.degree.functionRoman), \(role.functionLabel), \(example?.examplePhrase ?? ""), \(role.title), 핵심 \(role.takeaway)"
+            "\(role.degree.functionRoman), \(role.functionLabel), \(role.title), \(role.body), 핵심 \(role.takeaway)"
         )
-    }
-
-    private func roleBody(_ role: DiatonicDegreeRole, example: DiatonicChordEntry?) -> String {
-        switch role.degree {
-        case .v:
-            guard let example,
-                  let leading = model.majorChord(for: .vii)?.rootDisplayName
-            else { return role.body }
-            return "\(role.body) \(model.tonicDisplayName) Major의 \(example.compactName) 코드에서는 \(leading) → \(model.tonicDisplayName)의 움직임이 이에 해당합니다."
-        case .vii:
-            guard let example,
-                  let tonic = model.majorChord(for: .i)
-            else { return role.body }
-            return "\(role.body) \(model.tonicDisplayName) Major에서는 \(example.examplePhrase) → \(tonic.examplePhrase)가 됩니다."
-        default:
-            return role.body
-        }
     }
 
     // MARK: - Shared chrome
