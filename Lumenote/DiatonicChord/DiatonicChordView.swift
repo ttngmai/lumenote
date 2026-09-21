@@ -30,7 +30,6 @@ struct DiatonicChordView: View {
                         constructionCard(
                             availableWidth: geo.size.width - LumenoteSpacing.popupInset * 2
                         )
-                        patternTableCard
                         functionFlowCard
                         rolesSection
                     }
@@ -256,91 +255,6 @@ struct DiatonicChordView: View {
         }
         .accessibilityElement(children: .contain)
         .accessibilityLabel("화음 구성")
-    }
-
-    // MARK: - Pattern table
-
-    private var patternTableCard: some View {
-        lessonCard {
-            sectionTitle(model.voicing.title)
-            Text("음계가 바뀌면 각 도수의 코드 품질도 함께 바뀝니다.")
-                .font(LumenoteFont.caption(.medium))
-                .foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
-
-            ScrollView(.horizontal, showsIndicators: false) {
-                VStack(alignment: .leading, spacing: 0) {
-                    patternHeaderRow
-                    ForEach(ScaleKind.allCases) { kind in
-                        Rectangle()
-                            .fill(palette.divider)
-                            .frame(height: LumenoteStroke.hairline)
-                        patternDataRow(kind)
-                    }
-                }
-            }
-            .clipShape(RoundedRectangle(cornerRadius: LumenoteRadius.softRow, style: .continuous))
-            .overlay(
-                RoundedRectangle(cornerRadius: LumenoteRadius.softRow, style: .continuous)
-                    .strokeBorder(palette.divider, lineWidth: LumenoteStroke.hairline)
-            )
-        }
-        .accessibilityElement(children: .contain)
-        .accessibilityLabel("\(model.voicing.title) 다이아토닉 패턴")
-    }
-
-    private var patternHeaderRow: some View {
-        HStack(spacing: 0) {
-            Text("음계")
-                .frame(width: 108, alignment: .leading)
-            ForEach(DiatonicDegree.allCases) { degree in
-                Text(degree.headerLabel)
-                    .frame(width: patternCellWidth, alignment: .center)
-            }
-        }
-        .font(LumenoteFont.caption2(.bold))
-        .foregroundStyle(.secondary)
-        .padding(.horizontal, LumenoteSpacing.lg)
-        .padding(.vertical, LumenoteSpacing.md)
-        .background(palette.highlightSoft)
-        .accessibilityHidden(true)
-    }
-
-    private func patternDataRow(_ kind: ScaleKind) -> some View {
-        let selected = model.kind == kind
-        return HStack(spacing: 0) {
-            Text(kind.englishTitle)
-                .font(LumenoteFont.caption2(.bold))
-                .foregroundStyle(.primary)
-                .frame(width: 108, alignment: .leading)
-                .minimumScaleFactor(0.8)
-                .lineLimit(2)
-            ForEach(DiatonicDegree.allCases) { degree in
-                Text(DiatonicChordModel.roman(kind: kind, voicing: model.voicing, degree: degree))
-                    .font(LumenoteFont.caption2(.semibold))
-                    .foregroundStyle(selected ? .primary : .secondary)
-                    .frame(width: patternCellWidth, alignment: .center)
-                    .minimumScaleFactor(0.7)
-                    .lineLimit(1)
-            }
-        }
-        .padding(.horizontal, LumenoteSpacing.lg)
-        .padding(.vertical, LumenoteSpacing.lg)
-        .background(selected ? palette.highlightSoft : Color.clear)
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel(patternRowAccessibility(kind))
-        .accessibilityAddTraits(selected ? .isSelected : [])
-    }
-
-    private var patternCellWidth: CGFloat {
-        model.voicing == .seventh ? 68 : 52
-    }
-
-    private func patternRowAccessibility(_ kind: ScaleKind) -> String {
-        let romans = DiatonicDegree.allCases.map {
-            DiatonicChordModel.roman(kind: kind, voicing: model.voicing, degree: $0)
-        }
-        return "\(kind.englishTitle), \(romans.joined(separator: ", "))"
     }
 
     // MARK: - Function
@@ -702,20 +616,6 @@ struct DiatonicChordView: View {
             endPoint: .bottomTrailing
         )
         .ignoresSafeArea()
-    }
-}
-
-private extension DiatonicDegree {
-    var headerLabel: String {
-        switch self {
-        case .i: "I"
-        case .ii: "II"
-        case .iii: "III"
-        case .iv: "IV"
-        case .v: "V"
-        case .vi: "VI"
-        case .vii: "VII"
-        }
     }
 }
 
