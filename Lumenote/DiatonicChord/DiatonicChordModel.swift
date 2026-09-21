@@ -85,17 +85,17 @@ final class DiatonicChordModel {
     // MARK: - Textbook roman numerals
 
     private static let triadRomans: [ScaleKind: [String]] = [
-        .major: ["I", "IIm", "IIIm", "IV", "V", "VIm", "VII°"],
-        .naturalMinor: ["Im", "II°", "♭III", "IVm", "Vm", "♭VI", "♭VII"],
-        .harmonicMinor: ["Im", "II°", "♭III+", "IVm", "V", "♭VI", "VII°"],
-        .melodicMinor: ["Im", "IIm", "♭III+", "IV", "V", "VI°", "VII°"],
+        .major: ["I", "ii", "iii", "IV", "V", "vi", "vii°"],
+        .naturalMinor: ["i", "ii°", "♭III", "iv", "v", "♭VI", "♭VII"],
+        .harmonicMinor: ["i", "ii°", "♭III+", "iv", "V", "♭VI", "vii°"],
+        .melodicMinor: ["i", "ii", "♭III+", "IV", "V", "vi°", "vii°"],
     ]
 
     private static let seventhRomans: [ScaleKind: [String]] = [
-        .major: ["IM7", "IIm7", "IIIm7", "IVM7", "V7", "VIm7", "VIIm7♭5"],
-        .naturalMinor: ["Im7", "IIm7♭5", "♭IIIM7", "IVm7", "Vm7", "♭VIM7", "♭VII7"],
-        .harmonicMinor: ["ImM7", "IIm7♭5", "♭III+M7", "IVm7", "V7", "♭VIM7", "VII°7"],
-        .melodicMinor: ["ImM7", "IIm7", "♭III+M7", "IV7", "V7", "VIm7♭5", "VIIm7♭5"],
+        .major: ["IM7", "ii7", "iii7", "IVM7", "V7", "vi7", "vii7♭5"],
+        .naturalMinor: ["i7", "ii7♭5", "♭IIIM7", "iv7", "v7", "♭VIM7", "♭VII7"],
+        .harmonicMinor: ["iM7", "ii7♭5", "♭III+M7", "iv7", "V7", "♭VIM7", "vii°7"],
+        .melodicMinor: ["iM7", "ii7", "♭III+M7", "IV7", "V7", "vi7♭5", "vii7♭5"],
     ]
 
     static let roles: [DiatonicDegreeRole] = [
