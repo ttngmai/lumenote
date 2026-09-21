@@ -40,6 +40,7 @@ struct DiatonicChordView: View {
                     .animation(.easeOut(duration: 0.2), value: model.kind)
                     .animation(.easeOut(duration: 0.2), value: model.voicing)
                     .animation(.easeOut(duration: 0.2), value: model.highlightedDegree)
+                    .animation(.easeOut(duration: 0.2), value: model.selectedRoleDegree)
                     .frame(maxWidth: .infinity, minHeight: geo.size.height, alignment: .top)
                 }
                 .scrollIndicators(.hidden)
@@ -408,21 +409,57 @@ struct DiatonicChordView: View {
     // MARK: - Roles
 
     private var rolesSection: some View {
-        VStack(alignment: .leading, spacing: LumenoteSpacing.md) {
-            Text("각 코드의 역할")
-                .font(LumenoteFont.caption(.semibold))
-                .foregroundStyle(.secondary)
-                .padding(.horizontal, LumenoteSpacing.xs)
+        lessonCard {
+            sectionTitle("각 코드의 역할")
 
-            ForEach(DiatonicChordModel.roles) { role in
-                roleCard(role)
+            HStack(spacing: LumenoteSpacing.sm) {
+                ForEach(DiatonicDegree.allCases) { degree in
+                    roleDegreeButton(degree)
+                }
+            }
+
+            if let role = model.selectedRole {
+                roleDetail(role)
             }
         }
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel("각 코드의 역할")
     }
 
-    private func roleCard(_ role: DiatonicDegreeRole) -> some View {
+    private func roleDegreeButton(_ degree: DiatonicDegree) -> some View {
+        let selected = model.selectedRoleDegree == degree
+
+        return Button {
+            model.selectedRoleDegree = degree
+        } label: {
+            Text(degree.functionRoman)
+                .font(LumenoteFont.caption(.bold))
+                .foregroundStyle(selected ? palette.emphasisStroke : .primary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.65)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, LumenoteSpacing.sm)
+                .background(
+                    RoundedRectangle(cornerRadius: LumenoteRadius.chip, style: .continuous)
+                        .fill(selected ? palette.highlight : Color.clear)
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: LumenoteRadius.chip, style: .continuous)
+                        .strokeBorder(
+                            selected ? palette.cardBorderActive : palette.divider,
+                            lineWidth: selected ? LumenoteStroke.compact : LumenoteStroke.hairline
+                        )
+                )
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(degree.functionRoman)
+        .accessibilityHint("이 코드의 역할을 보려면 두 번 탭하세요")
+        .accessibilityAddTraits(selected ? .isSelected : [])
+    }
+
+    private func roleDetail(_ role: DiatonicDegreeRole) -> some View {
         let example = model.majorChord(for: role.degree)
-        return lessonCard {
+        return VStack(alignment: .leading, spacing: LumenoteSpacing.lg) {
             HStack(alignment: .firstTextBaseline, spacing: LumenoteSpacing.md) {
                 Text(role.degree.functionRoman)
                     .font(LumenoteFont.headline(.bold))

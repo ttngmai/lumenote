@@ -17,6 +17,8 @@ final class DiatonicChordModel {
     var voicing: DiatonicVoicing = .triad
     /// Scale-degree button currently lighting a chord on the construction staff.
     var highlightedDegree: DiatonicDegree?
+    /// Degree whose function lesson is shown in the role card.
+    var selectedRoleDegree: DiatonicDegree = .i
 
     // MARK: - Derived
 
@@ -48,6 +50,10 @@ final class DiatonicChordModel {
 
     func majorChord(for degree: DiatonicDegree) -> DiatonicChordEntry? {
         majorFunctionChords.first { $0.degree == degree }
+    }
+
+    var selectedRole: DiatonicDegreeRole? {
+        Self.roles.first { $0.degree == selectedRoleDegree }
     }
 
     func toggleHighlightedDegree(_ degree: DiatonicDegree) {
