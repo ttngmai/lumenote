@@ -23,12 +23,22 @@ final class ScaleModel {
 
     /// Selectable tonic spellings (same chromatic order as the interval explorer).
     var noteOptions: [(spelling: String, displayName: String)] {
-        Self.orderedSpellings.map { ($0, Self.formatNoteName($0)) }
+        Self.selectableNotes
     }
 
     /// Eight ascending degrees (tonic through octave), spelled for the chosen tonic and kind.
     var degreeSpellings: [String] {
-        Self.spellScale(tonic: tonicSpelling, steps: kind.semitoneSteps)
+        Self.spellings(tonic: tonicSpelling, kind: kind)
+    }
+
+    /// Selectable tonic spellings shared by the scale explorer and diatonic-chord lesson.
+    static var selectableNotes: [(spelling: String, displayName: String)] {
+        orderedSpellings.map { ($0, formatNoteName($0)) }
+    }
+
+    /// Eight ascending degrees (tonic through octave) for an arbitrary tonic and kind.
+    static func spellings(tonic: String, kind: ScaleKind) -> [String] {
+        spellScale(tonic: tonic, steps: kind.semitoneSteps)
     }
 
     var degreeDisplayNames: [String] {

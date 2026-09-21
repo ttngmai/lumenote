@@ -18,7 +18,7 @@ enum FeatureDomain: String, CaseIterable, Hashable, Identifiable {
 
     var subtitle: String {
         switch self {
-        case .harmony: "음정 · 음계 · 조표 · 화음"
+        case .harmony: "음정 · 음계 · 조표 · 화음 · 다이아토닉"
         case .guitar: "지판과 주법"
         }
     }
@@ -75,6 +75,7 @@ enum FeatureDestination: Hashable {
     case scale
     case circleOfFifths
     case chord
+    case diatonicChord
     case intervalQuiz
     case scaleQuiz
     case keySignatureQuiz
@@ -127,6 +128,12 @@ enum FeatureCatalog {
                     title: "화음",
                     subtitle: "Triad, 7th 코드의 구성과 표기",
                     icon: .system("music.note.list")
+                ),
+                FeatureItem(
+                    destination: .diatonicChord,
+                    title: "다이아토닉 코드",
+                    subtitle: "스케일 위의 코드와 기능",
+                    icon: .system("square.stack.3d.up")
                 ),
             ]
         case (.harmony, .quiz):
