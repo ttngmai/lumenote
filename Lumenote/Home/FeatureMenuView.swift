@@ -46,6 +46,8 @@ struct FeatureMenuView: View {
             CircleOfFifthsView()
         case .chord:
             ChordView()
+        case .diatonicChord:
+            DiatonicChordView()
         case .intervalQuiz:
             IntervalQuizView()
         case .scaleQuiz:
