@@ -92,7 +92,7 @@ struct DiatonicChordView: View {
 
     private var conceptCard: some View {
         lessonCard {
-            sectionTitle("다이아토닉 코드란?")
+            sectionTitle("다이아토닉 코드")
             Text("특정 조(Key)의 스케일에 포함된 음들만 사용하여 만든 코드입니다.")
                 .font(LumenoteFont.callout(.medium))
                 .foregroundStyle(.primary)
