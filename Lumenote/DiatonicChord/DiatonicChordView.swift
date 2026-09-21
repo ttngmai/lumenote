@@ -26,12 +26,28 @@ struct DiatonicChordView: View {
                 ScrollView {
                     VStack(alignment: .leading, spacing: LumenoteSpacing.section) {
                         conceptCard
-                        selectionCard
+                            .overlay {
+                                if activePicker != nil { dismissTapLayer }
+                            }
+
                         constructionCard(
                             availableWidth: geo.size.width - LumenoteSpacing.popupInset * 2
                         )
+
                         functionFlowCard
+                            .overlay {
+                                if activePicker != nil { dismissTapLayer }
+                            }
+
                         rolesSection
+                            .overlay {
+                                if activePicker != nil { dismissTapLayer }
+                            }
+
+                        dismissTapLayer
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .layoutPriority(-1)
+                            .allowsHitTesting(activePicker != nil)
                     }
                     .padding(.horizontal, LumenoteSpacing.popupInset)
                     .padding(.vertical, LumenoteSpacing.xxxl)
@@ -41,6 +57,11 @@ struct DiatonicChordView: View {
                     .animation(.easeOut(duration: 0.2), value: model.highlightedDegree)
                     .animation(.easeOut(duration: 0.2), value: model.selectedRoleDegree)
                     .frame(maxWidth: .infinity, minHeight: geo.size.height, alignment: .top)
+                    .background {
+                        if activePicker != nil {
+                            dismissTapLayer
+                        }
+                    }
                 }
                 .scrollIndicators(.hidden)
 
@@ -56,6 +77,15 @@ struct DiatonicChordView: View {
         .lumenoteCompactHeader(title: "다이아토닉 코드", showsBackButton: true) {
             AppearanceToggleButton(appearance: $appearance)
         }
+    }
+
+    /// Nearly-invisible hit target; `Color.clear` alone can miss taps in ScrollView.
+    private var dismissTapLayer: some View {
+        Color.primary.opacity(0.001)
+            .contentShape(Rectangle())
+            .onTapGesture {
+                activePicker = nil
+            }
     }
 
     // MARK: - Concept
@@ -83,12 +113,24 @@ struct DiatonicChordView: View {
                 Spacer()
                 voicingToggle
             }
+            .overlay {
+                if activePicker != nil { dismissTapLayer }
+            }
+
             Text("각 음을 근음으로 삼고 스케일 안에서 3도 간격으로 음을 쌓으면 7개의 다이아토닉 코드가 만들어집니다.")
                 .font(LumenoteFont.callout(.medium))
                 .foregroundStyle(.primary)
                 .fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .overlay {
+                    if activePicker != nil { dismissTapLayer }
+                }
 
+            constructionSettings
             scaleNoteRow
+                .overlay {
+                    if activePicker != nil { dismissTapLayer }
+                }
 
             ScrollView(.horizontal, showsIndicators: false) {
                 DiatonicChordStaffView(
@@ -106,21 +148,18 @@ struct DiatonicChordView: View {
             }
             .accessibilityElement(children: .contain)
             .accessibilityLabel("다이아토닉 코드 오선")
+            .overlay {
+                if activePicker != nil { dismissTapLayer }
+            }
         }
         .accessibilityElement(children: .contain)
         .accessibilityLabel("만들어지는 원리")
     }
 
     private var scaleNoteRow: some View {
-        VStack(alignment: .leading, spacing: LumenoteSpacing.sm) {
-            Text(model.kind.englishTitle)
-                .font(LumenoteFont.caption2(.semibold))
-                .foregroundStyle(.secondary)
-
-            HStack(spacing: LumenoteSpacing.sm) {
-                ForEach(DiatonicDegree.allCases) { degree in
-                    scaleNoteButton(degree)
-                }
+        HStack(spacing: LumenoteSpacing.sm) {
+            ForEach(DiatonicDegree.allCases) { degree in
+                scaleNoteButton(degree)
             }
         }
         .accessibilityElement(children: .contain)
@@ -158,72 +197,70 @@ struct DiatonicChordView: View {
         .accessibilityAddTraits(selected ? .isSelected : [])
     }
 
-    // MARK: - Selection
+    // MARK: - Construction helpers
 
-    private var selectionCard: some View {
-        HStack(alignment: .center, spacing: LumenoteSpacing.md) {
-            selectionHeaderButton(
+    private var constructionSettings: some View {
+        HStack(spacing: LumenoteSpacing.md) {
+            compactSettingButton(
                 title: "으뜸음",
-                displayName: model.tonicDisplayName,
-                alignment: .leading,
+                value: model.tonicDisplayName,
                 isActive: activePicker == .tonic,
                 accessibilityHint: "으뜸음을 변경하려면 두 번 탭하세요"
             ) {
                 togglePicker(.tonic)
             }
 
-            selectionHeaderButton(
+            compactSettingButton(
                 title: "음계",
-                displayName: model.kind.englishTitle,
-                alignment: .trailing,
+                value: model.kind.englishTitle,
                 isActive: activePicker == .kind,
                 accessibilityHint: "음계를 변경하려면 두 번 탭하세요"
             ) {
                 togglePicker(.kind)
             }
         }
-        .padding(.horizontal, LumenoteSpacing.popupInset)
-        .padding(.vertical, LumenoteSpacing.xxl)
-        .frame(maxWidth: .infinity)
-        .background(palette.cardBackground)
-        .clipShape(RoundedRectangle(cornerRadius: LumenoteRadius.card, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: LumenoteRadius.card, style: .continuous)
-                .strokeBorder(palette.divider, lineWidth: LumenoteStroke.compact)
-        )
     }
 
-    private func selectionHeaderButton(
+    private func compactSettingButton(
         title: String,
-        displayName: String,
-        alignment: HorizontalAlignment,
+        value: String,
         isActive: Bool,
         accessibilityHint: String,
         action: @escaping () -> Void
     ) -> some View {
-        let frameAlignment: Alignment = alignment == .leading ? .leading : .trailing
-
-        return Button(action: action) {
-            VStack(alignment: alignment, spacing: LumenoteSpacing.xxs) {
+        Button(action: action) {
+            VStack(alignment: .leading, spacing: LumenoteSpacing.xxs) {
                 Text(title)
                     .font(LumenoteFont.caption2(.semibold))
                     .foregroundStyle(isActive ? palette.minor : .secondary)
-                Text(displayName)
-                    .font(.system(size: displayName.count > 8 ? 22 : 28, weight: .bold))
+                Text(value)
+                    .font(LumenoteFont.callout(.bold))
                     .foregroundStyle(isActive ? palette.minor : .primary)
-                    .lineLimit(2)
-                    .minimumScaleFactor(0.65)
-                    .multilineTextAlignment(alignment == .leading ? .leading : .trailing)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, LumenoteSpacing.lg)
+            .padding(.vertical, LumenoteSpacing.md)
+            .background(
+                RoundedRectangle(cornerRadius: LumenoteRadius.chip, style: .continuous)
+                    .fill(isActive ? palette.highlight : Color.primary.opacity(0.001))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: LumenoteRadius.chip, style: .continuous)
+                    .strokeBorder(
+                        isActive ? palette.cardBorderActive : palette.divider,
+                        lineWidth: isActive ? LumenoteStroke.compact : LumenoteStroke.hairline
+                    )
+            )
+            .contentShape(RoundedRectangle(cornerRadius: LumenoteRadius.chip, style: .continuous))
         }
         .buttonStyle(.plain)
-        .frame(maxWidth: .infinity, alignment: frameAlignment)
-        .accessibilityLabel("\(title) \(displayName)")
+        .contentShape(RoundedRectangle(cornerRadius: LumenoteRadius.chip, style: .continuous))
+        .accessibilityLabel("\(title) \(value)")
         .accessibilityHint(accessibilityHint)
         .accessibilityAddTraits(isActive ? .isSelected : [])
     }
-
-    // MARK: - Construction helpers
 
     private var voicingToggle: some View {
         HStack(spacing: LumenoteSpacing.xs) {
