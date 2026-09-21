@@ -353,8 +353,8 @@ struct DiatonicChordView: View {
 
     private var functionFlowCard: some View {
         lessonCard {
-            sectionTitle("메이저 키의 기능")
-            Text("화성 진행의 가장 기본적인 흐름은 안정 → 전개 → 긴장 → 해결입니다.")
+            sectionTitle("다이아토닉 코드의 기능")
+            Text("메이저 키의 다이아토닉 코드는 화성적 역할에 따라 Tonic, Subdominant, Dominant로 나뉩니다.\n기본적인 흐름은 안정 → 전개 → 긴장 → 해결입니다.")
                 .font(LumenoteFont.callout(.medium))
                 .foregroundStyle(.primary)
                 .fixedSize(horizontal: false, vertical: true)
@@ -380,7 +380,7 @@ struct DiatonicChordView: View {
             }
         }
         .accessibilityElement(children: .contain)
-        .accessibilityLabel("메이저 키의 기능, 안정, 전개, 긴장, 해결")
+        .accessibilityLabel("다이아토닉 코드의 기능, Tonic, Subdominant, Dominant, 안정, 전개, 긴장, 해결")
     }
 
     private func motionStepRow(_ step: HarmonicMotionStep) -> some View {
