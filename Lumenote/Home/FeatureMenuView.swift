@@ -53,6 +53,8 @@ struct FeatureMenuView: View {
             KeySignatureQuizView()
         case .chordQuiz:
             ChordQuizView()
+        case .diatonicChordQuiz:
+            DiatonicChordQuizView()
         case .fretboardNoteNames:
             FretboardNoteQuizView()
         case .fretboardDegrees:
