@@ -352,6 +352,29 @@ enum DiatonicChordQuality: Equatable {
     case diminished7
     case augmentedMajor7
 
+    var englishTitle: String {
+        switch self {
+        case .major: "Major"
+        case .minor: "Minor"
+        case .augmented: "Augmented"
+        case .diminished: "Diminished"
+        case .major7: "Major 7"
+        case .minor7: "Minor 7"
+        case .dominant7: "Dominant 7"
+        case .minorMajor7: "Minor Major 7"
+        case .halfDiminished7: "Minor 7 ♭5"
+        case .diminished7: "Diminished 7"
+        case .augmentedMajor7: "Augmented Major 7"
+        }
+    }
+
+    var isSeventh: Bool {
+        switch self {
+        case .major, .minor, .augmented, .diminished: false
+        default: true
+        }
+    }
+
     func compactName(rootDisplayName root: String) -> String {
         switch self {
         case .major: root
