@@ -89,7 +89,7 @@ struct IntervalView: View {
                         .overlay(Circle().strokeBorder(palette.cardBorder, lineWidth: LumenoteStroke.compact))
                 }
                 .buttonStyle(.plain)
-                .accessibilityLabel("음정 이름 규칙")
+                .accessibilityLabel("음정 안내")
 
                 AppearanceToggleButton(appearance: $appearance)
             }
