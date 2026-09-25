@@ -120,11 +120,11 @@ struct IntervalQualityGuideView: View {
                 }
                 .padding(.top, LumenoteSpacing.md)
 
-                Text("C에서 \(degree.targetNote)까지의 상행 음정")
-                    .font(LumenoteFont.caption(.medium))
-                    .foregroundStyle(.secondary)
-                    .frame(maxWidth: .infinity)
-                    .multilineTextAlignment(.center)
+                Rectangle()
+                    .fill(palette.divider)
+                    .frame(height: 1)
+
+                semitoneCalculation(for: degree)
             }
             .padding(LumenoteSpacing.xxl)
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -176,6 +176,36 @@ struct IntervalQualityGuideView: View {
         }
     }
 
+    private func semitoneCalculation(for degree: DegreeSemitoneRow) -> some View {
+        VStack(alignment: .leading, spacing: LumenoteSpacing.md) {
+            Text("반음 간격 계산 과정")
+                .font(LumenoteFont.subheadline(.bold))
+                .foregroundStyle(.primary)
+            Text("온음은 2반음, 반음은 1반음입니다.")
+                .font(LumenoteFont.caption(.medium))
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+            Text(Self.semitoneFormula(stepCount: degree.noteIndex))
+                .font(LumenoteFont.headline(.bold))
+                .foregroundStyle(.primary)
+                .minimumScaleFactor(0.6)
+                .lineLimit(1)
+                .frame(maxWidth: .infinity)
+                .multilineTextAlignment(.center)
+        }
+        .accessibilityElement(children: .combine)
+    }
+
+    /// Whole steps are 2 semitones and the E–F, B–C half steps are 1.
+    private static func semitoneFormula(stepCount: Int) -> String {
+        let semitoneValues = [2, 2, 1, 2, 2, 2, 1]
+        let steps = Array(semitoneValues.prefix(max(0, stepCount)))
+        guard !steps.isEmpty else { return "0반음" }
+        let expression = steps.map(String.init).joined(separator: " + ")
+        let total = steps.reduce(0, +)
+        return "\(expression) = \(total)반음"
+    }
+
     private func spanStat(title: String, value: String) -> some View {
         VStack(spacing: LumenoteSpacing.sm) {
             Text(title)
@@ -219,21 +249,19 @@ struct IntervalQualityGuideView: View {
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
 
-                VStack(spacing: LumenoteSpacing.lg) {
+                VStack(spacing: LumenoteSpacing.sm) {
                     alterationExample(
                         spelling: "C → E♯",
                         detail: "증3도 · 5반음",
                         fill: colors.augmented,
                         foreground: colors.onGreen
                     )
-                    alterationArrow
                     alterationExample(
                         spelling: "C → E",
                         detail: "장3도 · 4반음",
                         fill: colors.major,
                         foreground: colors.onBlue
                     )
-                    alterationArrow
                     alterationExample(
                         spelling: "C → E♭",
                         detail: "단3도 · 3반음",
@@ -242,10 +270,19 @@ struct IntervalQualityGuideView: View {
                     )
                 }
 
-                Text("도수는 3도로 동일하지만 반음 간격에 따라 음정 이름이 달라집니다.")
-                    .font(LumenoteFont.caption(.medium))
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
+                Rectangle()
+                    .fill(palette.divider)
+                    .frame(height: 1)
+
+                VStack(alignment: .leading, spacing: LumenoteSpacing.xl) {
+                    Text("반음 간격이 달라지면?")
+                        .font(LumenoteFont.headline(.bold))
+                    Text("세 음정은 모두 3도이지만, 목표음이 반음씩 이동하면서 음정의 성질이 달라집니다.")
+                    Text("장3도(4반음)를 기준으로 간격이 1반음 넓어지면 증3도, 1반음 좁아지면 단3도가 됩니다.")
+                }
+                .font(LumenoteFont.callout(.medium))
+                .foregroundStyle(.primary)
+                .fixedSize(horizontal: false, vertical: true)
             }
             .padding(LumenoteSpacing.xxl)
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -282,14 +319,6 @@ struct IntervalQualityGuideView: View {
                 .fill(fill)
         )
         .accessibilityElement(children: .combine)
-    }
-
-    private var alterationArrow: some View {
-        Image(systemName: "arrow.up.arrow.down")
-            .font(LumenoteFont.rounded(size: 14, weight: .bold))
-            .foregroundStyle(.secondary)
-            .frame(maxWidth: .infinity)
-            .accessibilityHidden(true)
     }
 
     private var namingPage: some View {
@@ -383,8 +412,9 @@ struct IntervalQualityGuideView: View {
             )
 
             Text("E–F, B–C는 자연 반음 구간")
-                .font(LumenoteFont.subheadline(.bold))
-                .foregroundStyle(.primary)
+                .font(LumenoteFont.caption(.medium))
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
                 .frame(maxWidth: .infinity)
                 .multilineTextAlignment(.center)
         }
@@ -397,7 +427,7 @@ struct IntervalQualityGuideView: View {
 
     private var degreeTable: some View {
         VStack(spacing: 0) {
-            degreeColumns(name: "음정", halves: "자연 반음 구간", semitones: "전체 반음 수")
+            degreeColumns(name: "음정", halves: "자연 반음 구간", semitones: "전체 반음 간격")
                 .font(LumenoteFont.caption(.medium))
                 .foregroundStyle(.secondary)
                 .padding(.bottom, LumenoteSpacing.sm)
@@ -452,14 +482,14 @@ struct IntervalQualityGuideView: View {
     }
 
     private static let degreeRows: [DegreeSemitoneRow] = [
-        .init(name: "완전1도", targetNote: "C", noteIndex: 0, naturalHalfSteps: 0, semitones: 0),
-        .init(name: "장2도", targetNote: "D", noteIndex: 1, naturalHalfSteps: 0, semitones: 2),
-        .init(name: "장3도", targetNote: "E", noteIndex: 2, naturalHalfSteps: 0, semitones: 4),
-        .init(name: "완전4도", targetNote: "F", noteIndex: 3, naturalHalfSteps: 1, semitones: 5),
-        .init(name: "완전5도", targetNote: "G", noteIndex: 4, naturalHalfSteps: 1, semitones: 7),
-        .init(name: "장6도", targetNote: "A", noteIndex: 5, naturalHalfSteps: 1, semitones: 9),
-        .init(name: "장7도", targetNote: "B", noteIndex: 6, naturalHalfSteps: 1, semitones: 11),
-        .init(name: "완전8도", targetNote: "C", noteIndex: 7, naturalHalfSteps: 2, semitones: 12),
+        .init(name: "완전1도", noteIndex: 0, naturalHalfSteps: 0, semitones: 0),
+        .init(name: "장2도", noteIndex: 1, naturalHalfSteps: 0, semitones: 2),
+        .init(name: "장3도", noteIndex: 2, naturalHalfSteps: 0, semitones: 4),
+        .init(name: "완전4도", noteIndex: 3, naturalHalfSteps: 1, semitones: 5),
+        .init(name: "완전5도", noteIndex: 4, naturalHalfSteps: 1, semitones: 7),
+        .init(name: "장6도", noteIndex: 5, naturalHalfSteps: 1, semitones: 9),
+        .init(name: "장7도", noteIndex: 6, naturalHalfSteps: 1, semitones: 11),
+        .init(name: "완전8도", noteIndex: 7, naturalHalfSteps: 2, semitones: 12),
     ]
 
     // MARK: - Summary
@@ -627,7 +657,6 @@ private enum GuidePage: Int, CaseIterable, Hashable {
 
 private struct DegreeSemitoneRow: Identifiable {
     let name: String
-    let targetNote: String
     let noteIndex: Int
     let naturalHalfSteps: Int
     let semitones: Int
