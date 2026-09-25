@@ -229,11 +229,15 @@ final class IntervalModel {
     /// `% 12` collapses spelling-based 7ths such as B♭→A♯ to 0 semitones.
     /// Restore the octave when the wrapped distance is far below the diatonic reference.
     /// Diminished 2nds (C♯→D♭) stay at 0.
+    /// A 2nd spelled upward but sounding lower (E♯→F♭, B♯→C♭) wraps to 11; fold it below 0.
     private static func octaveAwareSemitones(intervalNumber: Int, wrapped: Int) -> Int {
         guard intervalNumber >= 1, intervalNumber <= 8 else { return wrapped }
         let reference = referenceSemitones[intervalNumber]
         if intervalNumber > 1, wrapped < reference - 6 {
             return wrapped + 12
+        }
+        if wrapped > reference + 6 {
+            return wrapped - 12
         }
         return wrapped
     }
@@ -241,6 +245,8 @@ final class IntervalModel {
     private static func koreanName(intervalNumber: Int, offset: Int) -> String? {
         if perfectIntervalNumbers.contains(intervalNumber) {
             switch offset {
+            case -3 where intervalNumber != 1:
+                return "겹겹감\(intervalNumber)도"
             case -2 where intervalNumber != 1:
                 return "겹감\(intervalNumber)도"
             case -1 where intervalNumber != 1:
@@ -255,18 +261,22 @@ final class IntervalModel {
                 return "증\(intervalNumber)도"
             case 2 where intervalNumber != 8:
                 return "겹증\(intervalNumber)도"
+            case 3 where intervalNumber != 8:
+                return "겹겹증\(intervalNumber)도"
             default:
                 return nil
             }
         }
 
         switch offset {
+        case -4: return "겹겹감\(intervalNumber)도"
         case -3: return "겹감\(intervalNumber)도"
         case -2: return "감\(intervalNumber)도"
         case -1: return "단\(intervalNumber)도"
         case 0: return "장\(intervalNumber)도"
         case 1: return "증\(intervalNumber)도"
         case 2: return "겹증\(intervalNumber)도"
+        case 3: return "겹겹증\(intervalNumber)도"
         default: return nil
         }
     }
@@ -276,6 +286,8 @@ final class IntervalModel {
 
         if perfectIntervalNumbers.contains(intervalNumber) {
             switch offset {
+            case -3 where intervalNumber != 1:
+                return "Triply Diminished \(ordinal)"
             case -2 where intervalNumber != 1:
                 return "Doubly Diminished \(ordinal)"
             case -1 where intervalNumber != 1:
@@ -290,18 +302,22 @@ final class IntervalModel {
                 return "Augmented \(ordinal)"
             case 2 where intervalNumber != 8:
                 return "Doubly Augmented \(ordinal)"
+            case 3 where intervalNumber != 8:
+                return "Triply Augmented \(ordinal)"
             default:
                 return nil
             }
         }
 
         switch offset {
+        case -4: return "Triply Diminished \(ordinal)"
         case -3: return "Doubly Diminished \(ordinal)"
         case -2: return "Diminished \(ordinal)"
         case -1: return "Minor \(ordinal)"
         case 0: return "Major \(ordinal)"
         case 1: return "Augmented \(ordinal)"
         case 2: return "Doubly Augmented \(ordinal)"
+        case 3: return "Triply Augmented \(ordinal)"
         default: return nil
         }
     }
