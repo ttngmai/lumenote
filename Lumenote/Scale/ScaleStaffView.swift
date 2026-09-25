@@ -7,6 +7,8 @@ struct ScaleStaffView: View {
     let notes: [IntervalStaffNote]
     let intervals: [ScaleStepInterval]
     let noteNames: [String]
+    /// Formula under each note name ("1", "♭3"). Empty hides the degree row.
+    var degreeLabels: [String] = []
     let staffSpace: CGFloat
     /// Card inner width used to stretch note spacing (up to a cap) and center the staff.
     var targetWidth: CGFloat? = nil
@@ -24,7 +26,8 @@ struct ScaleStaffView: View {
     private var trailingPad: CGFloat { staffSpace * 1.1 }
     private var verticalPad: CGFloat { staffSpace * 2.35 }
     private var annotationHeight: CGFloat { staffSpace * 3.4 }
-    private var nameRowHeight: CGFloat { staffSpace * 1.7 }
+    private var showsDegreeLabels: Bool { degreeLabels.contains { !$0.isEmpty } }
+    private var nameRowHeight: CGFloat { showsDegreeLabels ? staffSpace * 2.85 : staffSpace * 1.7 }
 
     private var minNoteSpacing: CGFloat { staffSpace * 2.55 }
     private var maxNoteSpacing: CGFloat { staffSpace * 4.4 }
@@ -79,7 +82,10 @@ struct ScaleStaffView: View {
     }
 
     private var accessibilitySummary: String {
-        let names = noteNames.joined(separator: ", ")
+        let names = noteNames.enumerated().map { index, name in
+            let degree = degreeLabel(at: index)
+            return degree.isEmpty ? name : "\(name) \(degree)"
+        }.joined(separator: ", ")
         guard showsIntervalAnnotations else { return names }
         let steps = intervals.map(\.koreanLabel).joined(separator: ", ")
         return "\(names). 구성: \(steps)"
@@ -202,16 +208,36 @@ struct ScaleStaffView: View {
     private var noteNameRow: some View {
         ZStack(alignment: .topLeading) {
             ForEach(Array(noteNames.enumerated()), id: \.offset) { index, name in
-                Text(name)
-                    .font(.system(size: staffSpace * 1.05, weight: .semibold, design: .rounded))
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.6)
+                noteNameLabel(name: name, degree: degreeLabel(at: index))
+                    .frame(width: noteSpacing)
                     .position(x: noteX(for: index), y: nameRowHeight / 2)
             }
         }
         .frame(width: contentWidth, height: nameRowHeight)
         .accessibilityHidden(true)
+    }
+
+    private func noteNameLabel(name: String, degree: String) -> some View {
+        VStack(spacing: staffSpace * 0.08) {
+            Text(name)
+                .font(.system(size: staffSpace * 1.05, weight: .semibold, design: .rounded))
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.6)
+            if showsDegreeLabels {
+                Text(degree)
+                    .font(.system(size: staffSpace * 0.92, weight: .bold, design: .rounded))
+                    .foregroundStyle(accentColor)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.55)
+                    .frame(maxWidth: .infinity)
+            }
+        }
+    }
+
+    private func degreeLabel(at index: Int) -> String {
+        guard showsDegreeLabels, degreeLabels.indices.contains(index) else { return "" }
+        return degreeLabels[index]
     }
 
     // MARK: - Geometry
@@ -266,15 +292,16 @@ private struct ScaleStepMark: View {
         notes: [
             IntervalStaffNote(id: 0, spelling: "C", staffStep: -2, accidentalSymbol: nil),
             IntervalStaffNote(id: 1, spelling: "D", staffStep: -1, accidentalSymbol: nil),
-            IntervalStaffNote(id: 2, spelling: "E", staffStep: 0, accidentalSymbol: nil),
+            IntervalStaffNote(id: 2, spelling: "Eb", staffStep: 0, accidentalSymbol: "♭"),
             IntervalStaffNote(id: 3, spelling: "F", staffStep: 1, accidentalSymbol: nil),
             IntervalStaffNote(id: 4, spelling: "G", staffStep: 2, accidentalSymbol: nil),
-            IntervalStaffNote(id: 5, spelling: "A", staffStep: 3, accidentalSymbol: nil),
-            IntervalStaffNote(id: 6, spelling: "B", staffStep: 4, accidentalSymbol: nil),
+            IntervalStaffNote(id: 5, spelling: "Ab", staffStep: 3, accidentalSymbol: "♭"),
+            IntervalStaffNote(id: 6, spelling: "Bb", staffStep: 4, accidentalSymbol: "♭"),
             IntervalStaffNote(id: 7, spelling: "C", staffStep: 5, accidentalSymbol: nil),
         ],
-        intervals: ScaleKind.major.semitoneSteps.map(ScaleStepInterval.init(semitones:)),
-        noteNames: ["C", "D", "E", "F", "G", "A", "B", "C"],
+        intervals: ScaleKind.naturalMinor.semitoneSteps.map(ScaleStepInterval.init(semitones:)),
+        noteNames: ["C", "D", "E♭", "F", "G", "A♭", "B♭", "C"],
+        degreeLabels: ScaleKind.naturalMinor.degreeLabels,
         staffSpace: 11,
         lineColor: .primary,
         noteColor: .primary,

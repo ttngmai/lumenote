@@ -45,6 +45,11 @@ final class ScaleModel {
         degreeSpellings.map(Self.formatNoteName)
     }
 
+    /// Formula under each staff note, tonic through octave. The octave reads "8(1)".
+    var degreeLabels: [String] {
+        kind.degreeLabels
+    }
+
     /// Step labels between consecutive degrees (7 intervals for an octave scale).
     var stepIntervals: [ScaleStepInterval] {
         kind.semitoneSteps.map(ScaleStepInterval.init(semitones:))
@@ -52,8 +57,13 @@ final class ScaleModel {
 
     /// Tonic through octave on a treble staff starting in the C4 octave.
     var staffNotes: [IntervalStaffNote] {
-        let spellings = degreeSpellings
-        guard let tonicLetter = Self.letterIndex(of: tonicSpelling) else { return [] }
+        Self.staffNotes(tonic: tonicSpelling, kind: kind)
+    }
+
+    /// Tonic through octave on a treble staff starting in the C4 octave.
+    static func staffNotes(tonic: String, kind: ScaleKind) -> [IntervalStaffNote] {
+        let spellings = spellings(tonic: tonic, kind: kind)
+        guard let tonicLetter = letterIndex(of: tonic) else { return [] }
 
         // Fixed letter → staff mapping in the C4 octave: C = −2, D = −1, E = 0, …, B = 4.
         let startStep = tonicLetter - 2
@@ -62,7 +72,7 @@ final class ScaleModel {
                 id: index,
                 spelling: spelling,
                 staffStep: startStep + index,
-                accidentalSymbol: Self.accidentalSymbol(for: spelling)
+                accidentalSymbol: accidentalSymbol(for: spelling)
             )
         }
     }
@@ -212,6 +222,24 @@ enum ScaleKind: String, CaseIterable, Identifiable {
         }
     }
 
+    /// Scale-degree formula for the eight staff notes (tonic through octave).
+    /// Accidentals are relative to the major scale, written like chord tones ("♭3").
+    /// The octave is labeled "8(1)".
+    var degreeLabels: [String] {
+        let degrees: [String]
+        switch self {
+        case .major:
+            degrees = ["1", "2", "3", "4", "5", "6", "7"]
+        case .naturalMinor:
+            degrees = ["1", "2", "♭3", "4", "5", "♭6", "♭7"]
+        case .harmonicMinor:
+            degrees = ["1", "2", "♭3", "4", "5", "♭6", "7"]
+        case .melodicMinor:
+            degrees = ["1", "2", "♭3", "4", "5", "6", "7"]
+        }
+        return degrees + ["8(1)"]
+    }
+
     /// Semitone distances between consecutive degrees (tonic → octave).
     /// Melodic minor uses the ascending form (raised 6th and 7th).
     var semitoneSteps: [Int] {
@@ -252,5 +280,53 @@ enum ScaleStepInterval: Equatable {
 
     var accessibilityLabel: String {
         koreanLabel
+    }
+}
+
+/// One scale card on the scale explorer. The screen shows up to `maximumCount` cards.
+struct ScaleCard: Identifiable, Equatable {
+    static let maximumCount = 4
+
+    let id: UUID
+    var tonicSpelling: String
+    var kind: ScaleKind
+
+    init(id: UUID = UUID(), tonicSpelling: String = "C", kind: ScaleKind = .major) {
+        self.id = id
+        self.tonicSpelling = ScaleModel.isKnownSpelling(tonicSpelling) ? tonicSpelling : "C"
+        self.kind = kind
+    }
+
+    var tonicDisplayName: String {
+        ScaleModel.formatNoteName(tonicSpelling)
+    }
+
+    var degreeDisplayNames: [String] {
+        ScaleModel.spellings(tonic: tonicSpelling, kind: kind).map(ScaleModel.formatNoteName)
+    }
+
+    var degreeLabels: [String] {
+        kind.degreeLabels
+    }
+
+    var stepIntervals: [ScaleStepInterval] {
+        kind.semitoneSteps.map(ScaleStepInterval.init(semitones:))
+    }
+
+    var staffNotes: [IntervalStaffNote] {
+        ScaleModel.staffNotes(tonic: tonicSpelling, kind: kind)
+    }
+
+    /// Same tonic, next scale kind. Used when the user adds another card.
+    func addingNextKind() -> ScaleCard {
+        let kinds = ScaleKind.allCases
+        let index = kinds.firstIndex(of: kind) ?? 0
+        let next = kinds[(index + 1) % kinds.count]
+        return ScaleCard(tonicSpelling: tonicSpelling, kind: next)
+    }
+
+    mutating func setTonic(_ spelling: String) {
+        guard ScaleModel.isKnownSpelling(spelling) else { return }
+        tonicSpelling = spelling
     }
 }
