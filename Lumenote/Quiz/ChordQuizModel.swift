@@ -517,14 +517,14 @@ final class ChordQuizModel {
         let groups = [
             ["3", "♭3"],
             ["5", "♭5", "♯5"],
-            ["7", "♭7", "♭♭7"],
+            ["7", "♭7", "𝄫7"],
         ]
         var pool: [String] = []
         if let group = groups.first(where: { $0.contains(correct) }) {
             pool.append(contentsOf: group.filter { $0 != correct })
         }
 
-        let extras = ["1", "3", "♭3", "5", "♭5", "♯5", "6", "7", "♭7", "♭♭7"]
+        let extras = ["1", "3", "♭3", "5", "♭5", "♯5", "6", "7", "♭7", "𝄫7"]
         for label in extras.shuffled() where label != correct && !pool.contains(label) {
             pool.append(label)
         }
