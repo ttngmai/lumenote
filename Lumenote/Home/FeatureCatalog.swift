@@ -124,7 +124,7 @@ enum FeatureCatalog {
                 FeatureItem(
                     destination: .diatonicChord,
                     title: "다이아토닉 코드",
-                    subtitle: "스케일 위의 코드와 기능",
+                    subtitle: "스케일의 구성음으로 만들어지는 코드",
                     icon: .system("square.stack.3d.up")
                 ),
             ]

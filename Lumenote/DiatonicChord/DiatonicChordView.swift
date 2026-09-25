@@ -2,7 +2,7 @@
 
 import SwiftUI
 
-/// Textbook-style diatonic-chord lesson: concept, construction, and harmonic function.
+/// Textbook-style diatonic-chord lesson: construction and harmonic function.
 struct DiatonicChordView: View {
     @Environment(\.appPalette) private var palette
     @AppStorage(AppearanceMode.storageKey) private var appearance: AppearanceMode = .system
@@ -25,11 +25,6 @@ struct DiatonicChordView: View {
             VStack(spacing: 0) {
                 ScrollView {
                     VStack(alignment: .leading, spacing: LumenoteSpacing.section) {
-                        conceptCard
-                            .overlay {
-                                if activePicker != nil { dismissTapLayer }
-                            }
-
                         constructionCard(
                             availableWidth: geo.size.width - LumenoteSpacing.popupInset * 2
                         )
@@ -86,19 +81,6 @@ struct DiatonicChordView: View {
             .onTapGesture {
                 activePicker = nil
             }
-    }
-
-    // MARK: - Concept
-
-    private var conceptCard: some View {
-        lessonCard {
-            sectionTitle("다이아토닉 코드")
-            Text("특정 조(Key)의 스케일에 포함된 음들만 사용하여 만든 코드입니다.")
-                .font(LumenoteFont.callout(.medium))
-                .foregroundStyle(.primary)
-                .fixedSize(horizontal: false, vertical: true)
-        }
-        .accessibilityElement(children: .combine)
     }
 
     // MARK: - Construction
