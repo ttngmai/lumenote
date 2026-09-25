@@ -307,7 +307,7 @@ struct ChordView: View {
             .padding(.vertical, LumenoteSpacing.md)
             .background(
                 RoundedRectangle(cornerRadius: LumenoteRadius.chip, style: .continuous)
-                    .fill(enabled ? palette.highlight : Color.primary.opacity(0.001))
+                    .fill(Color.primary.opacity(0.001))
             )
             .overlay(
                 RoundedRectangle(cornerRadius: LumenoteRadius.chip, style: .continuous)
