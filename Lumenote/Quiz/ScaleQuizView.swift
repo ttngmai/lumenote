@@ -25,7 +25,7 @@ struct ScaleQuizView: View {
         }
         .scrollIndicators(.hidden)
         .background(background)
-        .lumenoteCompactHeader(title: "음계 퀴즈", showsBackButton: true) {
+        .lumenoteCompactHeader(title: "스케일 퀴즈", showsBackButton: true) {
             AppearanceToggleButton(appearance: $appearance)
         }
     }
