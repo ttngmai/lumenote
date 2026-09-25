@@ -18,7 +18,7 @@ enum FeatureDomain: String, CaseIterable, Hashable, Identifiable {
 
     var subtitle: String {
         switch self {
-        case .harmony: "음정 · 음계 · 조표 · 화음 · 다이아토닉"
+        case .harmony: "음정 · 스케일 · 조표 · 코드 · 다이아토닉"
         case .guitar: "지판과 주법"
         }
     }
@@ -105,7 +105,7 @@ enum FeatureCatalog {
                 ),
                 FeatureItem(
                     destination: .scale,
-                    title: "음계",
+                    title: "스케일",
                     subtitle: "일정한 음정 규칙에 따라 배열된 음들의 체계",
                     icon: .system("music.quarternote.3")
                 ),
@@ -117,7 +117,7 @@ enum FeatureCatalog {
                 ),
                 FeatureItem(
                     destination: .chord,
-                    title: "화음",
+                    title: "코드",
                     subtitle: "Triad, 7th 코드의 구성과 표기",
                     icon: .system("music.note.list")
                 ),
@@ -138,7 +138,7 @@ enum FeatureCatalog {
                 ),
                 FeatureItem(
                     destination: .scaleQuiz,
-                    title: "음계 퀴즈",
+                    title: "스케일 퀴즈",
                     subtitle: "구성음 · 패턴 · 도수를 맞춰 보세요",
                     icon: .system("music.quarternote.3")
                 ),
@@ -150,7 +150,7 @@ enum FeatureCatalog {
                 ),
                 FeatureItem(
                     destination: .chordQuiz,
-                    title: "화음 퀴즈",
+                    title: "코드 퀴즈",
                     subtitle: "구성음 · 공식 · 표기를 맞춰 보세요",
                     icon: .system("music.note.list")
                 ),

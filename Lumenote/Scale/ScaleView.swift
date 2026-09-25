@@ -65,7 +65,7 @@ struct ScaleView: View {
             .animation(.easeOut(duration: 0.22), value: activePicker)
         }
         .background(background)
-        .lumenoteCompactHeader(title: "음계", showsBackButton: true) {
+        .lumenoteCompactHeader(title: "스케일", showsBackButton: true) {
             AppearanceToggleButton(appearance: $appearance)
         }
     }
@@ -118,11 +118,11 @@ struct ScaleView: View {
             }
 
             selectionHeaderButton(
-                title: "음계",
+                title: "스케일",
                 displayName: model.kind.englishTitle,
                 alignment: .trailing,
                 isActive: activePicker == .kind,
-                accessibilityHint: "음계를 변경하려면 두 번 탭하세요"
+                accessibilityHint: "스케일을 변경하려면 두 번 탭하세요"
             ) {
                 togglePicker(.kind)
             }
@@ -231,7 +231,7 @@ struct ScaleView: View {
 
     private var kindPickerStrip: some View {
         VStack(spacing: LumenoteSpacing.lg) {
-            pickerStripHeader(title: "음계") {
+            pickerStripHeader(title: "스케일") {
                 activePicker = nil
             }
 

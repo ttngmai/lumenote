@@ -20,7 +20,7 @@ struct ChordGuideView: View {
                 .frame(maxWidth: .infinity)
             }
             .background(sheetBackground)
-            .navigationTitle("화음 정리")
+            .navigationTitle("코드 정리")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -79,7 +79,7 @@ struct ChordGuideView: View {
 
     private var tableHeader: some View {
         HStack(alignment: .center, spacing: LumenoteSpacing.md) {
-            Text("화음")
+            Text("코드")
                 .frame(maxWidth: .infinity, alignment: .leading)
             Text("구성음")
                 .frame(width: 88, alignment: .leading)

@@ -211,10 +211,10 @@ struct DiatonicChordView: View {
             }
 
             compactSettingButton(
-                title: "음계",
+                title: "스케일",
                 value: model.kind.englishTitle,
                 isActive: activePicker == .kind,
-                accessibilityHint: "음계를 변경하려면 두 번 탭하세요"
+                accessibilityHint: "스케일을 변경하려면 두 번 탭하세요"
             ) {
                 togglePicker(.kind)
             }
@@ -291,7 +291,7 @@ struct DiatonicChordView: View {
             }
         }
         .accessibilityElement(children: .contain)
-        .accessibilityLabel("화음 구성")
+        .accessibilityLabel("코드 구성")
     }
 
     // MARK: - Function
@@ -533,7 +533,7 @@ struct DiatonicChordView: View {
 
     private var kindPickerStrip: some View {
         VStack(spacing: LumenoteSpacing.lg) {
-            pickerStripHeader(title: "음계") {
+            pickerStripHeader(title: "스케일") {
                 activePicker = nil
             }
 

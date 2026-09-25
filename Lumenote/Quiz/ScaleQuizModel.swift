@@ -215,7 +215,7 @@ final class ScaleQuizModel {
 
         return Question(
             kind: .identifyScale,
-            promptTitle: "다음 음계는 무엇일까요?",
+            promptTitle: "다음 스케일은 무엇일까요?",
             scaleLabel: entry.displayName,
             promptTokens: displays.map { .note($0) },
             staffNotes: staffNotes,

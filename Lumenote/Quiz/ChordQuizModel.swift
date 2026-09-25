@@ -219,7 +219,7 @@ final class ChordQuizModel {
 
         return Question(
             kind: .identifyChord,
-            promptTitle: "다음 화음은 무엇일까요?",
+            promptTitle: "다음 코드는 무엇일까요?",
             promptEmphasis: nil,
             promptTokens: [],
             staffNotes: explorer.staffNotes,
@@ -353,7 +353,7 @@ final class ChordQuizModel {
             let rootName = ScaleModel.formatNoteName(entry.root)
             return Question(
                 kind: .identifyNotation,
-                promptTitle: "근음이 \(rootName)일 때, 다음 표기의 화음은?",
+                promptTitle: "근음이 \(rootName)일 때, 다음 표기의 코드는?",
                 promptEmphasis: chordSymbol(root: entry.root, kind: entry.kind),
                 promptTokens: [],
                 staffNotes: [],

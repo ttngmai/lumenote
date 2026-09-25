@@ -25,7 +25,7 @@ struct ChordQuizView: View {
         }
         .scrollIndicators(.hidden)
         .background(background)
-        .lumenoteCompactHeader(title: "화음 퀴즈", showsBackButton: true) {
+        .lumenoteCompactHeader(title: "코드 퀴즈", showsBackButton: true) {
             AppearanceToggleButton(appearance: $appearance)
         }
     }

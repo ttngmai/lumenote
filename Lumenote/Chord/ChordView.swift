@@ -67,7 +67,7 @@ struct ChordView: View {
             .animation(.easeOut(duration: 0.22), value: activePicker)
         }
         .background(background)
-        .lumenoteCompactHeader(title: "화음", showsBackButton: true) {
+        .lumenoteCompactHeader(title: "코드", showsBackButton: true) {
             HStack(spacing: LumenoteSpacing.sm) {
                 Button {
                     showsGuide = true
@@ -80,7 +80,7 @@ struct ChordView: View {
                         .overlay(Circle().strokeBorder(palette.cardBorder, lineWidth: LumenoteStroke.compact))
                 }
                 .buttonStyle(.plain)
-                .accessibilityLabel("화음 정리")
+                .accessibilityLabel("코드 정리")
 
                 AppearanceToggleButton(appearance: $appearance)
             }
@@ -201,11 +201,11 @@ struct ChordView: View {
             }
 
             selectionHeaderButton(
-                title: "화음",
+                title: "코드",
                 displayName: model.kind.englishTitle,
                 alignment: .trailing,
                 isActive: activePicker == .kind,
-                accessibilityHint: "화음을 변경하려면 두 번 탭하세요"
+                accessibilityHint: "코드를 변경하려면 두 번 탭하세요"
             ) {
                 togglePicker(.kind)
             }
@@ -314,7 +314,7 @@ struct ChordView: View {
 
     private var kindPickerStrip: some View {
         VStack(spacing: LumenoteSpacing.lg) {
-            pickerStripHeader(title: "화음") {
+            pickerStripHeader(title: "코드") {
                 activePicker = nil
             }
 
