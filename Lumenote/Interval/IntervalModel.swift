@@ -113,6 +113,24 @@ final class IntervalModel {
         )
     }
 
+    /// True when both pickers use the same spelling, so unison is separate from the octave directions.
+    var showsUnison: Bool {
+        rootSpelling == targetSpelling
+    }
+
+    var unisonIntervalName: String { "완전1도" }
+
+    var unisonIntervalNameEnglish: String { "Perfect Unison" }
+
+    /// Both notes on the same staff degree. Used when the spellings are identical.
+    var unisonStaffNotes: [IntervalStaffNote] {
+        Self.staffNotes(
+            rootSpelling: rootSpelling,
+            targetSpelling: targetSpelling,
+            direction: .unison
+        )
+    }
+
     // MARK: - Tables
 
     /// Display order for pickers: naturals with both sharp and flat enharmonics where they exist.
@@ -207,15 +225,15 @@ final class IntervalModel {
     }
 
     /// Diatonic interval number (1…8) from letter distance.
-    /// Same letter uses semitone distance: short side → 1 (e.g. augmented unison),
-    /// long side → 8 (e.g. diminished octave).
+    /// Same letter uses semitone distance: identical pitch → 8 (octave in each direction),
+    /// short side → 1 (e.g. augmented unison), long side → 8 (e.g. diminished octave).
     private static func diatonicNumber(root: String, target: String, semitones: Int) -> Int? {
         guard let rootLetter = letterIndex(of: root),
               let targetLetter = letterIndex(of: target)
         else { return nil }
         let steps = (targetLetter - rootLetter + 7) % 7
         if steps == 0 {
-            if semitones == 0 { return 1 }
+            if semitones == 0 { return 8 }
             return semitones <= 6 ? 1 : 8
         }
         return steps + 1
@@ -346,6 +364,7 @@ final class IntervalModel {
     private enum StaffDirection {
         case ascending
         case descending
+        case unison
     }
 
     private static func staffNotes(
@@ -368,20 +387,22 @@ final class IntervalModel {
         case .ascending:
             let up = (targetLetter - rootLetter + 7) % 7
             targetStep = rootStep + up
-            // Same letter but lower sounding pitch (e.g. A → A♭, C → C♭):
-            // rise one octave for a diminished 8th. Raw `targetPC < rootPC`
-            // fails around C/B♯ (0) vs B/C♭ (11).
-            if up == 0, sameDegreeOffset < 0 {
+            // Same letter and a lower or identical pitch (e.g. C → C♭, C → C):
+            // rise one octave. Raw `targetPC < rootPC` fails around C/B♯ (0) vs B/C♭ (11).
+            if up == 0, sameDegreeOffset <= 0 {
                 targetStep += 7
             }
         case .descending:
             let down = (rootLetter - targetLetter + 7) % 7
             targetStep = rootStep - down
             // Same letter but higher sounding pitch (e.g. E♭ → E, C♭ → C): drop one octave.
-            // Already-lower targets (e.g. A → A♭, C → C♭) stay on the same staff degree (augmented unison).
-            if down == 0, sameDegreeOffset > 0 {
+            // Identical pitch also drops one octave. Already-lower targets (e.g. A → A♭, C → C♭)
+            // stay on the same staff degree (augmented unison).
+            if down == 0, sameDegreeOffset >= 0 {
                 targetStep -= 7
             }
+        case .unison:
+            targetStep = rootStep
         }
 
         while min(rootStep, targetStep) < -4 {
