@@ -127,14 +127,27 @@ struct IntervalView: View {
             koreanName: model.descendingIntervalName
         )
 
-        if isWide {
-            HStack(alignment: .top, spacing: LumenoteSpacing.section) {
+        let unison = intervalStaffSection(
+            title: "방향없음",
+            directionIcon: nil,
+            notes: model.unisonStaffNotes,
+            englishName: model.unisonIntervalNameEnglish,
+            koreanName: model.unisonIntervalName
+        )
+
+        VStack(spacing: LumenoteSpacing.section) {
+            if isWide {
+                HStack(alignment: .top, spacing: LumenoteSpacing.section) {
+                    ascending
+                    descending
+                }
+            } else {
                 ascending
                 descending
             }
-        } else {
-            ascending
-            descending
+            if model.showsUnison {
+                unison
+            }
         }
     }
 
@@ -219,7 +232,7 @@ struct IntervalView: View {
 
     private func intervalStaffSection(
         title: String,
-        directionIcon: String,
+        directionIcon: String?,
         notes: [IntervalStaffNote],
         englishName: String,
         koreanName: String
@@ -228,8 +241,10 @@ struct IntervalView: View {
             HStack(spacing: LumenoteSpacing.md) {
                 Text(title)
                     .font(LumenoteFont.caption(.semibold))
-                Image(systemName: directionIcon)
-                    .font(LumenoteFont.caption(.semibold))
+                if let directionIcon {
+                    Image(systemName: directionIcon)
+                        .font(LumenoteFont.caption(.semibold))
+                }
             }
             .foregroundStyle(.secondary)
             .frame(maxWidth: .infinity, alignment: .leading)
