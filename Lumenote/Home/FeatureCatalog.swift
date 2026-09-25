@@ -118,7 +118,7 @@ enum FeatureCatalog {
                 FeatureItem(
                     destination: .chord,
                     title: "코드",
-                    subtitle: "Triad, 7th 코드의 구성과 표기",
+                    subtitle: "여러 음이 동시에 울리는 화음",
                     icon: .system("music.note.list")
                 ),
                 FeatureItem(

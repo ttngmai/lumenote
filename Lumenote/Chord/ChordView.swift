@@ -6,16 +6,23 @@ struct ChordView: View {
     @Environment(\.appPalette) private var palette
     @AppStorage(AppearanceMode.storageKey) private var appearance: AppearanceMode = .system
 
-    @State private var model = ChordModel()
-    @State private var activePicker: PickerTarget?
+    @State private var cards: [ChordCard] = [ChordCard()]
+    @State private var activePicker: ActivePicker?
     @State private var rootStripScrollPosition: String?
     @State private var triadStripScrollPosition: String?
     @State private var seventhStripScrollPosition: String?
+    @State private var scrollTarget: ChordCard.ID?
+    @State private var reorderingCardID: ChordCard.ID?
     @State private var showsGuide = false
 
-    private enum PickerTarget: Equatable {
-        case root
-        case kind
+    private struct ActivePicker: Equatable {
+        enum Field: Equatable {
+            case root
+            case kind
+        }
+
+        let cardID: ChordCard.ID
+        let field: Field
     }
 
     private let noteChipWidth: CGFloat = 64
@@ -24,39 +31,51 @@ struct ChordView: View {
     var body: some View {
         GeometryReader { geo in
             VStack(spacing: 0) {
-                ScrollView {
-                    VStack(spacing: LumenoteSpacing.section) {
-                        staffCard(availableWidth: geo.size.width - LumenoteSpacing.popupInset * 2)
-                            .fixedSize(horizontal: false, vertical: true)
-                            .overlay {
-                                if activePicker != nil {
-                                    dismissTapLayer
-                                }
+                ScrollViewReader { proxy in
+                    ScrollView {
+                        VStack(spacing: LumenoteSpacing.section) {
+                            ForEach(cards) { card in
+                                staffCard(
+                                    card,
+                                    availableWidth: geo.size.width - LumenoteSpacing.popupInset * 2
+                                )
+                                .fixedSize(horizontal: false, vertical: true)
+                                .id(card.id)
                             }
 
-                        selectionCard
-                            .fixedSize(horizontal: false, vertical: true)
+                            if cards.count < ChordCard.maximumCount {
+                                addCardButton
+                            }
 
-                        // Fills leftover viewport so taps below the cards dismiss the strip.
-                        // minHeight (not containerRelativeFrame) avoids compressing cards when
-                        // the bottom picker shortens the ScrollView.
-                        dismissTapLayer
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                            .layoutPriority(-1)
-                            .allowsHitTesting(activePicker != nil)
-                    }
-                    .padding(.horizontal, LumenoteSpacing.popupInset)
-                    .padding(.vertical, LumenoteSpacing.xxxl)
-                    .animation(.easeOut(duration: 0.2), value: model.rootSpelling)
-                    .animation(.easeOut(duration: 0.2), value: model.kind)
-                    .frame(maxWidth: .infinity, minHeight: geo.size.height, alignment: .top)
-                    .background {
-                        if activePicker != nil {
+                            // Fills leftover viewport so taps below the cards dismiss the strip.
+                            // minHeight (not containerRelativeFrame) avoids compressing cards when
+                            // the bottom picker shortens the ScrollView.
                             dismissTapLayer
+                                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                .layoutPriority(-1)
+                                .allowsHitTesting(activePicker != nil)
+                        }
+                        .padding(.horizontal, LumenoteSpacing.popupInset)
+                        .padding(.vertical, LumenoteSpacing.xxxl)
+                        .animation(.easeOut(duration: 0.2), value: cards)
+                        .frame(maxWidth: .infinity, minHeight: geo.size.height, alignment: .top)
+                        .background {
+                            if activePicker != nil {
+                                dismissTapLayer
+                            }
+                        }
+                    }
+                    .scrollIndicators(.hidden)
+                    .onChange(of: scrollTarget) { _, target in
+                        guard let target else { return }
+                        DispatchQueue.main.async {
+                            withAnimation(.easeOut(duration: 0.22)) {
+                                proxy.scrollTo(target, anchor: .top)
+                            }
+                            scrollTarget = nil
                         }
                     }
                 }
-                .scrollIndicators(.hidden)
 
                 if let activePicker {
                     pickerStrip(for: activePicker)
@@ -101,22 +120,22 @@ struct ChordView: View {
 
     // MARK: - Sections
 
-    private func staffCard(availableWidth: CGFloat) -> some View {
+    private func staffCard(_ card: ChordCard, availableWidth: CGFloat) -> some View {
         let innerWidth = max(0, availableWidth - LumenoteSpacing.xxl * 2)
         let staffSpace = staffSpace(for: innerWidth)
 
-        return VStack(spacing: LumenoteSpacing.xl) {
-            HStack(alignment: .firstTextBaseline) {
-                Text(model.kind.category.englishTitle)
-                    .font(LumenoteFont.caption(.semibold))
-                    .foregroundStyle(.secondary)
-                Spacer()
+        return VStack(spacing: LumenoteSpacing.section) {
+            VStack(spacing: LumenoteSpacing.md) {
+                selectionHeader(for: card)
+                if reorderingCardID == card.id {
+                    moveControls(for: card.id)
+                }
             }
 
             ChordStaffView(
-                notes: model.staffNotes,
-                noteNames: model.toneDisplayNames,
-                degreeLabels: model.degreeLabels,
+                notes: card.staffNotes,
+                noteNames: card.toneDisplayNames,
+                degreeLabels: card.degreeLabels,
                 staffSpace: staffSpace,
                 targetWidth: innerWidth,
                 lineColor: Color.primary.opacity(0.75),
@@ -124,27 +143,53 @@ struct ChordView: View {
                 accentColor: palette.minor
             )
             .padding(.vertical, LumenoteSpacing.xs)
+            .overlay {
+                if activePicker != nil {
+                    dismissTapLayer
+                }
+            }
 
-            Text(model.kind.englishTitle)
-                .font(LumenoteFont.rounded(size: 20, weight: .bold))
-                .foregroundStyle(palette.minor)
-                .multilineTextAlignment(.center)
-                .frame(maxWidth: .infinity)
-                .accessibilityAddTraits(.isHeader)
-
-            formulaBlock
+            formulaBlock(for: card)
         }
         .padding(LumenoteSpacing.xxl)
         .frame(maxWidth: .infinity)
         .lumenoteCard()
         .accessibilityElement(children: .contain)
+        .accessibilityLabel("\(card.rootDisplayName) \(card.kind.englishTitle)")
     }
 
-    private var formulaBlock: some View {
+    private func selectionHeader(for card: ChordCard) -> some View {
+        HStack(spacing: LumenoteSpacing.md) {
+            compactSettingButton(
+                title: "근음",
+                value: card.rootDisplayName,
+                isActive: activePicker == ActivePicker(cardID: card.id, field: .root),
+                accessibilityHint: "근음을 변경하려면 두 번 탭하세요"
+            ) {
+                togglePicker(for: card.id, field: .root)
+            }
+
+            compactSettingButton(
+                title: "코드",
+                value: card.kind.englishTitle,
+                isActive: activePicker == ActivePicker(cardID: card.id, field: .kind),
+                accessibilityHint: "코드를 변경하려면 두 번 탭하세요"
+            ) {
+                togglePicker(for: card.id, field: .kind)
+            }
+
+            if cards.count > 1 {
+                reorderToggle(card.id)
+                removeCardButton(card.id)
+            }
+        }
+    }
+
+    private func formulaBlock(for card: ChordCard) -> some View {
         VStack(alignment: .leading, spacing: LumenoteSpacing.lg) {
             labeledRow(title: "구성음") {
                 HStack(spacing: LumenoteSpacing.sm) {
-                    ForEach(Array(model.kind.tones.enumerated()), id: \.offset) { _, tone in
+                    ForEach(Array(card.kind.tones.enumerated()), id: \.offset) { _, tone in
                         Text(tone.degreeLabel)
                             .font(LumenoteFont.callout(.bold))
                             .foregroundStyle(tone.isAltered ? palette.emphasisStroke : .primary)
@@ -163,7 +208,7 @@ struct ChordView: View {
             }
 
             labeledRow(title: "표기") {
-                Text(model.notations.joined(separator: "  ·  "))
+                Text(card.notations.joined(separator: "  ·  "))
                     .font(LumenoteFont.callout(.semibold))
                     .foregroundStyle(.primary)
                     .fixedSize(horizontal: false, vertical: true)
@@ -171,7 +216,7 @@ struct ChordView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("구성음 \(model.kind.formulaText), 표기 \(model.notations.joined(separator: ", "))")
+        .accessibilityLabel("구성음 \(card.kind.formulaText), 표기 \(card.notations.joined(separator: ", "))")
     }
 
     private func labeledRow<Content: View>(
@@ -188,65 +233,143 @@ struct ChordView: View {
         }
     }
 
-    private var selectionCard: some View {
-        HStack(alignment: .center, spacing: LumenoteSpacing.md) {
-            selectionHeaderButton(
-                title: "근음",
-                displayName: model.rootDisplayName,
-                alignment: .leading,
-                isActive: activePicker == .root,
-                accessibilityHint: "근음을 변경하려면 두 번 탭하세요"
-            ) {
-                togglePicker(.root)
+    private var addCardButton: some View {
+        Button(action: addCard) {
+            HStack(spacing: LumenoteSpacing.sm) {
+                Image(systemName: "plus")
+                    .font(LumenoteFont.callout(.bold))
+                Text("코드 추가")
+                    .font(LumenoteFont.callout(.semibold))
             }
-
-            selectionHeaderButton(
-                title: "코드",
-                displayName: model.kind.englishTitle,
-                alignment: .trailing,
-                isActive: activePicker == .kind,
-                accessibilityHint: "코드를 변경하려면 두 번 탭하세요"
-            ) {
-                togglePicker(.kind)
-            }
+            .foregroundStyle(palette.minor)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, LumenoteSpacing.xl)
+            .background(
+                RoundedRectangle(cornerRadius: LumenoteRadius.card, style: .continuous)
+                    .fill(Color.primary.opacity(0.001))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: LumenoteRadius.card, style: .continuous)
+                    .strokeBorder(palette.divider, lineWidth: LumenoteStroke.compact)
+            )
         }
-        .padding(.horizontal, LumenoteSpacing.popupInset)
-        .padding(.vertical, LumenoteSpacing.xxl)
-        .frame(maxWidth: .infinity)
-        .background(palette.cardBackground)
-        .clipShape(RoundedRectangle(cornerRadius: LumenoteRadius.card, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: LumenoteRadius.card, style: .continuous)
-                .strokeBorder(palette.divider, lineWidth: LumenoteStroke.compact)
-        )
+        .buttonStyle(.plain)
+        .accessibilityLabel("코드 추가")
+        .accessibilityHint("코드 카드를 추가합니다. 최대 \(ChordCard.maximumCount)개")
     }
 
-    private func selectionHeaderButton(
+    private func reorderToggle(_ cardID: ChordCard.ID) -> some View {
+        let isActive = reorderingCardID == cardID
+        return Button {
+            let opening = reorderingCardID != cardID
+            withAnimation(.easeOut(duration: 0.2)) {
+                reorderingCardID = opening ? cardID : nil
+            }
+            if opening {
+                activePicker = nil
+            }
+        } label: {
+            Image(systemName: "arrow.up.arrow.down")
+                .font(LumenoteFont.caption2(.bold))
+                .foregroundStyle(isActive ? palette.minor : .secondary)
+                .frame(width: 28, height: 28)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(isActive ? "순서 이동 닫기" : "순서 이동")
+        .accessibilityHint("위, 아래 이동 버튼을 표시합니다")
+        .accessibilityAddTraits(isActive ? .isSelected : [])
+    }
+
+    private func moveControls(for cardID: ChordCard.ID) -> some View {
+        HStack(spacing: LumenoteSpacing.md) {
+            moveCardButton(cardID, direction: -1)
+            moveCardButton(cardID, direction: 1)
+        }
+    }
+
+    private func moveCardButton(_ cardID: ChordCard.ID, direction: Int) -> some View {
+        let index = cards.firstIndex(where: { $0.id == cardID }) ?? 0
+        let enabled = direction < 0 ? index > 0 : index < cards.count - 1
+        let title = direction < 0 ? "위로" : "아래로"
+        let symbol = direction < 0 ? "chevron.up" : "chevron.down"
+
+        return Button {
+            moveCard(cardID, by: direction)
+        } label: {
+            HStack(spacing: LumenoteSpacing.xs) {
+                Image(systemName: symbol)
+                Text(title)
+            }
+            .font(LumenoteFont.caption(.semibold))
+            .foregroundStyle(enabled ? palette.minor : Color.secondary.opacity(0.4))
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, LumenoteSpacing.md)
+            .background(
+                RoundedRectangle(cornerRadius: LumenoteRadius.chip, style: .continuous)
+                    .fill(enabled ? palette.highlight : Color.primary.opacity(0.001))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: LumenoteRadius.chip, style: .continuous)
+                    .strokeBorder(palette.divider, lineWidth: LumenoteStroke.hairline)
+            )
+        }
+        .buttonStyle(.plain)
+        .disabled(!enabled)
+        .accessibilityLabel(title + " 이동")
+    }
+
+    private func removeCardButton(_ cardID: ChordCard.ID) -> some View {
+        Button {
+            removeCard(cardID)
+        } label: {
+            Image(systemName: "xmark")
+                .font(LumenoteFont.caption2(.bold))
+                .foregroundStyle(.secondary)
+                .frame(width: 28, height: 28)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("코드 카드 삭제")
+    }
+
+    private func compactSettingButton(
         title: String,
-        displayName: String,
-        alignment: HorizontalAlignment,
+        value: String,
         isActive: Bool,
         accessibilityHint: String,
         action: @escaping () -> Void
     ) -> some View {
-        let frameAlignment: Alignment = alignment == .leading ? .leading : .trailing
-
-        return Button(action: action) {
-            VStack(alignment: alignment, spacing: LumenoteSpacing.xxs) {
+        Button(action: action) {
+            VStack(alignment: .leading, spacing: LumenoteSpacing.xxs) {
                 Text(title)
                     .font(LumenoteFont.caption2(.semibold))
                     .foregroundStyle(isActive ? palette.minor : .secondary)
-                Text(displayName)
-                    .font(.system(size: displayName.count > 8 ? 22 : 28, weight: .bold))
+                Text(value)
+                    .font(LumenoteFont.callout(.bold))
                     .foregroundStyle(isActive ? palette.minor : .primary)
-                    .lineLimit(2)
-                    .minimumScaleFactor(0.65)
-                    .multilineTextAlignment(alignment == .leading ? .leading : .trailing)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, LumenoteSpacing.lg)
+            .padding(.vertical, LumenoteSpacing.md)
+            .background(
+                RoundedRectangle(cornerRadius: LumenoteRadius.chip, style: .continuous)
+                    .fill(isActive ? palette.highlight : Color.primary.opacity(0.001))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: LumenoteRadius.chip, style: .continuous)
+                    .strokeBorder(
+                        isActive ? palette.cardBorderActive : palette.divider,
+                        lineWidth: isActive ? LumenoteStroke.compact : LumenoteStroke.hairline
+                    )
+            )
+            .contentShape(RoundedRectangle(cornerRadius: LumenoteRadius.chip, style: .continuous))
         }
         .buttonStyle(.plain)
-        .frame(maxWidth: .infinity, alignment: frameAlignment)
-        .accessibilityLabel("\(title) \(displayName)")
+        .contentShape(RoundedRectangle(cornerRadius: LumenoteRadius.chip, style: .continuous))
+        .accessibilityLabel("\(title) \(value)")
         .accessibilityHint(accessibilityHint)
         .accessibilityAddTraits(isActive ? .isSelected : [])
     }
@@ -254,8 +377,8 @@ struct ChordView: View {
     // MARK: - Bottom picker strips
 
     @ViewBuilder
-    private func pickerStrip(for target: PickerTarget) -> some View {
-        switch target {
+    private func pickerStrip(for target: ActivePicker) -> some View {
+        switch target.field {
         case .root:
             rootPickerStrip
         case .kind:
@@ -271,11 +394,10 @@ struct ChordView: View {
 
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: LumenoteSpacing.md) {
-                    ForEach(model.noteOptions, id: \.spelling) { option in
-                        let selected = option.spelling == model.rootSpelling
+                    ForEach(ChordModel.selectableNotes, id: \.spelling) { option in
+                        let selected = option.spelling == activeCard?.rootSpelling
                         Button {
-                            model.rootSpelling = option.spelling
-                            rootStripScrollPosition = option.spelling
+                            setActiveRoot(option.spelling)
                         } label: {
                             Text(option.displayName)
                                 .font(.system(size: 17, weight: selected ? .bold : .semibold))
@@ -308,7 +430,7 @@ struct ChordView: View {
         }
         .pickerStripChrome()
         .onAppear {
-            rootStripScrollPosition = model.rootSpelling
+            rootStripScrollPosition = activeCard?.rootSpelling
         }
     }
 
@@ -341,10 +463,9 @@ struct ChordView: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: LumenoteSpacing.md) {
                     ForEach(kinds) { kind in
-                        let selected = model.kind == kind
+                        let selected = activeCard?.kind == kind
                         Button {
-                            model.kind = kind
-                            scrollPosition.wrappedValue = kind.id
+                            setActiveKind(kind)
                         } label: {
                             Text(kind.englishTitle)
                                 .font(.system(size: 16, weight: selected ? .bold : .semibold))
@@ -404,26 +525,86 @@ struct ChordView: View {
         return min(14, max(10, fitted))
     }
 
-    private func togglePicker(_ target: PickerTarget) {
+    private var activeCard: ChordCard? {
+        guard let cardID = activePicker?.cardID else { return nil }
+        return cards.first { $0.id == cardID }
+    }
+
+    private func togglePicker(for cardID: ChordCard.ID, field: ActivePicker.Field) {
+        let target = ActivePicker(cardID: cardID, field: field)
         if activePicker == target {
             activePicker = nil
-        } else {
-            activePicker = target
-            switch target {
-            case .root:
-                rootStripScrollPosition = model.rootSpelling
-            case .kind:
-                syncKindStripPositions()
+            return
+        }
+        activePicker = target
+        guard let card = cards.first(where: { $0.id == cardID }) else { return }
+        switch field {
+        case .root:
+            rootStripScrollPosition = card.rootSpelling
+        case .kind:
+            syncKindStripPositions(for: card)
+        }
+    }
+
+    private func setActiveRoot(_ spelling: String) {
+        guard let cardID = activePicker?.cardID,
+              let index = cards.firstIndex(where: { $0.id == cardID })
+        else { return }
+        cards[index].setRoot(spelling)
+        rootStripScrollPosition = cards[index].rootSpelling
+    }
+
+    private func setActiveKind(_ kind: ChordKind) {
+        guard let cardID = activePicker?.cardID,
+              let index = cards.firstIndex(where: { $0.id == cardID })
+        else { return }
+        cards[index].kind = kind
+        syncKindStripPositions(for: cards[index])
+    }
+
+    private func syncKindStripPositions() {
+        guard let card = activeCard else { return }
+        syncKindStripPositions(for: card)
+    }
+
+    private func syncKindStripPositions(for card: ChordCard) {
+        switch card.kind.category {
+        case .triad:
+            triadStripScrollPosition = card.kind.id
+        case .seventh:
+            seventhStripScrollPosition = card.kind.id
+        }
+    }
+
+    private func addCard() {
+        guard cards.count < ChordCard.maximumCount else { return }
+        activePicker = nil
+        let next = cards.last?.addingNextKind() ?? ChordCard()
+        withAnimation(.easeOut(duration: 0.22)) {
+            cards.append(next)
+            scrollTarget = next.id
+        }
+    }
+
+    private func removeCard(_ cardID: ChordCard.ID) {
+        guard cards.count > 1 else { return }
+        if activePicker?.cardID == cardID {
+            activePicker = nil
+        }
+        withAnimation(.easeOut(duration: 0.22)) {
+            cards.removeAll { $0.id == cardID }
+            if cards.count < 2 || reorderingCardID == cardID {
+                reorderingCardID = nil
             }
         }
     }
 
-    private func syncKindStripPositions() {
-        switch model.kind.category {
-        case .triad:
-            triadStripScrollPosition = model.kind.id
-        case .seventh:
-            seventhStripScrollPosition = model.kind.id
+    private func moveCard(_ cardID: ChordCard.ID, by direction: Int) {
+        guard let index = cards.firstIndex(where: { $0.id == cardID }) else { return }
+        let target = index + direction
+        guard cards.indices.contains(target) else { return }
+        withAnimation(.easeOut(duration: 0.2)) {
+            cards.swapAt(index, target)
         }
     }
 

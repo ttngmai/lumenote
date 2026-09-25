@@ -22,11 +22,20 @@ final class ChordModel {
     }
 
     var noteOptions: [(spelling: String, displayName: String)] {
-        Self.orderedSpellings.map { ($0, ScaleModel.formatNoteName($0)) }
+        Self.selectableNotes
+    }
+
+    /// Selectable root spellings shared by the chord explorer cards.
+    static var selectableNotes: [(spelling: String, displayName: String)] {
+        orderedSpellings.map { ($0, ScaleModel.formatNoteName($0)) }
     }
 
     var toneSpellings: [String] {
-        Self.spellChord(root: rootSpelling, tones: kind.tones)
+        Self.toneSpellings(root: rootSpelling, kind: kind)
+    }
+
+    static func toneSpellings(root: String, kind: ChordKind) -> [String] {
+        spellChord(root: root, tones: kind.tones)
     }
 
     var toneDisplayNames: [String] {
@@ -43,8 +52,13 @@ final class ChordModel {
 
     /// Root-position chord on a treble staff starting in the C4 octave.
     var staffNotes: [IntervalStaffNote] {
-        let spellings = toneSpellings
-        guard let rootLetter = Self.letterIndex(of: rootSpelling) else { return [] }
+        Self.staffNotes(root: rootSpelling, kind: kind)
+    }
+
+    /// Root-position chord on a treble staff starting in the C4 octave.
+    static func staffNotes(root: String, kind: ChordKind) -> [IntervalStaffNote] {
+        let spellings = toneSpellings(root: root, kind: kind)
+        guard let rootLetter = letterIndex(of: root) else { return [] }
 
         // Fixed letter → staff mapping in the C4 octave: C = −2, D = −1, E = 0, …, B = 4.
         let startStep = rootLetter - 2
@@ -53,7 +67,7 @@ final class ChordModel {
                 id: index,
                 spelling: spellings[index],
                 staffStep: startStep + tone.letterOffset,
-                accidentalSymbol: Self.accidentalSymbol(for: spellings[index])
+                accidentalSymbol: accidentalSymbol(for: spellings[index])
             )
         }
 
@@ -258,7 +272,7 @@ struct ChordTone: Equatable {
     let degreeLabel: String
 
     var isAltered: Bool {
-        degreeLabel.contains("♭") || degreeLabel.contains("♯")
+        degreeLabel.contains("♭") || degreeLabel.contains("♯") || degreeLabel.contains("𝄫")
     }
 
     static let root = ChordTone(letterOffset: 0, semitoneOffset: 0, degreeLabel: "1")
@@ -267,7 +281,55 @@ struct ChordTone: Equatable {
     static let diminishedFifth = ChordTone(letterOffset: 4, semitoneOffset: 6, degreeLabel: "♭5")
     static let perfectFifth = ChordTone(letterOffset: 4, semitoneOffset: 7, degreeLabel: "5")
     static let augmentedFifth = ChordTone(letterOffset: 4, semitoneOffset: 8, degreeLabel: "♯5")
-    static let diminishedSeventh = ChordTone(letterOffset: 6, semitoneOffset: 9, degreeLabel: "♭♭7")
+    static let diminishedSeventh = ChordTone(letterOffset: 6, semitoneOffset: 9, degreeLabel: "𝄫7")
     static let minorSeventh = ChordTone(letterOffset: 6, semitoneOffset: 10, degreeLabel: "♭7")
     static let majorSeventh = ChordTone(letterOffset: 6, semitoneOffset: 11, degreeLabel: "7")
+}
+
+/// One chord card on the chord explorer. The screen shows up to `maximumCount` cards.
+struct ChordCard: Identifiable, Equatable {
+    static let maximumCount = 4
+
+    let id: UUID
+    var rootSpelling: String
+    var kind: ChordKind
+
+    init(id: UUID = UUID(), rootSpelling: String = "C", kind: ChordKind = .majorTriad) {
+        self.id = id
+        self.rootSpelling = ScaleModel.isKnownSpelling(rootSpelling) ? rootSpelling : "C"
+        self.kind = kind
+    }
+
+    var rootDisplayName: String {
+        ScaleModel.formatNoteName(rootSpelling)
+    }
+
+    var toneDisplayNames: [String] {
+        ChordModel.toneSpellings(root: rootSpelling, kind: kind).map(ScaleModel.formatNoteName)
+    }
+
+    var degreeLabels: [String] {
+        kind.tones.map(\.degreeLabel)
+    }
+
+    var notations: [String] {
+        kind.notations(rootDisplayName: rootDisplayName)
+    }
+
+    var staffNotes: [IntervalStaffNote] {
+        ChordModel.staffNotes(root: rootSpelling, kind: kind)
+    }
+
+    /// Same root, next chord kind. Used when the user adds another card.
+    func addingNextKind() -> ChordCard {
+        let kinds = ChordKind.allCases
+        let index = kinds.firstIndex(of: kind) ?? 0
+        let next = kinds[(index + 1) % kinds.count]
+        return ChordCard(rootSpelling: rootSpelling, kind: next)
+    }
+
+    mutating func setRoot(_ spelling: String) {
+        guard ScaleModel.isKnownSpelling(spelling) else { return }
+        rootSpelling = spelling
+    }
 }
