@@ -4,19 +4,18 @@ import SwiftUI
 
 struct ScaleQuizView: View {
     @Environment(\.appPalette) private var palette
-    @AppStorage(AppearanceMode.storageKey) private var appearance: AppearanceMode = .system
 
-    @State private var model = ScaleQuizModel()
+    let model: ScaleQuizModel
 
     var body: some View {
         ScrollView {
             VStack(spacing: LumenoteSpacing.section) {
-                scoreRow
+                progressHeader
                 promptCard
                 choices
                 if model.hasAnswered, let answer = model.selectedAnswer {
                     feedbackCard(for: answer)
-                    nextButton
+                    advanceButton
                 }
             }
             .padding(.horizontal, LumenoteSpacing.popupInset)
@@ -24,40 +23,46 @@ struct ScaleQuizView: View {
             .frame(maxWidth: .infinity)
         }
         .scrollIndicators(.hidden)
-        .background(background)
-        .lumenoteCompactHeader(title: "스케일 퀴즈", showsBackButton: true) {
-            AppearanceToggleButton(appearance: $appearance)
-        }
     }
 
-    private var scoreRow: some View {
-        HStack {
-            Text("맞힌 문제")
-                .font(LumenoteFont.caption(.semibold))
-                .foregroundStyle(.secondary)
-            Spacer()
-            Text("\(model.correctCount) / \(model.answeredCount)")
+    private var progressHeader: some View {
+        VStack(alignment: .leading, spacing: LumenoteSpacing.md) {
+            Text(model.difficulty.title)
                 .font(LumenoteFont.body(.bold))
                 .foregroundStyle(.primary)
-                .monospacedDigit()
+
+            HStack(spacing: model.questionLimit > 20 ? 1 : 2) {
+                ForEach(0..<model.questionLimit, id: \.self) { index in
+                    RoundedRectangle(cornerRadius: 2, style: .continuous)
+                        .fill(segmentColor(at: index))
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 10)
+                }
+            }
         }
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel("맞힌 문제 \(model.correctCount)개, 전체 \(model.answeredCount)개")
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(
+            "\(model.difficulty.title), \(model.questionLimit)문제 중 \(model.answeredCount)문제, 맞힌 \(model.correctCount)개, 틀린 \(model.incorrectCount)개"
+        )
+    }
+
+    private func segmentColor(at index: Int) -> Color {
+        guard index < model.outcomes.count else {
+            return Color.primary.opacity(0.12)
+        }
+        return model.outcomes[index] ? palette.quizCorrect : palette.quizIncorrect
     }
 
     private var promptCard: some View {
         VStack(spacing: LumenoteSpacing.xl) {
-            Text(model.question.promptTitle)
-                .font(LumenoteFont.callout(.medium))
-                .foregroundStyle(.primary)
-                .frame(maxWidth: .infinity, alignment: .leading)
+            promptTitleView
 
             switch model.question.kind {
             case .identifyScale:
                 identifyScalePrompt
             case .completeScale, .completePattern:
                 tokenPrompt
-            case .identifyDegree:
+            case .identifyDegree, .excludedNote:
                 EmptyView()
             }
         }
@@ -69,6 +74,48 @@ struct ScaleQuizView: View {
             RoundedRectangle(cornerRadius: LumenoteRadius.card, style: .continuous)
                 .strokeBorder(palette.divider, lineWidth: LumenoteStroke.compact)
         )
+    }
+
+    private var promptTitleView: some View {
+        highlightedPrompt(
+            model.question.promptTitle,
+            highlights: promptHighlights
+        )
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .accessibilityLabel(model.question.promptTitle)
+    }
+
+    /// Emphasized phrases in the prompt, such as the scale name and degree.
+    private var promptHighlights: [String] {
+        switch model.question.kind {
+        case .completePattern:
+            return [model.question.explanationContext.kind.englishTitle]
+        case .identifyDegree:
+            guard model.question.explanationContext.askedNoteDisplay == nil,
+                  let degree = model.question.explanationContext.degreeNumber
+            else { return [] }
+            return [model.question.scaleLabel, "\(degree)도"]
+        case .excludedNote:
+            return [model.question.scaleLabel]
+        case .completeScale:
+            return [model.question.scaleLabel]
+        case .identifyScale:
+            return []
+        }
+    }
+
+    private func highlightedPrompt(_ title: String, highlights: [String]) -> Text {
+        var attributed = AttributedString(title)
+        attributed.font = LumenoteFont.callout(.medium)
+        attributed.foregroundColor = .primary
+
+        for phrase in highlights where !phrase.isEmpty {
+            guard let range = attributed.range(of: phrase) else { continue }
+            attributed[range].font = LumenoteFont.callout(.bold)
+            attributed[range].foregroundColor = palette.minor
+        }
+
+        return Text(attributed)
     }
 
     private var identifyScalePrompt: some View {
@@ -117,11 +164,11 @@ struct ScaleQuizView: View {
             switch token {
             case .note(let name):
                 Text(name)
-                    .font(.system(size: 22, weight: .bold))
+                    .font(.system(size: 18, weight: .bold))
                     .foregroundStyle(.primary)
             case .blank:
                 Text("?")
-                    .font(.system(size: 22, weight: .bold))
+                    .font(.system(size: 18, weight: .bold))
                     .foregroundStyle(palette.minor)
             case .step(let label):
                 Text(label)
@@ -150,7 +197,7 @@ struct ScaleQuizView: View {
             Text("-")
                 .font(LumenoteFont.callout(.semibold))
                 .foregroundStyle(.secondary)
-        case .identifyDegree:
+        case .identifyDegree, .excludedNote:
             EmptyView()
         }
     }
@@ -222,6 +269,37 @@ struct ScaleQuizView: View {
         .accessibilityHint(answered ? "" : "답을 선택하려면 두 번 탭하세요")
     }
 
+    /// Caption above the degree diagram. Nil hides the diagram.
+    private var scaleDiagramCaption: String? {
+        switch model.question.kind {
+        case .identifyScale:
+            return model.question.scaleLabel
+        case .identifyDegree:
+            guard model.question.explanationContext.askedNoteDisplay == nil,
+                  model.question.explanationContext.degreeNumber != nil
+            else { return nil }
+            return "\(model.question.scaleLabel) 스케일"
+        case .excludedNote:
+            return "\(model.question.scaleLabel) 스케일"
+        case .completePattern:
+            return model.question.explanationContext.kind.englishTitle
+        case .completeScale:
+            return "\(model.question.scaleLabel) 스케일"
+        }
+    }
+
+    private var degreeScaleDiagram: some View {
+        let context = model.question.explanationContext
+        let card = ScaleCard(tonicSpelling: context.tonicSpelling, kind: context.kind)
+        return VStack(alignment: .leading, spacing: LumenoteSpacing.md) {
+            Text(scaleDiagramCaption ?? "")
+                .font(LumenoteFont.caption(.semibold))
+                .foregroundStyle(.primary)
+            DegreeScaleFormula(card: card, accent: palette.minor)
+        }
+        .padding(.top, LumenoteSpacing.sm)
+    }
+
     private func feedbackCard(for answer: String) -> some View {
         let feedback = model.feedback(for: answer)
         let isCorrect = model.isSelectionCorrect
@@ -235,6 +313,9 @@ struct ScaleQuizView: View {
                     .font(LumenoteFont.callout(.medium))
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
+            }
+            if scaleDiagramCaption != nil {
+                degreeScaleDiagram
             }
         }
         .padding(LumenoteSpacing.xxl)
@@ -265,11 +346,16 @@ struct ScaleQuizView: View {
         return palette.divider
     }
 
-    private var nextButton: some View {
-        Button {
-            model.nextQuestion()
+    private var advanceButton: some View {
+        let showsResult = model.isOnFinalAnswer
+        return Button {
+            if showsResult {
+                model.finish()
+            } else {
+                model.nextQuestion()
+            }
         } label: {
-            Text("다음 문제")
+            Text(showsResult ? "결과 보기" : "다음 문제")
                 .font(LumenoteFont.body(.bold))
                 .foregroundStyle(.white)
                 .frame(maxWidth: .infinity)
@@ -280,16 +366,47 @@ struct ScaleQuizView: View {
                 )
         }
         .buttonStyle(.plain)
-        .accessibilityHint("다음 문제로 넘어가려면 두 번 탭하세요")
+        .accessibilityHint(showsResult ? "결과를 보려면 두 번 탭하세요" : "다음 문제로 넘어가려면 두 번 탭하세요")
+    }
+}
+
+/// Note names, degree labels, and step marks for a scale, fitted to the feedback card.
+private struct DegreeScaleFormula: View {
+    let card: ScaleCard
+    let accent: Color
+
+    @State private var width: CGFloat = 0
+
+    var body: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            ScaleStaffView(
+                notes: card.staffNotes,
+                intervals: card.stepIntervals,
+                noteNames: card.degreeDisplayNames,
+                degreeLabels: card.degreeLabels,
+                staffSpace: staffSpace,
+                targetWidth: width > 0 ? width : nil,
+                showsStaff: false,
+                lineColor: Color.primary.opacity(0.75),
+                noteColor: Color.primary,
+                accentColor: accent
+            )
+        }
+        .scrollBounceBehavior(.basedOnSize, axes: .horizontal)
+        .background {
+            GeometryReader { geo in
+                Color.clear
+                    .onAppear { width = geo.size.width }
+                    .onChange(of: geo.size.width) { _, newValue in
+                        width = newValue
+                    }
+            }
+        }
     }
 
-    private var background: some View {
-        LinearGradient(
-            colors: palette.backgroundColors,
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
-        )
-        .ignoresSafeArea()
+    private var staffSpace: CGFloat {
+        guard width > 0 else { return 10 }
+        return min(12, max(8, width / 32))
     }
 }
 
@@ -372,7 +489,7 @@ private struct TokenWrapLayout: Layout {
 
 #Preview {
     NavigationStack {
-        ScaleQuizView()
+        ScaleQuizDifficultyView()
     }
     .lumenotePalette()
 }

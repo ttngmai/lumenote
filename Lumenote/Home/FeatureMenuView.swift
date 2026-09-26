@@ -48,7 +48,7 @@ struct FeatureMenuView: View {
         case .intervalQuiz:
             IntervalQuizDifficultyView()
         case .scaleQuiz:
-            ScaleQuizView()
+            ScaleQuizDifficultyView()
         case .keySignatureQuiz:
             KeySignatureQuizView()
         case .chordQuiz:

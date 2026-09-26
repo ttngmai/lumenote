@@ -16,6 +16,8 @@ struct ScaleStaffView: View {
     var showsNoteNames: Bool = true
     /// When false, whole/half-step marks under the staff are omitted entirely.
     var showsIntervalAnnotations: Bool = true
+    /// When false, only the note names, degree labels, and step marks are drawn.
+    var showsStaff: Bool = true
     let lineColor: Color
     let noteColor: Color
     let accentColor: Color
@@ -33,6 +35,11 @@ struct ScaleStaffView: View {
     private var maxNoteSpacing: CGFloat { staffSpace * 4.4 }
 
     private var noteSpacing: CGFloat {
+        if !showsStaff {
+            guard let targetWidth, notes.count > 0 else { return minNoteSpacing }
+            let ideal = targetWidth / CGFloat(notes.count)
+            return min(maxNoteSpacing, max(minNoteSpacing, ideal))
+        }
         guard let targetWidth, notes.count > 1 else { return minNoteSpacing }
         let gaps = CGFloat(notes.count - 1)
         let fixed = clefWidth + leadingPad + trailingPad + staffSpace * 1.1
@@ -41,7 +48,10 @@ struct ScaleStaffView: View {
     }
 
     private var contentWidth: CGFloat {
-        clefWidth
+        if !showsStaff {
+            return noteSpacing * CGFloat(max(notes.count, 1))
+        }
+        return clefWidth
             + leadingPad
             + noteSpacing * CGFloat(max(notes.count - 1, 0))
             + trailingPad
@@ -54,16 +64,18 @@ struct ScaleStaffView: View {
 
     var body: some View {
         VStack(spacing: staffSpace * 0.2) {
-            ZStack(alignment: .topLeading) {
-                staffLines
-                clef
+            if showsStaff {
+                ZStack(alignment: .topLeading) {
+                    staffLines
+                    clef
 
-                ForEach(notes) { note in
-                    ledgerLines(for: note)
-                    notehead(for: note)
+                    ForEach(notes) { note in
+                        ledgerLines(for: note)
+                        notehead(for: note)
+                    }
                 }
+                .frame(width: contentWidth, height: staffCanvasHeight)
             }
-            .frame(width: contentWidth, height: staffCanvasHeight)
 
             if showsNoteNames {
                 noteNameRow
@@ -243,7 +255,10 @@ struct ScaleStaffView: View {
     // MARK: - Geometry
 
     private func noteX(for index: Int) -> CGFloat {
-        clefWidth + leadingPad + staffSpace * 0.55 + noteSpacing * CGFloat(index)
+        if !showsStaff {
+            return noteSpacing * (CGFloat(index) + 0.5)
+        }
+        return clefWidth + leadingPad + staffSpace * 0.55 + noteSpacing * CGFloat(index)
     }
 
     private func y(forStaffStep step: Int) -> CGFloat {
