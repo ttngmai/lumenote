@@ -17,14 +17,6 @@ enum ScaleQuizDifficulty: String, CaseIterable, Hashable, Identifiable {
         case .hard: "Hard"
         }
     }
-
-    var subtitle: String {
-        switch self {
-        case .easy: "Major와 Natural Minor를 중심으로, 임시표가 적은 조성이 나옵니다"
-        case .normal: "네 가지 스케일이 나오고, 특징음을 중심으로 묻습니다"
-        case .hard: "모든 허용 조성이 나오고, 이명동음에 가까운 오답이 나옵니다"
-        }
-    }
 }
 
 /// Mixed scale quiz: complete notes, identify scale, complete step pattern, identify degree.
