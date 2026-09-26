@@ -2,6 +2,55 @@
 
 import Foundation
 
+/// Difficulty chosen before a diatonic-chord quiz session.
+enum DiatonicChordQuizDifficulty: String, CaseIterable, Hashable, Identifiable {
+    case easy
+    case normal
+    case hard
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .easy: "Easy"
+        case .normal: "Normal"
+        case .hard: "Hard"
+        }
+    }
+
+    var allowedKinds: [ScaleKind] {
+        switch self {
+        case .easy: [.major, .naturalMinor]
+        case .normal, .hard: ScaleKind.allCases
+        }
+    }
+
+    var allowedVoicings: [DiatonicVoicing] {
+        switch self {
+        case .easy: [.triad]
+        case .normal, .hard: DiatonicVoicing.allCases
+        }
+    }
+
+    /// Key-signature limit for non-diatonic questions. Nil uses the full catalog.
+    var maxSignatureCount: Int? {
+        switch self {
+        case .easy: 1
+        case .normal: 3
+        case .hard: nil
+        }
+    }
+
+    /// Roman-pattern, quality, and non-diatonic weights.
+    var questionWeights: (roman: Int, quality: Int, nonDiatonic: Int) {
+        switch self {
+        case .easy: (45, 40, 15)
+        case .normal: (35, 35, 30)
+        case .hard: (25, 25, 50)
+        }
+    }
+}
+
 /// Mixed diatonic-chord quiz: roman pattern, quality, and non-diatonic identification.
 @MainActor
 @Observable
@@ -48,38 +97,67 @@ final class DiatonicChordQuizModel {
         let diatonicNames: [String]
     }
 
+    let difficulty: DiatonicChordQuizDifficulty
+    /// Number of questions in this session: 10, 20, 30, 40, or 50.
+    let questionLimit: Int
     private let catalog: [CatalogEntry]
     private var previousQuestionID: String?
+    /// Scale, voicing, and degree shared by the last roman-pattern or quality question.
+    private var previousRuleKey: String?
 
     private(set) var question: Question
     private(set) var selectedAnswer: String?
     private(set) var correctCount = 0
     private(set) var answeredCount = 0
+    /// One entry per answered question, in order. `true` is a correct answer.
+    private(set) var outcomes: [Bool] = []
+    private(set) var isFinished = false
 
     var hasAnswered: Bool { selectedAnswer != nil }
+
+    var incorrectCount: Int { answeredCount - correctCount }
 
     var isSelectionCorrect: Bool {
         selectedAnswer == question.correctAnswer
     }
 
-    init() {
+    var isOnFinalAnswer: Bool {
+        hasAnswered && answeredCount >= questionLimit
+    }
+
+    init(difficulty: DiatonicChordQuizDifficulty, questionLimit: Int) {
+        self.difficulty = difficulty
+        self.questionLimit = Self.normalizedQuestionCount(questionLimit)
         catalog = Self.buildCatalog()
         question = Self.placeholderQuestion
         question = makeQuestion()
     }
 
     func select(_ answer: String) {
-        guard selectedAnswer == nil else { return }
+        guard selectedAnswer == nil, !isFinished else { return }
         selectedAnswer = answer
         answeredCount += 1
-        if answer == question.correctAnswer {
+        let correct = answer == question.correctAnswer
+        if correct {
             correctCount += 1
         }
+        outcomes.append(correct)
     }
 
     func nextQuestion() {
+        guard hasAnswered, !isFinished, answeredCount < questionLimit else { return }
         selectedAnswer = nil
         question = makeQuestion()
+    }
+
+    func finish() {
+        guard isOnFinalAnswer else { return }
+        isFinished = true
+    }
+
+    static func normalizedQuestionCount(_ count: Int) -> Int {
+        let stepped = (count / 10) * 10
+        return min(50, max(10, stepped))
     }
 
     func feedback(for answer: String) -> Feedback {
@@ -100,36 +178,61 @@ final class DiatonicChordQuizModel {
     private func makeQuestion() -> Question {
         for _ in 0..<80 {
             let candidate: Question?
-            switch Int.random(in: 0..<3) {
-            case 0:
+            switch weightedKind() {
+            case .completeRomanPattern:
                 candidate = makeCompleteRomanPatternQuestion()
-            case 1:
+            case .identifyQuality:
                 candidate = makeIdentifyQualityQuestion()
-            default:
+            case .identifyNonDiatonic:
                 candidate = makeIdentifyNonDiatonicQuestion()
             }
             if let question = candidate {
-                previousQuestionID = questionID(for: question)
+                remember(question)
                 return question
             }
         }
-        return fallbackQuestion
+        let fallback = fallbackQuestion
+        remember(fallback)
+        return fallback
+    }
+
+    private func weightedKind() -> QuestionKind {
+        let weights = difficulty.questionWeights
+        let buckets: [(QuestionKind, Int)] = [
+            (.completeRomanPattern, weights.roman),
+            (.identifyQuality, weights.quality),
+            (.identifyNonDiatonic, weights.nonDiatonic),
+        ]
+        let total = buckets.reduce(0) { $0 + $1.1 }
+        var roll = Int.random(in: 0..<total)
+        for (kind, weight) in buckets {
+            if roll < weight { return kind }
+            roll -= weight
+        }
+        return .completeRomanPattern
     }
 
     private func makeCompleteRomanPatternQuestion() -> Question? {
-        guard let kind = ScaleKind.allCases.randomElement(),
-              let voicing = DiatonicVoicing.allCases.randomElement(),
+        guard let kind = difficulty.allowedKinds.randomElement(),
+              let voicing = difficulty.allowedVoicings.randomElement(),
               let blank = DiatonicDegree.allCases.randomElement()
         else { return nil }
 
-        let questionID = "roman-pattern-\(kind.rawValue)|\(voicing.rawValue)-\(blank.rawValue)"
+        let ruleKey = ruleKey(kind: kind, voicing: voicing, degree: blank)
+        if ruleKey == previousRuleKey { return nil }
+        let questionID = "roman-pattern-\(ruleKey)"
         if questionID == previousQuestionID { return nil }
 
         let romans = DiatonicDegree.allCases.map {
             DiatonicChordModel.roman(kind: kind, voicing: voicing, degree: $0)
         }
         let correct = romans[blank.rawValue]
-        let distractors = romanQualityVariants(kind: kind, voicing: voicing, degree: blank)
+        guard let quality = referenceQuality(kind: kind, voicing: voicing, degree: blank) else {
+            return nil
+        }
+        let distractors = distractorQualities(for: quality).map {
+            roman(kind: kind, degree: blank, quality: $0)
+        }
         guard let choices = uniqueChoices(correct: correct, distractors: distractors) else {
             return nil
         }
@@ -163,14 +266,15 @@ final class DiatonicChordQuizModel {
 
     private func makeIdentifyQualityQuestion() -> Question? {
         guard let (entry, chord) = pickChord() else { return nil }
-        let questionID = "quality-\(entry.kind.rawValue)|\(entry.voicing.rawValue)-\(chord.degree.rawValue)"
+        let ruleKey = ruleKey(kind: entry.kind, voicing: entry.voicing, degree: chord.degree)
+        if ruleKey == previousRuleKey { return nil }
+        let questionID = "quality-\(ruleKey)"
         if questionID == previousQuestionID { return nil }
 
         let correct = chord.quality.englishTitle
-        let family = qualityFamily(for: chord.quality)
         guard let choices = uniqueChoices(
             correct: correct,
-            distractors: family.map(\.englishTitle)
+            distractors: distractorQualities(for: chord.quality).map(\.englishTitle)
         ) else { return nil }
 
         let ordinal = degreeOrdinal(chord.degree)
@@ -187,7 +291,7 @@ final class DiatonicChordQuizModel {
     }
 
     private func makeIdentifyNonDiatonicQuestion() -> Question? {
-        guard let entry = catalog.randomElement() else { return nil }
+        guard let entry = type3Catalog.randomElement() else { return nil }
         let diatonic = entry.chords.map(\.compactName)
         guard diatonic.count == DiatonicDegree.allCases.count else { return nil }
         guard let outsider = nonDiatonicChordName(for: entry) else { return nil }
@@ -238,30 +342,37 @@ final class DiatonicChordQuizModel {
     private func romanPatternExplanation(context: ExplanationContext) -> String {
         let phrase = constructedChordPhrase(context.voicing)
         let list = context.diatonicNames.joined(separator: " · ")
-        return "\(context.kind.englishTitle) 스케일의 다이아토닉 \(phrase) 규칙은 \(list)입니다."
+        return "\(context.kind.englishTitle) 스케일의 다이아토닉 \(phrase) 규칙 : \(list)"
     }
 
     private func qualityExplanation(context: ExplanationContext) -> String {
         let ordinal = degreeOrdinal(context.degree)
         let phrase = constructedChordPhrase(context.voicing)
-        return "\(context.kind.englishTitle) 스케일에서 \(ordinal) 음을 근음으로 하는 \(phrase)는 \(context.qualityTitle)(\(context.roman))입니다."
+        let romans = DiatonicDegree.allCases.map {
+            DiatonicChordModel.roman(kind: context.kind, voicing: context.voicing, degree: $0)
+        }
+        .joined(separator: " · ")
+        return """
+        \(context.kind.englishTitle) 스케일에서 \(ordinal) 음을 근음으로 하는 \(phrase)는 \(context.qualityTitle)(\(context.roman))입니다.
+        \(context.kind.englishTitle) 스케일의 다이아토닉 \(phrase) 규칙 : \(romans)
+        """
     }
 
     private func nonDiatonicExplanation(context: ExplanationContext) -> String {
         let phrase = constructedChordPhrase(context.voicing)
         let scale = "\(scaleLabel(tonic: context.tonicSpelling, kind: context.kind)) 스케일"
-        let pairs = zip(context.diatonicNames, DiatonicDegree.allCases).map { name, degree in
-            let roman = DiatonicChordModel.roman(
+        let names = context.diatonicNames.joined(separator: " · ")
+        let romans = DiatonicDegree.allCases.map {
+            DiatonicChordModel.roman(
                 kind: context.kind,
                 voicing: context.voicing,
-                degree: degree
+                degree: $0
             )
-            return "\(name)(\(roman))"
         }
         .joined(separator: " · ")
         return """
-        \(scale)의 다이아토닉 \(phrase) : \(pairs)
-        \(context.compactName)는 다이아토닉 코드가 아닙니다.
+        \(scale)의 다이아토닉 \(phrase) : \(names) (\(romans))
+        \(context.compactName)는 \(scale)의 다이아토닉 코드가 아닙니다.
         """
     }
 
@@ -279,10 +390,24 @@ final class DiatonicChordQuizModel {
     }
 
     private func pickChord() -> (CatalogEntry, DiatonicChordEntry)? {
-        guard let entry = catalog.randomElement(),
+        guard let entry = ruleCatalog.randomElement(),
               let chord = entry.chords.randomElement()
         else { return nil }
         return (entry, chord)
+    }
+
+    private var ruleCatalog: [CatalogEntry] {
+        catalog.filter {
+            difficulty.allowedKinds.contains($0.kind) && difficulty.allowedVoicings.contains($0.voicing)
+        }
+    }
+
+    private var type3Catalog: [CatalogEntry] {
+        ruleCatalog.filter { entry in
+            guard let maxCount = difficulty.maxSignatureCount else { return true }
+            guard let count = signatureCount(tonic: entry.tonic, kind: entry.kind) else { return false }
+            return count <= maxCount
+        }
     }
 
     private func qualityFamily(for quality: DiatonicChordQuality) -> [DiatonicChordQuality] {
@@ -295,16 +420,52 @@ final class DiatonicChordQuizModel {
         return [.major, .minor, .augmented, .diminished]
     }
 
-    /// Same-degree roman numerals with other chord qualities, keeping the scale's accidental.
-    private func romanQualityVariants(
+    /// Triads keep every other quality. Sevenths keep the three nearest or farthest.
+    private func distractorQualities(for quality: DiatonicChordQuality) -> [DiatonicChordQuality] {
+        let others = qualityFamily(for: quality).filter { $0 != quality }
+        guard quality.isSeventh else { return others }
+        let preferNear = difficulty == .hard
+        return Array(rankedByDistance(others, from: quality, preferNear: preferNear).prefix(3))
+    }
+
+    private func rankedByDistance(
+        _ qualities: [DiatonicChordQuality],
+        from quality: DiatonicChordQuality,
+        preferNear: Bool
+    ) -> [DiatonicChordQuality] {
+        let grouped = Dictionary(grouping: qualities) { quality.toneDifferenceCount(from: $0) }
+        let distances = grouped.keys.sorted()
+        let ordered = preferNear ? distances : distances.reversed()
+        return ordered.flatMap { (grouped[$0] ?? []).shuffled() }
+    }
+
+    private func referenceQuality(
         kind: ScaleKind,
         voicing: DiatonicVoicing,
         degree: DiatonicDegree
-    ) -> [String] {
-        let qualities: [DiatonicChordQuality] = voicing == .seventh
-            ? [.major7, .minor7, .dominant7, .minorMajor7, .halfDiminished7, .diminished7, .augmentedMajor7]
-            : [.major, .minor, .augmented, .diminished]
-        return qualities.map { roman(kind: kind, degree: degree, quality: $0) }
+    ) -> DiatonicChordQuality? {
+        let chords = DiatonicChordModel.chords(tonic: "C", kind: kind, voicing: voicing)
+        guard chords.count == DiatonicDegree.allCases.count else { return nil }
+        return chords[degree.rawValue].quality
+    }
+
+    private func ruleKey(
+        kind: ScaleKind,
+        voicing: DiatonicVoicing,
+        degree: DiatonicDegree
+    ) -> String {
+        "\(kind.rawValue)|\(voicing.rawValue)-\(degree.rawValue)"
+    }
+
+    private func remember(_ question: Question) {
+        previousQuestionID = questionID(for: question)
+        let context = question.explanationContext
+        switch question.kind {
+        case .completeRomanPattern, .identifyQuality:
+            previousRuleKey = ruleKey(kind: context.kind, voicing: context.voicing, degree: context.degree)
+        case .identifyNonDiatonic:
+            previousRuleKey = nil
+        }
     }
 
     private func roman(
@@ -336,33 +497,51 @@ final class DiatonicChordQuizModel {
         }
     }
 
-    /// A same-voicing chord whose compact name is not among the key's seven diatonic chords.
+    /// Same root, different quality. Easy and Normal prefer a distant quality; Hard prefers the nearest.
     private func nonDiatonicChordName(for entry: CatalogEntry) -> String? {
         let diatonic = Set(entry.chords.map(\.compactName))
-        var altered: [String] = []
+        var candidates: [(name: String, distance: Int)] = []
         var seen = Set<String>()
 
         for chord in entry.chords {
             for quality in qualityFamily(for: chord.quality) where quality != chord.quality {
                 let name = quality.compactName(rootDisplayName: chord.rootDisplayName)
-                if !diatonic.contains(name), seen.insert(name).inserted {
-                    altered.append(name)
-                }
+                guard !diatonic.contains(name), seen.insert(name).inserted else { continue }
+                candidates.append((name, chord.quality.toneDifferenceCount(from: quality)))
             }
         }
-        if let pick = altered.randomElement() {
-            return pick
-        }
+        guard !candidates.isEmpty else { return nil }
 
-        for other in catalog.shuffled() where other.voicing == entry.voicing {
-            for chord in other.chords {
-                if !diatonic.contains(chord.compactName) {
-                    return chord.compactName
-                }
-            }
-        }
-        return nil
+        let preferNear = difficulty == .hard
+        let target = preferNear
+            ? candidates.map(\.distance).min()
+            : candidates.map(\.distance).max()
+        guard let target else { return nil }
+        return candidates.filter { $0.distance == target }.randomElement()?.name
     }
+
+    /// Accidentals in the key signature. Minor kinds share the natural-minor signature.
+    private func signatureCount(tonic: String, kind: ScaleKind) -> Int? {
+        switch kind {
+        case .major:
+            return Self.majorSignatureCount[tonic]
+        case .naturalMinor, .harmonicMinor, .melodicMinor:
+            let scale = ScaleModel.spellings(tonic: tonic, kind: .naturalMinor)
+            guard scale.count >= 3 else { return nil }
+            return Self.majorSignatureCount[scale[2]]
+        }
+    }
+
+    private static let majorSignatureCount: [String: Int] = [
+        "C": 0,
+        "G": 1, "F": 1,
+        "D": 2, "Bb": 2,
+        "A": 3, "Eb": 3,
+        "E": 4, "Ab": 4,
+        "B": 5, "Db": 5,
+        "F#": 6, "Gb": 6,
+        "C#": 7,
+    ]
 
     private func explanationContext(
         entry: CatalogEntry,
@@ -524,6 +703,27 @@ private extension DiatonicDegree {
 }
 
 private extension DiatonicChordQuality {
+    /// Root-position intervals above the root: third, fifth, and seventh when present.
+    var toneIntervals: [Int] {
+        switch self {
+        case .major: [4, 7]
+        case .minor: [3, 7]
+        case .augmented: [4, 8]
+        case .diminished: [3, 6]
+        case .major7: [4, 7, 11]
+        case .minor7: [3, 7, 10]
+        case .dominant7: [4, 7, 10]
+        case .minorMajor7: [3, 7, 11]
+        case .halfDiminished7: [3, 6, 10]
+        case .diminished7: [3, 6, 9]
+        case .augmentedMajor7: [4, 8, 11]
+        }
+    }
+
+    func toneDifferenceCount(from other: DiatonicChordQuality) -> Int {
+        zip(toneIntervals, other.toneIntervals).filter { $0 != $1 }.count
+    }
+
     var romanQualitySuffix: String {
         switch self {
         case .major, .minor: ""

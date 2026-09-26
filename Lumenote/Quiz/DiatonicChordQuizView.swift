@@ -4,45 +4,50 @@ import SwiftUI
 
 struct DiatonicChordQuizView: View {
     @Environment(\.appPalette) private var palette
-    @AppStorage(AppearanceMode.storageKey) private var appearance: AppearanceMode = .system
 
-    @State private var model = DiatonicChordQuizModel()
+    let model: DiatonicChordQuizModel
 
     var body: some View {
         ScrollView {
-            VStack(spacing: LumenoteSpacing.section) {
-                scoreRow
-                promptCard
-                choices
-                if model.hasAnswered, let answer = model.selectedAnswer {
-                    feedbackCard(for: answer)
-                    nextButton
+            VStack(spacing: LumenoteSpacing.lg) {
+                progressHeader
+                VStack(spacing: LumenoteSpacing.section) {
+                    promptCard
+                    choices
+                    if model.hasAnswered, let answer = model.selectedAnswer {
+                        feedbackCard(for: answer)
+                        advanceButton
+                    }
                 }
             }
             .padding(.horizontal, LumenoteSpacing.popupInset)
-            .padding(.vertical, LumenoteSpacing.xxxl)
+            .padding(.top, LumenoteSpacing.md)
+            .padding(.bottom, LumenoteSpacing.xxxl)
             .frame(maxWidth: .infinity)
         }
         .scrollIndicators(.hidden)
-        .background(background)
-        .lumenoteCompactHeader(title: "다이아토닉 코드 퀴즈", showsBackButton: true) {
-            AppearanceToggleButton(appearance: $appearance)
-        }
     }
 
-    private var scoreRow: some View {
-        HStack {
-            Text("맞힌 문제")
-                .font(LumenoteFont.caption(.semibold))
-                .foregroundStyle(.secondary)
-            Spacer()
-            Text("\(model.correctCount) / \(model.answeredCount)")
-                .font(LumenoteFont.body(.bold))
-                .foregroundStyle(.primary)
-                .monospacedDigit()
+    private var progressHeader: some View {
+        HStack(spacing: model.questionLimit > 20 ? 1 : 2) {
+            ForEach(0..<model.questionLimit, id: \.self) { index in
+                RoundedRectangle(cornerRadius: 2, style: .continuous)
+                    .fill(segmentColor(at: index))
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 10)
+            }
         }
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel("맞힌 문제 \(model.correctCount)개, 전체 \(model.answeredCount)개")
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(
+            "\(model.questionLimit)문제 중 \(model.answeredCount)문제, 맞힌 \(model.correctCount)개, 틀린 \(model.incorrectCount)개"
+        )
+    }
+
+    private func segmentColor(at index: Int) -> Color {
+        guard index < model.outcomes.count else {
+            return Color.primary.opacity(0.12)
+        }
+        return model.outcomes[index] ? palette.quizCorrect : palette.quizIncorrect
     }
 
     private var promptCard: some View {
@@ -233,11 +238,16 @@ struct DiatonicChordQuizView: View {
         return palette.divider
     }
 
-    private var nextButton: some View {
-        Button {
-            model.nextQuestion()
+    private var advanceButton: some View {
+        let showsResult = model.isOnFinalAnswer
+        return Button {
+            if showsResult {
+                model.finish()
+            } else {
+                model.nextQuestion()
+            }
         } label: {
-            Text("다음 문제")
+            Text(showsResult ? "결과 보기" : "다음 문제")
                 .font(LumenoteFont.body(.bold))
                 .foregroundStyle(.white)
                 .frame(maxWidth: .infinity)
@@ -248,22 +258,13 @@ struct DiatonicChordQuizView: View {
                 )
         }
         .buttonStyle(.plain)
-        .accessibilityHint("다음 문제로 넘어가려면 두 번 탭하세요")
-    }
-
-    private var background: some View {
-        LinearGradient(
-            colors: palette.backgroundColors,
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
-        )
-        .ignoresSafeArea()
+        .accessibilityHint(showsResult ? "결과를 보려면 두 번 탭하세요" : "다음 문제로 넘어가려면 두 번 탭하세요")
     }
 }
 
 #Preview {
     NavigationStack {
-        DiatonicChordQuizView()
+        DiatonicChordQuizDifficultyView()
     }
     .lumenotePalette()
 }
