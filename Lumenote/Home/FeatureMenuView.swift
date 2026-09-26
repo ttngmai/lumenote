@@ -46,7 +46,7 @@ struct FeatureMenuView: View {
         case .diatonicChord:
             DiatonicChordView()
         case .intervalQuiz:
-            IntervalQuizView()
+            IntervalQuizDifficultyView()
         case .scaleQuiz:
             ScaleQuizView()
         case .keySignatureQuiz:

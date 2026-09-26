@@ -63,6 +63,15 @@ final class IntervalModel {
         )
     }
 
+    /// Spelling-based ascending interval. Nil when the pair cannot be named without the semitone fallback.
+    func ascendingResolution() -> IntervalResolution? {
+        Self.resolution(
+            root: rootSpelling,
+            target: targetSpelling,
+            semitones: ascendingSemitoneDistance
+        )
+    }
+
     /// English name for the ascending interval (root → target upward).
     var ascendingIntervalNameEnglish: String {
         Self.englishIntervalName(
@@ -198,17 +207,28 @@ final class IntervalModel {
 
     // MARK: - Spelling-aware interval naming
 
-    private static func koreanIntervalName(root: String, target: String, semitones: Int) -> String {
+    private static func resolution(root: String, target: String, semitones: Int) -> IntervalResolution? {
         guard let number = diatonicNumber(root: root, target: target, semitones: semitones) else {
-            return fallbackIntervalNames[clampDistance(semitones)]
+            return nil
         }
         let actualSemitones = octaveAwareSemitones(intervalNumber: number, wrapped: semitones)
         guard let offset = qualityOffset(intervalNumber: number, semitones: actualSemitones),
               let name = koreanName(intervalNumber: number, offset: offset)
         else {
-            return fallbackIntervalNames[clampDistance(actualSemitones)]
+            return nil
         }
-        return name
+        return IntervalResolution(koreanName: name, degree: number, qualityOffset: offset)
+    }
+
+    private static func koreanIntervalName(root: String, target: String, semitones: Int) -> String {
+        if let resolution = resolution(root: root, target: target, semitones: semitones) {
+            return resolution.koreanName
+        }
+        guard let number = diatonicNumber(root: root, target: target, semitones: semitones) else {
+            return fallbackIntervalNames[clampDistance(semitones)]
+        }
+        let actualSemitones = octaveAwareSemitones(intervalNumber: number, wrapped: semitones)
+        return fallbackIntervalNames[clampDistance(actualSemitones)]
     }
 
     private static func englishIntervalName(root: String, target: String, semitones: Int) -> String {
@@ -496,6 +516,15 @@ final class IntervalModel {
     static func clampDistance(_ value: Int) -> Int {
         min(12, max(0, value))
     }
+}
+
+/// A spelling-based interval name, without the semitone-only fallback.
+struct IntervalResolution: Equatable {
+    let koreanName: String
+    /// Diatonic interval number, 1…8.
+    let degree: Int
+    /// Semitone offset from the major or perfect reference for `degree`.
+    let qualityOffset: Int
 }
 
 /// One notehead placement on a treble staff for the interval explorer.
