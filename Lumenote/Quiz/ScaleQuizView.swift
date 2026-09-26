@@ -9,40 +9,37 @@ struct ScaleQuizView: View {
 
     var body: some View {
         ScrollView {
-            VStack(spacing: LumenoteSpacing.section) {
+            VStack(spacing: LumenoteSpacing.lg) {
                 progressHeader
-                promptCard
-                choices
-                if model.hasAnswered, let answer = model.selectedAnswer {
-                    feedbackCard(for: answer)
-                    advanceButton
+                VStack(spacing: LumenoteSpacing.section) {
+                    promptCard
+                    choices
+                    if model.hasAnswered, let answer = model.selectedAnswer {
+                        feedbackCard(for: answer)
+                        advanceButton
+                    }
                 }
             }
             .padding(.horizontal, LumenoteSpacing.popupInset)
-            .padding(.vertical, LumenoteSpacing.xxxl)
+            .padding(.top, LumenoteSpacing.md)
+            .padding(.bottom, LumenoteSpacing.xxxl)
             .frame(maxWidth: .infinity)
         }
         .scrollIndicators(.hidden)
     }
 
     private var progressHeader: some View {
-        VStack(alignment: .leading, spacing: LumenoteSpacing.md) {
-            Text(model.difficulty.title)
-                .font(LumenoteFont.body(.bold))
-                .foregroundStyle(.primary)
-
-            HStack(spacing: model.questionLimit > 20 ? 1 : 2) {
-                ForEach(0..<model.questionLimit, id: \.self) { index in
-                    RoundedRectangle(cornerRadius: 2, style: .continuous)
-                        .fill(segmentColor(at: index))
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 10)
-                }
+        HStack(spacing: model.questionLimit > 20 ? 1 : 2) {
+            ForEach(0..<model.questionLimit, id: \.self) { index in
+                RoundedRectangle(cornerRadius: 2, style: .continuous)
+                    .fill(segmentColor(at: index))
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 10)
             }
         }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(
-            "\(model.difficulty.title), \(model.questionLimit)문제 중 \(model.answeredCount)문제, 맞힌 \(model.correctCount)개, 틀린 \(model.incorrectCount)개"
+            "\(model.questionLimit)문제 중 \(model.answeredCount)문제, 맞힌 \(model.correctCount)개, 틀린 \(model.incorrectCount)개"
         )
     }
 

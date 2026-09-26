@@ -66,16 +66,10 @@ struct ScaleQuizDifficultyView: View {
 
     private func difficultyRow(_ difficulty: ScaleQuizDifficulty, isSelected: Bool) -> some View {
         HStack(spacing: LumenoteSpacing.lg) {
-            VStack(alignment: .leading, spacing: LumenoteSpacing.xs) {
-                Text(difficulty.title)
-                    .font(LumenoteFont.body(.bold))
-                    .foregroundStyle(.primary)
-                Text(difficulty.subtitle)
-                    .font(LumenoteFont.caption(.medium))
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.leading)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
+            Text(difficulty.title)
+                .font(LumenoteFont.body(.bold))
+                .foregroundStyle(.primary)
+                .frame(maxWidth: .infinity, alignment: .leading)
 
             if isSelected {
                 Image(systemName: "checkmark")
@@ -86,7 +80,7 @@ struct ScaleQuizDifficultyView: View {
         .padding(LumenoteSpacing.xxl)
         .lumenoteCard(isActive: isSelected)
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("\(difficulty.title), \(difficulty.subtitle)")
+        .accessibilityLabel(difficulty.title)
         .accessibilityAddTraits(isSelected ? .isSelected : [])
         .accessibilityHint("난이도를 선택하려면 두 번 탭하세요")
     }
@@ -164,8 +158,8 @@ struct ScaleQuizDifficultyView: View {
     private func result(_ model: ScaleQuizModel) -> some View {
         ScrollView {
             VStack(alignment: .leading, spacing: LumenoteSpacing.section) {
-                Text("퀴즈를 마쳤습니다")
-                    .font(LumenoteFont.callout(.medium))
+                Text("퀴즈 풀이 결과")
+                    .font(LumenoteFont.rounded(size: 22, weight: .bold))
                     .foregroundStyle(.primary)
 
                 Text("\(model.difficulty.title) · \(model.questionLimit)문제")
@@ -178,9 +172,12 @@ struct ScaleQuizDifficultyView: View {
                 }
 
                 Button {
-                    dismiss()
+                    self.model = ScaleQuizModel(
+                        difficulty: model.difficulty,
+                        questionLimit: model.questionLimit
+                    )
                 } label: {
-                    Text("메뉴로 돌아가기")
+                    Text("같은 설정으로 다시 풀기")
                         .font(LumenoteFont.body(.bold))
                         .foregroundStyle(.white)
                         .frame(maxWidth: .infinity)
@@ -189,6 +186,19 @@ struct ScaleQuizDifficultyView: View {
                             RoundedRectangle(cornerRadius: LumenoteRadius.card, style: .continuous)
                                 .fill(palette.minor)
                         )
+                }
+                .buttonStyle(.plain)
+                .accessibilityHint("같은 난이도와 문제 수로 다시 풀려면 두 번 탭하세요")
+
+                Button {
+                    dismiss()
+                } label: {
+                    Text("메뉴로 돌아가기")
+                        .font(LumenoteFont.body(.bold))
+                        .foregroundStyle(.primary)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, LumenoteSpacing.xxl)
+                        .lumenoteCard()
                 }
                 .buttonStyle(.plain)
                 .accessibilityHint("메뉴로 돌아가려면 두 번 탭하세요")

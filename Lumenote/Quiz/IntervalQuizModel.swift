@@ -17,14 +17,6 @@ enum IntervalQuizDifficulty: String, CaseIterable, Hashable, Identifiable {
         case .hard: "Hard"
         }
     }
-
-    var subtitle: String {
-        switch self {
-        case .easy: "임시표 없이 완전·장·단 음정만 나옵니다"
-        case .normal: "임시표가 붙을 수 있고, 증·감 음정까지 나옵니다"
-        case .hard: "임시표가 붙을 수 있고, 겹증·겹감 음정까지 나옵니다"
-        }
-    }
 }
 
 /// Multiple-choice quiz: identify the ascending interval between two notes.
