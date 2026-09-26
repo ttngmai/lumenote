@@ -325,7 +325,7 @@ final class ScaleQuizModel {
 
         return Question(
             kind: .completePattern,
-            promptTitle: "\(kind.englishTitle) 스케일의 음정 패턴을 완성하세요",
+            promptTitle: "\(kind.englishTitle) 스케일의 음정 패턴을 완성하세요.",
             scaleLabel: "\(tonic) \(kind.englishTitle)",
             promptTokens: tokens,
             staffNotes: [],

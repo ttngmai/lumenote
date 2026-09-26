@@ -69,6 +69,7 @@ struct FeatureMenuView: View {
 
 private struct FeatureModeMenuView: View {
     let domain: FeatureDomain
+    @AppStorage(AppearanceMode.storageKey) private var appearance: AppearanceMode = .system
     @State private var expandedModes: Set<FeatureMode> = []
 
     var body: some View {
@@ -82,9 +83,12 @@ private struct FeatureModeMenuView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .listSectionSpacing(LumenoteSpacing.xl)
         .scrollContentBackground(.hidden)
         .background(FeatureMenuBackground())
-        .lumenoteCompactHeader(title: domain.title, showsBackButton: true)
+        .lumenoteCompactHeader(title: domain.title, showsBackButton: true) {
+            AppearanceToggleButton(appearance: $appearance)
+        }
     }
 
     private func expansionBinding(for mode: FeatureMode) -> Binding<Bool> {
