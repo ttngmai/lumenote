@@ -2,7 +2,7 @@
 
 import Foundation
 
-/// Mixed chord quiz: complete tones, identify chord, complete formula, identify degree, match notation.
+/// Mixed chord quiz: complete tones, identify chord, complete formula, identify degree.
 @MainActor
 @Observable
 final class ChordQuizModel {
@@ -13,10 +13,8 @@ final class ChordQuizModel {
         case identifyChord
         /// Fill one missing degree in the chord formula.
         case completeFormula
-        /// Ask for a chord tone's note, or a note's degree label.
+        /// Ask for the note at a given chord degree.
         case identifyTone
-        /// Match a chord kind to its primary symbol (and the reverse).
-        case identifyNotation
     }
 
     enum PromptToken: Equatable {
@@ -34,8 +32,6 @@ final class ChordQuizModel {
     struct Question: Equatable {
         let kind: QuestionKind
         let promptTitle: String
-        /// Large centered symbol for notation → kind prompts.
-        let promptEmphasis: String?
         let promptTokens: [PromptToken]
         let staffNotes: [IntervalStaffNote]
         let staffNoteNames: [String]
@@ -50,7 +46,6 @@ final class ChordQuizModel {
         let toneSpellings: [String]
         let blankIndex: Int?
         let degreeNumber: Int?
-        let askedNoteDisplay: String?
     }
 
     private let explorer = ChordModel()
@@ -101,7 +96,6 @@ final class ChordQuizModel {
                 detail: correctDetail(
                     for: question.kind,
                     chordName: chordName,
-                    symbol: symbol,
                     tones: tones,
                     formula: formula,
                     context: ctx
@@ -129,11 +123,6 @@ final class ChordQuizModel {
                 tones: tones,
                 context: ctx
             )
-        case .identifyNotation:
-            return Feedback(
-                headline: "\(answer) ✕ → \(question.correctAnswer) ✓",
-                detail: "\(symbol)은 \(kindLabel(ctx.kind)) 표기입니다."
-            )
         }
     }
 
@@ -143,17 +132,15 @@ final class ChordQuizModel {
         for _ in 0..<80 {
             let candidate: Question?
             // Weight complete-chord highest — it mirrors the learning screen most closely.
-            switch Int.random(in: 0..<10) {
+            switch Int.random(in: 0..<9) {
             case 0..<4:
                 candidate = makeCompleteChordQuestion()
             case 4..<6:
                 candidate = makeIdentifyChordQuestion()
             case 6..<8:
                 candidate = makeCompleteFormulaQuestion()
-            case 8:
-                candidate = makeIdentifyToneQuestion()
             default:
-                candidate = makeIdentifyNotationQuestion()
+                candidate = makeIdentifyToneQuestion()
             }
             if let question = candidate {
                 previousQuestionID = questionID(for: question)
@@ -185,7 +172,6 @@ final class ChordQuizModel {
         return Question(
             kind: .completeChord,
             promptTitle: "\(entry.displayName)를 완성하세요",
-            promptEmphasis: nil,
             promptTokens: tokens,
             staffNotes: [],
             staffNoteNames: [],
@@ -196,8 +182,7 @@ final class ChordQuizModel {
                 kind: entry.kind,
                 toneSpellings: entry.toneSpellings,
                 blankIndex: blankIndex,
-                degreeNumber: degreeNumber(at: blankIndex),
-                askedNoteDisplay: nil
+                degreeNumber: degreeNumber(at: blankIndex)
             )
         )
     }
@@ -220,7 +205,6 @@ final class ChordQuizModel {
         return Question(
             kind: .identifyChord,
             promptTitle: "다음 코드는 무엇일까요?",
-            promptEmphasis: nil,
             promptTokens: [],
             staffNotes: explorer.staffNotes,
             staffNoteNames: explorer.toneDisplayNames,
@@ -231,8 +215,7 @@ final class ChordQuizModel {
                 kind: entry.kind,
                 toneSpellings: entry.toneSpellings,
                 blankIndex: nil,
-                degreeNumber: nil,
-                askedNoteDisplay: nil
+                degreeNumber: nil
             )
         )
     }
@@ -256,7 +239,6 @@ final class ChordQuizModel {
         return Question(
             kind: .completeFormula,
             promptTitle: "\(kindLabel(kind))의 구성음을 완성하세요",
-            promptEmphasis: nil,
             promptTokens: tokens,
             staffNotes: [],
             staffNoteNames: [],
@@ -267,8 +249,7 @@ final class ChordQuizModel {
                 kind: kind,
                 toneSpellings: spellings(root: "C", kind: kind),
                 blankIndex: blankIndex,
-                degreeNumber: degreeNumber(at: blankIndex),
-                askedNoteDisplay: nil
+                degreeNumber: degreeNumber(at: blankIndex)
             )
         )
     }
@@ -277,121 +258,30 @@ final class ChordQuizModel {
         guard let entry = catalog.randomElement() else { return nil }
         let toneIndex = pickToneIndex(for: entry.kind)
         let degree = degreeNumber(at: toneIndex)
-        let askForNote = Bool.random()
-        let questionID = "tone-\(entry.id)-\(degree)-\(askForNote ? "note" : "label")"
+        let questionID = "tone-\(entry.id)-\(degree)"
         if questionID == previousQuestionID { return nil }
 
-        let displays = entry.toneSpellings.map(ScaleModel.formatNoteName)
-        let noteDisplay = displays[toneIndex]
-        let degreeLabel = entry.kind.tones[toneIndex].degreeLabel
-
-        if askForNote {
-            let distractors = noteDistractors(
-                correctSpelling: entry.toneSpellings[toneIndex],
-                chordSpellings: entry.toneSpellings
-            )
-            guard distractors.count == 3 else { return nil }
-
-            return Question(
-                kind: .identifyTone,
-                promptTitle: "\(entry.displayName)의 \(degree)도는?",
-                promptEmphasis: nil,
-                promptTokens: [],
-                staffNotes: [],
-                staffNoteNames: [],
-                choices: (distractors + [noteDisplay]).shuffled(),
-                correctAnswer: noteDisplay,
-                explanationContext: ExplanationContext(
-                    rootSpelling: entry.root,
-                    kind: entry.kind,
-                    toneSpellings: entry.toneSpellings,
-                    blankIndex: toneIndex,
-                    degreeNumber: degree,
-                    askedNoteDisplay: nil
-                )
-            )
-        }
-
-        let distractors = formulaDistractors(correct: degreeLabel)
+        let noteDisplay = ScaleModel.formatNoteName(entry.toneSpellings[toneIndex])
+        let distractors = noteDistractors(
+            correctSpelling: entry.toneSpellings[toneIndex],
+            chordSpellings: entry.toneSpellings
+        )
         guard distractors.count == 3 else { return nil }
 
         return Question(
             kind: .identifyTone,
-            promptTitle: "\(entry.displayName)에서 \(noteDisplay)는?",
-            promptEmphasis: nil,
+            promptTitle: "\(entry.displayName)의 \(degree)도는?",
             promptTokens: [],
             staffNotes: [],
             staffNoteNames: [],
-            choices: (distractors + [degreeLabel]).shuffled(),
-            correctAnswer: degreeLabel,
+            choices: (distractors + [noteDisplay]).shuffled(),
+            correctAnswer: noteDisplay,
             explanationContext: ExplanationContext(
                 rootSpelling: entry.root,
                 kind: entry.kind,
                 toneSpellings: entry.toneSpellings,
                 blankIndex: toneIndex,
-                degreeNumber: degree,
-                askedNoteDisplay: noteDisplay
-            )
-        )
-    }
-
-    private func makeIdentifyNotationQuestion() -> Question? {
-        guard let entry = catalog.randomElement() else { return nil }
-        let askForKind = Bool.random()
-        let questionID = "notation-\(entry.id)-\(askForKind ? "kind" : "symbol")"
-        if questionID == previousQuestionID { return nil }
-
-        let distractorKinds = kindDistractors(for: entry.kind)
-        guard distractorKinds.count == 3 else { return nil }
-
-        if askForKind {
-            let correct = kindLabel(entry.kind)
-            let distractors = distractorKinds.map(kindLabel)
-            let unique = Set(distractors + [correct])
-            guard unique.count == 4 else { return nil }
-
-            let rootName = ScaleModel.formatNoteName(entry.root)
-            return Question(
-                kind: .identifyNotation,
-                promptTitle: "근음이 \(rootName)일 때, 다음 표기의 코드는?",
-                promptEmphasis: chordSymbol(root: entry.root, kind: entry.kind),
-                promptTokens: [],
-                staffNotes: [],
-                staffNoteNames: [],
-                choices: (distractors + [correct]).shuffled(),
-                correctAnswer: correct,
-                explanationContext: ExplanationContext(
-                    rootSpelling: entry.root,
-                    kind: entry.kind,
-                    toneSpellings: entry.toneSpellings,
-                    blankIndex: nil,
-                    degreeNumber: nil,
-                    askedNoteDisplay: nil
-                )
-            )
-        }
-
-        let correct = chordSymbol(root: entry.root, kind: entry.kind)
-        let distractors = distractorKinds.map { chordSymbol(root: entry.root, kind: $0) }
-        let unique = Set(distractors + [correct])
-        guard unique.count == 4 else { return nil }
-
-        return Question(
-            kind: .identifyNotation,
-            promptTitle: "\(entry.displayName)의 표기는?",
-            promptEmphasis: nil,
-            promptTokens: [],
-            staffNotes: [],
-            staffNoteNames: [],
-            choices: (distractors + [correct]).shuffled(),
-            correctAnswer: correct,
-            explanationContext: ExplanationContext(
-                rootSpelling: entry.root,
-                kind: entry.kind,
-                toneSpellings: entry.toneSpellings,
-                blankIndex: nil,
-                degreeNumber: nil,
-                askedNoteDisplay: nil
+                degreeNumber: degree
             )
         )
     }
@@ -401,7 +291,6 @@ final class ChordQuizModel {
     private func correctDetail(
         for kind: QuestionKind,
         chordName: String,
-        symbol: String,
         tones: [String],
         formula: String,
         context: ExplanationContext
@@ -414,17 +303,11 @@ final class ChordQuizModel {
         case .completeFormula:
             return "\(kindLabel(context.kind)): \(formula)"
         case .identifyTone:
-            if let asked = context.askedNoteDisplay, let degree = context.degreeNumber {
-                let label = context.kind.tones[degreeIndex(for: degree)].degreeLabel
-                return "\(chordName)에서 \(asked)는 \(label)입니다."
-            }
             if let degree = context.degreeNumber {
                 let note = tones[degreeIndex(for: degree)]
                 return "\(chordName)의 \(degree)도는 \(note)입니다."
             }
             return chordName
-        case .identifyNotation:
-            return "\(symbol)은 \(kindLabel(context.kind)) 표기입니다."
         }
     }
 
@@ -454,13 +337,6 @@ final class ChordQuizModel {
         tones: [String],
         context: ExplanationContext
     ) -> Feedback {
-        if let asked = context.askedNoteDisplay, let degree = context.degreeNumber {
-            let label = context.kind.tones[degreeIndex(for: degree)].degreeLabel
-            return Feedback(
-                headline: "\(answer) ✕ → \(label) ✓",
-                detail: "\(chordName)에서 \(asked)는 \(label)입니다."
-            )
-        }
         if let degree = context.degreeNumber {
             let note = tones[degreeIndex(for: degree)]
             return Feedback(
@@ -677,11 +553,7 @@ final class ChordQuizModel {
         case .completeFormula:
             return "formula-\(ctx.kind.rawValue)-\(ctx.blankIndex ?? -1)"
         case .identifyTone:
-            let mode = ctx.askedNoteDisplay == nil ? "note" : "label"
-            return "tone-\(ctx.rootSpelling)|\(ctx.kind.rawValue)-\(ctx.degreeNumber ?? 0)-\(mode)"
-        case .identifyNotation:
-            let mode = question.promptEmphasis == nil ? "symbol" : "kind"
-            return "notation-\(ctx.rootSpelling)|\(ctx.kind.rawValue)-\(mode)"
+            return "tone-\(ctx.rootSpelling)|\(ctx.kind.rawValue)-\(ctx.degreeNumber ?? 0)"
         }
     }
 
@@ -691,7 +563,6 @@ final class ChordQuizModel {
         return Question(
             kind: .completeChord,
             promptTitle: "C Major 7를 완성하세요",
-            promptEmphasis: nil,
             promptTokens: [.note("C"), .note("E"), .note("G"), .blank],
             staffNotes: [],
             staffNoteNames: [],
@@ -702,8 +573,7 @@ final class ChordQuizModel {
                 kind: .major7,
                 toneSpellings: spellings,
                 blankIndex: 3,
-                degreeNumber: 7,
-                askedNoteDisplay: nil
+                degreeNumber: 7
             )
         )
     }
@@ -712,7 +582,6 @@ final class ChordQuizModel {
         Question(
             kind: .completeChord,
             promptTitle: "",
-            promptEmphasis: nil,
             promptTokens: [],
             staffNotes: [],
             staffNoteNames: [],
@@ -723,8 +592,7 @@ final class ChordQuizModel {
                 kind: .majorTriad,
                 toneSpellings: [],
                 blankIndex: nil,
-                degreeNumber: nil,
-                askedNoteDisplay: nil
+                degreeNumber: nil
             )
         )
     }

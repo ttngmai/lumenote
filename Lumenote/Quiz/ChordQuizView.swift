@@ -57,12 +57,6 @@ struct ChordQuizView: View {
                 identifyChordPrompt
             case .completeChord, .completeFormula:
                 tokenPrompt
-            case .identifyNotation:
-                if let emphasis = model.question.promptEmphasis {
-                    Text(emphasis)
-                        .font(.system(size: 34, weight: .bold))
-                        .frame(maxWidth: .infinity)
-                }
             case .identifyTone:
                 EmptyView()
             }
