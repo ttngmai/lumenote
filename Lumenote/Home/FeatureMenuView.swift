@@ -50,7 +50,7 @@ struct FeatureMenuView: View {
         case .scaleQuiz:
             ScaleQuizDifficultyView()
         case .keySignatureQuiz:
-            KeySignatureQuizView()
+            KeySignatureQuizDifficultyView()
         case .chordQuiz:
             ChordQuizView()
         case .diatonicChordQuiz:
