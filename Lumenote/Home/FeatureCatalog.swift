@@ -151,7 +151,7 @@ enum FeatureCatalog {
                 FeatureItem(
                     destination: .chordQuiz,
                     title: "코드 퀴즈",
-                    subtitle: "구성음 · 공식 · 표기를 맞춰 보세요",
+                    subtitle: "구성음 · 공식 · 도수를 맞춰 보세요",
                     icon: .system("music.note.list")
                 ),
                 FeatureItem(
