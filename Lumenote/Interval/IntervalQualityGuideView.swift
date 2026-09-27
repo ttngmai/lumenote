@@ -2,7 +2,7 @@
 
 import SwiftUI
 
-/// Paged guide: natural structure, an interactive span, one accidental example, then quality-name rules.
+/// Paged guide: how a name is built, an interactive span, quality changes on one degree, then quality-name rules.
 struct IntervalQualityGuideView: View {
     @Environment(\.appPalette) private var palette
     @Environment(\.dismiss) private var dismiss
@@ -48,23 +48,46 @@ struct IntervalQualityGuideView: View {
     private var structurePage: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: LumenoteSpacing.section) {
+                Text("음정의 이름은 두 가지로 결정됩니다.")
+                    .font(LumenoteFont.headline(.bold))
+                    .foregroundStyle(.primary)
+                    .fixedSize(horizontal: false, vertical: true)
+
                 VStack(alignment: .leading, spacing: LumenoteSpacing.xl) {
-                    Text("음정은 두 음의 음이름으로 도수를 결정하고, 두 음 사이의 반음 간격으로 음정의 성질을 결정합니다.")
-                    Text("C Major 스케일을 기준으로 각 도수에 포함된 자연 반음 구간을 살펴보세요.")
+                    criterionRow(
+                        number: "1",
+                        title: "도수 (음이름)",
+                        detail: "두 음의 음이름으로 몇 도의 관계인지 결정합니다."
+                    )
+                    criterionRow(
+                        number: "2",
+                        title: "성질 (반음 간격)",
+                        detail: "두 음 사이의 반음 간격으로 장·단·완전·증·감을 결정합니다."
+                    )
                 }
-                .font(LumenoteFont.callout(.medium))
-                .foregroundStyle(.primary)
-                .fixedSize(horizontal: false, vertical: true)
+
+                workedThirdExample
+
+                Text("먼저, 자연음의 간격을 살펴봅시다.")
+                    .font(LumenoteFont.headline(.bold))
+                    .foregroundStyle(.primary)
+                    .fixedSize(horizontal: false, vertical: true)
 
                 naturalScaleCard
 
-                Text("도수별 자연 반음 구간")
-                    .font(LumenoteFont.headline(.bold))
-                    .foregroundStyle(.primary)
+                VStack(alignment: .leading, spacing: LumenoteSpacing.md) {
+                    Text("도수별 자연 반음 구간")
+                        .font(LumenoteFont.headline(.bold))
+                        .foregroundStyle(.primary)
+                    Text("C에서 각 도수까지 이동하면서 E–F, B–C의 자연 반음 구간이 몇 개 포함되는지 확인하고, 전체 반음 간격과 함께 비교해 보세요.")
+                        .font(LumenoteFont.callout(.medium))
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
 
                 degreeTable
 
-                Text("기준은 C에서 각 도수까지 상행할 때의 구조입니다.")
+                Text("자연 반음 구간은 전체 반음 간격을 이해하기 위한 보조 기준입니다. 음정의 성질은 전체 반음 간격으로 결정됩니다.")
                     .font(LumenoteFont.caption(.medium))
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
@@ -88,10 +111,15 @@ struct IntervalQualityGuideView: View {
         let degree = selectedDegree
         return ScrollView {
             VStack(alignment: .leading, spacing: LumenoteSpacing.section) {
-                Text("C를 기준으로 음정을 선택하세요.")
-                    .font(LumenoteFont.callout(.medium))
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
+                VStack(alignment: .leading, spacing: LumenoteSpacing.md) {
+                    Text("앞에서 살펴본 규칙을 직접 확인해 보세요.")
+                        .font(LumenoteFont.callout(.medium))
+                        .foregroundStyle(.primary)
+                    Text("C를 기준으로 음정을 선택하면 자연 반음 구간, 전체 반음 간격, 음정 이름을 확인할 수 있습니다.")
+                        .font(LumenoteFont.caption(.medium))
+                        .foregroundStyle(.secondary)
+                }
+                .fixedSize(horizontal: false, vertical: true)
 
                 degreePicker
 
@@ -125,6 +153,8 @@ struct IntervalQualityGuideView: View {
                     .frame(height: 1)
 
                 semitoneCalculation(for: degree)
+
+                explorerResult(for: degree)
             }
             .padding(LumenoteSpacing.xxl)
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -185,25 +215,104 @@ struct IntervalQualityGuideView: View {
                 .font(LumenoteFont.caption(.medium))
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
-            Text(Self.semitoneFormula(stepCount: degree.noteIndex))
-                .font(LumenoteFont.headline(.bold))
-                .foregroundStyle(.primary)
-                .minimumScaleFactor(0.6)
-                .lineLimit(1)
-                .frame(maxWidth: .infinity)
-                .multilineTextAlignment(.center)
+            if degree.noteIndex == 0 {
+                Text("0반음")
+                    .font(LumenoteFont.headline(.bold))
+                    .foregroundStyle(.primary)
+                    .frame(maxWidth: .infinity, alignment: .center)
+            } else {
+                semitoneBreakdown(stepCount: degree.noteIndex)
+            }
         }
         .accessibilityElement(children: .combine)
+        .accessibilityLabel(semitoneAccessibilityLabel(for: degree))
     }
 
-    /// Whole steps are 2 semitones and the E–F, B–C half steps are 1.
-    private static func semitoneFormula(stepCount: Int) -> String {
-        let semitoneValues = [2, 2, 1, 2, 2, 2, 1]
-        let steps = Array(semitoneValues.prefix(max(0, stepCount)))
-        guard !steps.isEmpty else { return "0반음" }
-        let expression = steps.map(String.init).joined(separator: " + ")
-        let total = steps.reduce(0, +)
-        return "\(expression) = \(total)반음"
+    /// Whole steps are 2 and the E–F, B–C half steps are 1, with the letter pair under each term.
+    private func semitoneBreakdown(stepCount: Int) -> some View {
+        let values = Array(Self.stepSemitones.prefix(stepCount))
+        let total = values.reduce(0, +)
+        return HStack(alignment: .top, spacing: LumenoteSpacing.xxs) {
+            ForEach(values.indices, id: \.self) { index in
+                HStack(alignment: .top, spacing: LumenoteSpacing.xxs) {
+                    if index > 0 {
+                        Text("+")
+                            .font(LumenoteFont.caption(.bold))
+                            .foregroundStyle(.secondary)
+                            .padding(.top, LumenoteSpacing.xs)
+                    }
+                    VStack(spacing: LumenoteSpacing.xxs) {
+                        Text("\(values[index])")
+                            .font(LumenoteFont.subheadline(.bold))
+                            .foregroundStyle(values[index] == 1 ? palette.major : Color.primary)
+                            .minimumScaleFactor(0.6)
+                            .lineLimit(1)
+                        Text(Self.stepLabel(index))
+                            .font(LumenoteFont.caption2(.medium))
+                            .foregroundStyle(values[index] == 1 ? palette.major : Color.secondary)
+                            .minimumScaleFactor(0.4)
+                            .lineLimit(1)
+                    }
+                    .frame(maxWidth: .infinity)
+                }
+            }
+
+            Text("=")
+                .font(LumenoteFont.caption(.bold))
+                .foregroundStyle(.secondary)
+                .padding(.top, LumenoteSpacing.xs)
+
+            VStack(spacing: LumenoteSpacing.xxs) {
+                Text("\(total)")
+                    .font(LumenoteFont.subheadline(.bold))
+                    .foregroundStyle(.primary)
+                Text("반음")
+                    .font(LumenoteFont.caption2(.medium))
+                    .foregroundStyle(.secondary)
+            }
+            .fixedSize(horizontal: true, vertical: false)
+        }
+    }
+
+    private func semitoneAccessibilityLabel(for degree: DegreeSemitoneRow) -> String {
+        let values = Array(Self.stepSemitones.prefix(degree.noteIndex))
+        guard !values.isEmpty else { return "반음 간격 계산 과정. 0반음." }
+        let terms = values.enumerated().map { index, value in
+            "\(Self.stepLabel(index)) \(value)"
+        }
+        let total = values.reduce(0, +)
+        return "반음 간격 계산 과정. \(terms.joined(separator: ", ")). 합계 \(total)반음."
+    }
+
+    private func explorerResult(for degree: DegreeSemitoneRow) -> some View {
+        let target = Self.scaleLetters[degree.noteIndex]
+        let degreeNumber = degree.noteIndex + 1
+        return HStack(alignment: .top, spacing: LumenoteSpacing.lg) {
+            Image(systemName: "checkmark.circle.fill")
+                .font(LumenoteFont.rounded(size: 18, weight: .bold))
+                .foregroundStyle(palette.quizCorrect)
+                .accessibilityHidden(true)
+            VStack(alignment: .leading, spacing: LumenoteSpacing.xs) {
+                Text("결과")
+                    .font(LumenoteFont.caption(.bold))
+                    .foregroundStyle(palette.quizCorrect)
+                Text("C에서 \(target)까지, 음이름을 세면 \(degreeNumber)도이고 전체 간격은 \(degree.semitones)반음이므로 \(degree.name)입니다.")
+                    .font(LumenoteFont.callout(.medium))
+                    .foregroundStyle(.primary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .padding(LumenoteSpacing.xl)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: LumenoteRadius.card, style: .continuous)
+                .fill(palette.quizCorrectBackground)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: LumenoteRadius.card, style: .continuous)
+                .strokeBorder(palette.quizCorrect, lineWidth: LumenoteStroke.compact)
+        )
+        .accessibilityElement(children: .combine)
     }
 
     private func spanStat(title: String, value: String) -> some View {
@@ -244,45 +353,38 @@ struct IntervalQualityGuideView: View {
     private var alterationPage: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: LumenoteSpacing.section) {
-                Text("C를 기준으로 목표음만 변경한 예시")
-                    .font(LumenoteFont.callout(.medium))
+                VStack(alignment: .leading, spacing: LumenoteSpacing.xl) {
+                    Text("같은 도수에서도 반음 간격이 달라지면 음정의 성질이 달라집니다.")
+                        .font(LumenoteFont.headline(.bold))
+                    Text("도수는 음이름으로 결정되므로 그대로 유지되고, 두 음 사이의 반음 간격이 달라지면 장·단·완전·증·감으로 이름이 바뀝니다.")
+                        .font(LumenoteFont.callout(.medium))
+                }
+                .foregroundStyle(.primary)
+                .fixedSize(horizontal: false, vertical: true)
+
+                Text("예시 · 장3도")
+                    .font(LumenoteFont.subheadline(.bold))
+                    .foregroundStyle(.primary)
+
+                alterationStaffRow(thirdExamples)
+
+                Text("세 음정은 모두 3도입니다. 장3도(4반음)를 기준으로 간격이 1반음 좁아지면 단3도, 1반음 넓어지면 증3도가 됩니다.")
+                    .font(LumenoteFont.caption(.medium))
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
 
-                VStack(spacing: LumenoteSpacing.sm) {
-                    alterationExample(
-                        spelling: "C → E♯",
-                        detail: "증3도 · 5반음",
-                        fill: colors.augmented,
-                        foreground: colors.onGreen
-                    )
-                    alterationExample(
-                        spelling: "C → E",
-                        detail: "장3도 · 4반음",
-                        fill: colors.major,
-                        foreground: colors.onBlue
-                    )
-                    alterationExample(
-                        spelling: "C → E♭",
-                        detail: "단3도 · 3반음",
-                        fill: colors.minorQuality,
-                        foreground: colors.onPink
-                    )
-                }
+                Text("다른 도수의 예시 · 완전5도")
+                    .font(LumenoteFont.subheadline(.bold))
+                    .foregroundStyle(.primary)
 
-                Rectangle()
-                    .fill(palette.divider)
-                    .frame(height: 1)
+                alterationStaffRow(fifthExamples)
 
-                VStack(alignment: .leading, spacing: LumenoteSpacing.xl) {
-                    Text("반음 간격이 달라지면?")
-                        .font(LumenoteFont.headline(.bold))
-                    Text("세 음정은 모두 3도이지만, 목표음이 반음씩 이동하면서 음정의 성질이 달라집니다.")
-                    Text("장3도(4반음)를 기준으로 간격이 1반음 넓어지면 증3도, 1반음 좁아지면 단3도가 됩니다.")
-                }
-                .font(LumenoteFont.callout(.medium))
-                .foregroundStyle(.primary)
-                .fixedSize(horizontal: false, vertical: true)
+                Text("세 음정은 모두 5도입니다. 완전5도(7반음)를 기준으로 간격이 1반음 좁아지면 감5도, 1반음 넓어지면 증5도가 됩니다.")
+                    .font(LumenoteFont.caption(.medium))
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                namingRecap
             }
             .padding(LumenoteSpacing.xxl)
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -299,26 +401,250 @@ struct IntervalQualityGuideView: View {
         .background(sheetBackground)
     }
 
-    private func alterationExample(
-        spelling: String,
-        detail: String,
-        fill: Color,
-        foreground: Color
-    ) -> some View {
-        VStack(spacing: LumenoteSpacing.xs) {
-            Text(spelling)
-                .font(LumenoteFont.headline(.bold))
-            Text(detail)
-                .font(LumenoteFont.subheadline(.semibold))
+    private var thirdExamples: [QualityStaffExample] {
+        [
+            QualityStaffExample(
+                spelling: "C → E♭",
+                degree: "3도",
+                semitones: "3반음",
+                quality: "단3도",
+                staffStep: 0,
+                accidental: "♭",
+                fill: colors.minorQuality,
+                foreground: colors.onPink
+            ),
+            QualityStaffExample(
+                spelling: "C → E",
+                degree: "3도",
+                semitones: "4반음",
+                quality: "장3도",
+                staffStep: 0,
+                accidental: nil,
+                fill: colors.major,
+                foreground: colors.onBlue
+            ),
+            QualityStaffExample(
+                spelling: "C → E♯",
+                degree: "3도",
+                semitones: "5반음",
+                quality: "증3도",
+                staffStep: 0,
+                accidental: "♯",
+                fill: colors.augmented,
+                foreground: colors.onGreen
+            ),
+        ]
+    }
+
+    private var fifthExamples: [QualityStaffExample] {
+        [
+            QualityStaffExample(
+                spelling: "C → G♭",
+                degree: "5도",
+                semitones: "6반음",
+                quality: "감5도",
+                staffStep: 2,
+                accidental: "♭",
+                fill: colors.diminished,
+                foreground: colors.onRed
+            ),
+            QualityStaffExample(
+                spelling: "C → G",
+                degree: "5도",
+                semitones: "7반음",
+                quality: "완전5도",
+                staffStep: 2,
+                accidental: nil,
+                fill: colors.perfect,
+                foreground: colors.onBlue
+            ),
+            QualityStaffExample(
+                spelling: "C → G♯",
+                degree: "5도",
+                semitones: "8반음",
+                quality: "증5도",
+                staffStep: 2,
+                accidental: "♯",
+                fill: colors.augmented,
+                foreground: colors.onGreen
+            ),
+        ]
+    }
+
+    private func alterationStaffRow(_ examples: [QualityStaffExample]) -> some View {
+        HStack(alignment: .top, spacing: LumenoteSpacing.md) {
+            ForEach(examples) { example in
+                alterationStaff(example)
+            }
         }
-        .foregroundStyle(foreground)
+    }
+
+    private func alterationStaff(_ example: QualityStaffExample) -> some View {
+        VStack(spacing: LumenoteSpacing.sm) {
+            Text(example.spelling)
+                .font(LumenoteFont.caption(.bold))
+                .foregroundStyle(.primary)
+                .minimumScaleFactor(0.7)
+                .lineLimit(1)
+
+            fittedStaff(notes: [
+                IntervalStaffNote(id: 0, spelling: "C", staffStep: -2, accidentalSymbol: nil),
+                IntervalStaffNote(
+                    id: 1,
+                    spelling: example.spelling,
+                    staffStep: example.staffStep,
+                    accidentalSymbol: example.accidental
+                ),
+            ])
+
+            Text("\(example.degree) · \(example.semitones)")
+                .font(LumenoteFont.caption2(.medium))
+                .foregroundStyle(.secondary)
+                .minimumScaleFactor(0.7)
+                .lineLimit(1)
+
+            Text(example.quality)
+                .font(LumenoteFont.caption2(.bold))
+                .foregroundStyle(example.foreground)
+                .minimumScaleFactor(0.7)
+                .lineLimit(1)
+                .padding(.horizontal, LumenoteSpacing.md)
+                .padding(.vertical, LumenoteSpacing.xs)
+                .background(Capsule(style: .continuous).fill(example.fill))
+        }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, LumenoteSpacing.xxl)
-        .background(
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(example.spelling), \(example.degree), \(example.semitones), \(example.quality)")
+    }
+
+    private var namingRecap: some View {
+        VStack(alignment: .leading, spacing: LumenoteSpacing.xl) {
+            Text("정리")
+                .font(LumenoteFont.subheadline(.bold))
+                .foregroundStyle(.primary)
+            criterionRow(
+                number: "1",
+                title: "도수를 구합니다",
+                detail: "두 음의 음이름으로 몇 도인지 셉니다."
+            )
+            criterionRow(
+                number: "2",
+                title: "성질을 정합니다",
+                detail: "반음 간격으로 장·단·완전·증·감을 정합니다."
+            )
+            Text("성질 이름이 어떻게 이어지는지는 다음 페이지에서 확인할 수 있습니다.")
+                .font(LumenoteFont.caption(.medium))
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(LumenoteSpacing.xl)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .overlay(
             RoundedRectangle(cornerRadius: LumenoteRadius.card, style: .continuous)
-                .fill(fill)
+                .strokeBorder(palette.divider, lineWidth: LumenoteStroke.compact)
+        )
+    }
+
+    private func criterionRow(number: String, title: String, detail: String) -> some View {
+        HStack(alignment: .top, spacing: LumenoteSpacing.xl) {
+            Text(number)
+                .font(LumenoteFont.caption(.bold))
+                .foregroundStyle(.white)
+                .frame(width: 22, height: 22)
+                .background(Circle().fill(palette.fretboardQuizRoot))
+            VStack(alignment: .leading, spacing: LumenoteSpacing.xs) {
+                Text(title)
+                    .font(LumenoteFont.subheadline(.bold))
+                    .foregroundStyle(.primary)
+                Text(detail)
+                    .font(LumenoteFont.caption(.medium))
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .accessibilityElement(children: .combine)
+    }
+
+    private var workedThirdExample: some View {
+        VStack(spacing: LumenoteSpacing.lg) {
+            Text("예시")
+                .font(LumenoteFont.caption(.semibold))
+                .foregroundStyle(.secondary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+            IntervalStaffView(
+                notes: [
+                    IntervalStaffNote(id: 0, spelling: "C", staffStep: -2, accidentalSymbol: nil),
+                    IntervalStaffNote(id: 1, spelling: "E", staffStep: 0, accidentalSymbol: nil),
+                ],
+                staffSpace: 11,
+                lineColor: Color.primary.opacity(0.75),
+                noteColor: palette.fretboardQuizRoot
+            )
+            .frame(maxWidth: .infinity)
+            .accessibilityHidden(true)
+
+            Text("C → E는 3도이고 4반음이므로 장3도입니다.")
+                .font(LumenoteFont.callout(.medium))
+                .foregroundStyle(.primary)
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: .infinity)
+
+            HStack(spacing: LumenoteSpacing.md) {
+                formulaTerm(caption: "도수", value: "3도")
+                Text("+")
+                    .font(LumenoteFont.headline(.bold))
+                    .foregroundStyle(.secondary)
+                formulaTerm(caption: "반음 간격", value: "4반음")
+                Text("=")
+                    .font(LumenoteFont.headline(.bold))
+                    .foregroundStyle(.secondary)
+                Text("장3도")
+                    .font(LumenoteFont.subheadline(.bold))
+                    .foregroundStyle(colors.onBlue)
+                    .padding(.horizontal, LumenoteSpacing.lg)
+                    .padding(.vertical, LumenoteSpacing.md)
+                    .background(Capsule(style: .continuous).fill(colors.major))
+            }
+            .frame(maxWidth: .infinity)
+        }
+        .padding(LumenoteSpacing.xl)
+        .overlay(
+            RoundedRectangle(cornerRadius: LumenoteRadius.card, style: .continuous)
+                .strokeBorder(palette.divider, lineWidth: LumenoteStroke.compact)
         )
         .accessibilityElement(children: .combine)
+        .accessibilityLabel("예시. C에서 E까지는 3도이고 4반음이므로 장3도입니다.")
+    }
+
+    private func formulaTerm(caption: String, value: String) -> some View {
+        VStack(spacing: LumenoteSpacing.xxs) {
+            Text(caption)
+                .font(LumenoteFont.caption2(.medium))
+                .foregroundStyle(.secondary)
+            Text(value)
+                .font(LumenoteFont.subheadline(.bold))
+                .foregroundStyle(.primary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+        }
+    }
+
+    /// Scales a two-note staff to the width offered by the parent column.
+    private func fittedStaff(notes: [IntervalStaffNote]) -> some View {
+        GeometryReader { proxy in
+            let space = max(proxy.size.width, 1) / Self.staffWidthFactor
+            IntervalStaffView(
+                notes: notes,
+                staffSpace: space,
+                lineColor: Color.primary.opacity(0.75),
+                noteColor: palette.fretboardQuizRoot
+            )
+            .frame(width: proxy.size.width, height: proxy.size.height)
+        }
+        .aspectRatio(Self.staffAspect, contentMode: .fit)
+        .accessibilityHidden(true)
     }
 
     private var namingPage: some View {
@@ -411,7 +737,7 @@ struct IntervalQualityGuideView: View {
                 wholeStepDot: wholeStepDot
             )
 
-            Text("E–F, B–C는 자연 반음 구간")
+            Text("임시표가 없는 자연음에서는 E–F와 B–C만 반음이고, 나머지는 온음입니다.")
                 .font(LumenoteFont.caption(.medium))
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
@@ -480,6 +806,20 @@ struct IntervalQualityGuideView: View {
             ? Color(red: 0.55, green: 0.65, blue: 0.82)
             : Color(red: 0.62, green: 0.72, blue: 0.86)
     }
+
+    /// C D E F G A B C. Index matches `DegreeSemitoneRow.noteIndex`.
+    private static let scaleLetters = ["C", "D", "E", "F", "G", "A", "B", "C"]
+
+    /// Semitone size of each step in C major. 1 marks the natural half steps E–F and B–C.
+    private static let stepSemitones = [2, 2, 1, 2, 2, 2, 1]
+
+    private static func stepLabel(_ index: Int) -> String {
+        "\(scaleLetters[index])–\(scaleLetters[index + 1])"
+    }
+
+    /// `IntervalStaffView` content width and height, in staff spaces, for two notes.
+    private static let staffWidthFactor: CGFloat = 9
+    private static let staffAspect: CGFloat = 9 / 8.4
 
     private static let degreeRows: [DegreeSemitoneRow] = [
         .init(name: "완전1도", noteIndex: 0, naturalHalfSteps: 0, semitones: 0),
@@ -662,6 +1002,19 @@ private struct DegreeSemitoneRow: Identifiable {
     let semitones: Int
 
     var id: String { name }
+}
+
+private struct QualityStaffExample: Identifiable {
+    let spelling: String
+    let degree: String
+    let semitones: String
+    let quality: String
+    let staffStep: Int
+    let accidental: String?
+    let fill: Color
+    let foreground: Color
+
+    var id: String { spelling }
 }
 
 /// C major letter row with whole-step and half-step markers between notes.
