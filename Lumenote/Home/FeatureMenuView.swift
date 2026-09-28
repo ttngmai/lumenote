@@ -56,9 +56,9 @@ struct FeatureMenuView: View {
         case .diatonicChordQuiz:
             DiatonicChordQuizDifficultyView()
         case .fretboardNoteNames:
-            FretboardNoteQuizView()
+            FretboardNoteQuizDifficultyView()
         case .fretboardDegrees:
-            FretboardDegreeQuizView()
+            FretboardDegreeQuizDifficultyView()
         case .fretboardExplorer:
             FretboardExplorerView()
         }
