@@ -5,9 +5,8 @@ import SwiftUI
 struct FretboardNoteQuizView: View {
     @Environment(\.appPalette) private var palette
     @Environment(\.verticalSizeClass) private var verticalSizeClass
-    @AppStorage(AppearanceMode.storageKey) private var appearance: AppearanceMode = .system
 
-    @State private var model = FretboardNoteQuizModel()
+    let model: FretboardNoteQuizModel
 
     private var isCompactHeight: Bool {
         verticalSizeClass == .compact
@@ -16,10 +15,11 @@ struct FretboardNoteQuizView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: isCompactHeight ? LumenoteSpacing.md : LumenoteSpacing.section) {
+                progressHeader
                 promptRow
                 fretboardCard
                 if !isCompactHeight, model.hasAnswered {
-                    nextButton(compact: false)
+                    advanceButton(compact: false)
                 }
             }
             .padding(
@@ -33,17 +33,35 @@ struct FretboardNoteQuizView: View {
             .frame(maxWidth: .infinity)
         }
         .scrollIndicators(.hidden)
-        .background(background)
-        .lumenoteCompactHeader(title: "지판 퀴즈 (음이름)", showsBackButton: true) {
-            AppearanceToggleButton(appearance: $appearance)
+    }
+
+    private var progressHeader: some View {
+        HStack(spacing: model.questionLimit > 20 ? 1 : 2) {
+            ForEach(0..<model.questionLimit, id: \.self) { index in
+                RoundedRectangle(cornerRadius: 2, style: .continuous)
+                    .fill(segmentColor(at: index))
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 10)
+            }
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(
+            "\(model.questionLimit)문제 중 \(model.answeredCount)문제, 맞힌 \(model.correctCount)개, 틀린 \(model.incorrectCount)개"
+        )
+    }
+
+    private func segmentColor(at index: Int) -> Color {
+        guard index < model.outcomes.count else {
+            return Color.primary.opacity(0.12)
+        }
+        return model.outcomes[index] ? palette.quizCorrect : palette.quizIncorrect
     }
 
     private var promptRow: some View {
         ZStack {
             promptCard
             if isCompactHeight, model.hasAnswered {
-                nextButton(compact: true)
+                advanceButton(compact: true)
                     .frame(maxWidth: .infinity, alignment: .trailing)
             }
         }
@@ -106,11 +124,16 @@ struct FretboardNoteQuizView: View {
         )
     }
 
-    private func nextButton(compact: Bool) -> some View {
-        Button {
-            model.nextQuestion()
+    private func advanceButton(compact: Bool) -> some View {
+        let showsResult = model.isOnFinalAnswer
+        return Button {
+            if showsResult {
+                model.finish()
+            } else {
+                model.nextQuestion()
+            }
         } label: {
-            Text("다음 문제")
+            Text(showsResult ? "결과 보기" : "다음 문제")
                 .font(LumenoteFont.body(.bold))
                 .foregroundStyle(.white)
                 .padding(.horizontal, compact ? LumenoteSpacing.xxxl : 0)
@@ -122,22 +145,13 @@ struct FretboardNoteQuizView: View {
                 )
         }
         .buttonStyle(.plain)
-        .accessibilityHint("다음 문제로 넘어가려면 두 번 탭하세요")
-    }
-
-    private var background: some View {
-        LinearGradient(
-            colors: palette.backgroundColors,
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
-        )
-        .ignoresSafeArea()
+        .accessibilityHint(showsResult ? "결과를 보려면 두 번 탭하세요" : "다음 문제로 넘어가려면 두 번 탭하세요")
     }
 }
 
 #Preview {
     NavigationStack {
-        FretboardNoteQuizView()
+        FretboardNoteQuizDifficultyView()
     }
     .lumenotePalette()
 }
