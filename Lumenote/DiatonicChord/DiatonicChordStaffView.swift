@@ -13,6 +13,10 @@ struct DiatonicChordStaffView: View {
     let highlightColor: Color
     let dimmedNoteColor: Color
     let highlightFill: Color
+    /// Notes shown from the root upward in each column. `nil` shows every tone.
+    var revealedToneCounts: [Int]? = nil
+    /// Column indexes whose roman numeral and chord symbol are shown. `nil` shows every label.
+    var labeledDegreeIndexes: Set<Int>? = nil
 
     private var staffHeight: CGFloat { staffSpace * 4 }
     private var clefWidth: CGFloat { staffSpace * 2.6 }
@@ -49,9 +53,13 @@ struct DiatonicChordStaffView: View {
                 clef
 
                 ForEach(columns) { column in
-                    ForEach(column.notes) { note in
+                    let revealed = revealedCount(for: column.chord.degree, noteCount: column.notes.count)
+                    ForEach(Array(column.notes.enumerated()), id: \.element.id) { toneIndex, note in
+                        let isRevealed = toneIndex < revealed
                         ledgerLines(for: note, in: column.chord.degree)
-                        notehead(for: note, degree: column.chord.degree)
+                            .opacity(isRevealed ? 1 : 0)
+                            .animation(.easeOut(duration: 0.22), value: isRevealed)
+                        notehead(for: note, degree: column.chord.degree, isRevealed: isRevealed)
                     }
                 }
             }
@@ -118,24 +126,29 @@ struct DiatonicChordStaffView: View {
             .position(x: clefWidth / 2, y: verticalPad + staffHeight / 2)
     }
 
-    private func notehead(for note: IntervalStaffNote, degree: DiatonicDegree) -> some View {
+    private func notehead(for note: IntervalStaffNote, degree: DiatonicDegree, isRevealed: Bool) -> some View {
         let x = chordX(for: degree.rawValue)
         let y = y(forStaffStep: note.staffStep)
         let color = noteColor(for: degree)
+        let drop = isRevealed ? 0 : -staffSpace * 0.85
 
         return ZStack {
             if let accidental = note.accidentalSymbol {
                 Text(accidental)
                     .font(.system(size: staffSpace * 1.85, weight: .semibold))
                     .foregroundStyle(color)
-                    .position(x: x - accidentalPad, y: y)
+                    .opacity(isRevealed ? 1 : 0)
+                    .position(x: x - accidentalPad, y: y + drop)
+                    .animation(.easeOut(duration: 0.26), value: isRevealed)
             }
 
             Ellipse()
                 .fill(color)
                 .frame(width: staffSpace * 1.25, height: staffSpace * 0.88)
                 .rotationEffect(.degrees(-20))
-                .position(x: x, y: y)
+                .opacity(isRevealed ? 1 : 0)
+                .position(x: x, y: y + drop)
+                .animation(.easeOut(duration: 0.26), value: isRevealed)
         }
         .frame(width: contentWidth, height: staffCanvasHeight)
     }
@@ -167,6 +180,7 @@ struct DiatonicChordStaffView: View {
         ZStack(alignment: .topLeading) {
             ForEach(Array(columns.enumerated()), id: \.element.id) { index, column in
                 let highlighted = highlightedDegree == column.chord.degree
+                let showsLabel = labeledDegreeIndexes?.contains(index) ?? true
                 let color: Color = {
                     if highlightedDegree == nil { return .primary }
                     return highlighted ? highlightColor : .secondary
@@ -183,6 +197,8 @@ struct DiatonicChordStaffView: View {
                 .minimumScaleFactor(0.55)
                 .frame(width: columnSpacing * 0.95)
                 .position(x: chordX(for: index), y: labelBlockHeight / 2)
+                .opacity(showsLabel ? 1 : 0)
+                .animation(.easeOut(duration: 0.22), value: showsLabel)
             }
         }
         .frame(width: contentWidth, height: labelBlockHeight)
@@ -190,6 +206,13 @@ struct DiatonicChordStaffView: View {
     }
 
     // MARK: - Geometry
+
+    private func revealedCount(for degree: DiatonicDegree, noteCount: Int) -> Int {
+        guard let revealedToneCounts, revealedToneCounts.indices.contains(degree.rawValue) else {
+            return noteCount
+        }
+        return min(noteCount, max(0, revealedToneCounts[degree.rawValue]))
+    }
 
     private func chordX(for index: Int) -> CGFloat {
         clefWidth + leadingPad + accidentalPad + columnSpacing * CGFloat(index)
