@@ -9,6 +9,13 @@ struct KeySignatureStaffView: View {
     /// Distance between two adjacent staff lines.
     let staffSpace: CGFloat
     let lineColor: Color
+    /// Fades accidentals in without moving the staff. `1` draws them normally.
+    var accidentalOpacity: Double = 1
+    /// When set, only accidentals up to this writing-order index are drawn.
+    /// That latest accidental uses `newestOpacity` and `newestColor`.
+    var newestOrder: Int? = nil
+    var newestOpacity: Double = 1
+    var newestColor: Color? = nil
 
     /// Always reserve seven accidental slots so sharp/flat keys don't resize the staff.
     private let accidentalSlotCount = 7
@@ -26,10 +33,11 @@ struct KeySignatureStaffView: View {
             staffLines
             clef
 
-            ForEach(accidentals) { accidental in
+            ForEach(drawnAccidentals) { accidental in
                 Text(accidental.symbol)
                     .font(.system(size: staffSpace * 2.1, weight: .semibold))
-                    .foregroundStyle(lineColor)
+                    .foregroundStyle(color(for: accidental))
+                    .opacity(opacity(for: accidental))
                     .fixedSize()
                     .position(
                         x: clefWidth + (CGFloat(accidental.order) + 0.5) * accidentalSpacing,
@@ -64,6 +72,25 @@ struct KeySignatureStaffView: View {
             .foregroundStyle(lineColor)
             .frame(width: clefWidth, height: staffSpace * 7)
             .position(x: clefWidth / 2, y: staffHeight / 2)
+    }
+
+    private var drawnAccidentals: [CircleOfFifthsModel.KeySignatureAccidental] {
+        guard let newestOrder else { return accidentals }
+        return accidentals.filter { $0.order <= newestOrder }
+    }
+
+    private func color(for accidental: CircleOfFifthsModel.KeySignatureAccidental) -> Color {
+        if accidental.order == newestOrder, let newestColor {
+            return newestColor
+        }
+        return lineColor
+    }
+
+    private func opacity(for accidental: CircleOfFifthsModel.KeySignatureAccidental) -> Double {
+        if accidental.order == newestOrder {
+            return newestOpacity
+        }
+        return accidentalOpacity
     }
 
     /// Bottom staff line is step 0; each step is half a staff space.

@@ -9,6 +9,7 @@ struct CircleOfFifthsView: View {
     @State private var model = CircleOfFifthsModel()
     @State private var isTonicExpanded = false
     @State private var isAccidentalOrderExpanded = false
+    @State private var showsGuide = false
 
     var body: some View {
         GeometryReader { geo in
@@ -43,7 +44,25 @@ struct CircleOfFifthsView: View {
         }
         .background(background)
         .lumenoteCompactHeader(title: "5도권", showsBackButton: true) {
-            AppearanceToggleButton(appearance: $appearance)
+            HStack(spacing: LumenoteSpacing.sm) {
+                Button {
+                    showsGuide = true
+                } label: {
+                    Image(systemName: "info")
+                        .font(LumenoteFont.rounded(size: 15, weight: .bold))
+                        .foregroundStyle(.primary)
+                        .frame(width: 34, height: 34)
+                        .background(Circle().fill(palette.cardBackground))
+                        .overlay(Circle().strokeBorder(palette.cardBorder, lineWidth: LumenoteStroke.compact))
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("5도권 안내")
+
+                AppearanceToggleButton(appearance: $appearance)
+            }
+        }
+        .sheet(isPresented: $showsGuide) {
+            CircleOfFifthsGuideView()
         }
     }
 
