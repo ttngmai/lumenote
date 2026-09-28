@@ -138,7 +138,6 @@ struct IntervalQualityGuideView: View {
                     idleForeground: idleNoteForeground,
                     rootFill: palette.fretboardQuizRoot,
                     halfStep: palette.major,
-                    wholeStepDot: wholeStepDot,
                     spanEndIndex: degree.noteIndex
                 )
 
@@ -292,15 +291,10 @@ struct IntervalQualityGuideView: View {
                 .font(LumenoteFont.rounded(size: 18, weight: .bold))
                 .foregroundStyle(palette.quizCorrect)
                 .accessibilityHidden(true)
-            VStack(alignment: .leading, spacing: LumenoteSpacing.xs) {
-                Text("결과")
-                    .font(LumenoteFont.caption(.bold))
-                    .foregroundStyle(palette.quizCorrect)
-                Text("C에서 \(target)까지, 음이름을 세면 \(degreeNumber)도이고 전체 간격은 \(degree.semitones)반음이므로 \(degree.name)입니다.")
-                    .font(LumenoteFont.callout(.medium))
-                    .foregroundStyle(.primary)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
+            Text("C에서 \(target)까지, 음이름을 세면 \(degreeNumber)도이고 전체 간격은 \(degree.semitones)반음이므로 \(degree.name)입니다.")
+                .font(LumenoteFont.callout(.medium))
+                .foregroundStyle(.primary)
+                .fixedSize(horizontal: false, vertical: true)
         }
         .padding(LumenoteSpacing.xl)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -579,7 +573,7 @@ struct IntervalQualityGuideView: View {
                 ],
                 staffSpace: 11,
                 lineColor: Color.primary.opacity(0.75),
-                noteColor: palette.fretboardQuizRoot
+                noteColor: Color.primary
             )
             .frame(maxWidth: .infinity)
             .accessibilityHidden(true)
@@ -639,7 +633,7 @@ struct IntervalQualityGuideView: View {
                 notes: notes,
                 staffSpace: space,
                 lineColor: Color.primary.opacity(0.75),
-                noteColor: palette.fretboardQuizRoot
+                noteColor: Color.primary
             )
             .frame(width: proxy.size.width, height: proxy.size.height)
         }
@@ -733,8 +727,7 @@ struct IntervalQualityGuideView: View {
                 idleFill: idleNoteFill,
                 idleForeground: idleNoteForeground,
                 rootFill: palette.fretboardQuizRoot,
-                halfStep: palette.major,
-                wholeStepDot: wholeStepDot
+                halfStep: palette.major
             )
 
             Text("임시표가 없는 자연음에서는 E–F와 B–C만 반음이고, 나머지는 온음입니다.")
@@ -799,12 +792,6 @@ struct IntervalQualityGuideView: View {
         colorScheme == .dark
             ? Color(red: 0.72, green: 0.80, blue: 0.93)
             : Color(red: 0.32, green: 0.46, blue: 0.72)
-    }
-
-    private var wholeStepDot: Color {
-        colorScheme == .dark
-            ? Color(red: 0.55, green: 0.65, blue: 0.82)
-            : Color(red: 0.62, green: 0.72, blue: 0.86)
     }
 
     /// C D E F G A B C. Index matches `DegreeSemitoneRow.noteIndex`.
@@ -1017,66 +1004,55 @@ private struct QualityStaffExample: Identifiable {
     var id: String { spelling }
 }
 
-/// C major letter row with whole-step and half-step markers between notes.
+/// C major letter circles with whole-step brackets and half-step chevrons between notes.
 private struct NaturalScaleDiagram: View {
     let idleFill: Color
     let idleForeground: Color
     let rootFill: Color
     let halfStep: Color
-    let wholeStepDot: Color
-    /// Last scale degree included in the span. `nil` marks only the starting C and shows every step.
+    /// Last scale degree included in the span. `nil` shows the full octave and every step.
     var spanEndIndex: Int? = nil
 
     private let notes = ["C", "D", "E", "F", "G", "A", "B", "C"]
     private let halfStepIndexes: Set<Int> = [2, 6]
-    private let spacing: CGFloat = 5
-    private let tileHeight: CGFloat = 40
+    private let maxDiameter: CGFloat = 44
+    private let markHeight: CGFloat = 14
+    private let labelHeight: CGFloat = 16
 
     var body: some View {
         GeometryReader { proxy in
-            let noteWidth = max(0, (proxy.size.width - spacing * 7) / 8)
-            VStack(spacing: LumenoteSpacing.sm) {
-                ZStack {
-                    HStack(spacing: spacing) {
-                        ForEach(notes.indices, id: \.self) { index in
-                            noteTile(notes[index], isEndpoint: highlightedIndexes.contains(index))
-                                .opacity(isNoteDimmed(index) ? 0.28 : 1)
-                                .frame(width: noteWidth, height: tileHeight)
-                        }
-                    }
+            let gap = min(12, max(4, proxy.size.width * 0.03))
+            let diameter = min(maxDiameter, max(0, (proxy.size.width - gap * 7) / 8))
+            let rowWidth = diameter * 8 + gap * 7
 
-                    ForEach(0..<7, id: \.self) { index in
-                        Circle()
-                            .fill(halfStepIndexes.contains(index) ? halfStep : wholeStepDot)
-                            .frame(width: 4, height: 4)
-                            .opacity(isStepDimmed(index) ? 0.28 : 1)
-                            .position(
-                                x: CGFloat(index + 1) * noteWidth + CGFloat(index) * spacing + spacing / 2,
-                                y: tileHeight / 2
-                            )
+            VStack(spacing: LumenoteSpacing.md) {
+                HStack(spacing: gap) {
+                    ForEach(notes.indices, id: \.self) { index in
+                        noteTile(notes[index], isEndpoint: highlightedIndexes.contains(index))
+                            .opacity(isNoteDimmed(index) ? 0.28 : 1)
+                            .frame(width: diameter, height: diameter)
                     }
                 }
-                .frame(width: proxy.size.width, height: tileHeight)
+                .frame(width: rowWidth)
 
-                HStack(spacing: spacing) {
+                HStack(spacing: 0) {
                     ForEach(0..<7, id: \.self) { index in
-                        Text(halfStepIndexes.contains(index) ? "반" : "온")
-                            .font(LumenoteFont.caption(.bold))
-                            .foregroundStyle(halfStepIndexes.contains(index) ? halfStep : Color.primary)
+                        intervalMarker(isHalfStep: halfStepIndexes.contains(index))
                             .opacity(isStepDimmed(index) ? 0.28 : 1)
                             .frame(maxWidth: .infinity)
                     }
                 }
-                .padding(.horizontal, noteWidth / 2 + spacing / 2)
+                .frame(width: max(0, rowWidth - diameter))
             }
+            .frame(width: proxy.size.width, alignment: .center)
         }
-        .frame(height: tileHeight + LumenoteSpacing.sm + 18)
+        .frame(height: maxDiameter + LumenoteSpacing.md + markHeight + LumenoteSpacing.xxs + labelHeight)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(accessibilityLabelText)
     }
 
     private var highlightedIndexes: Set<Int> {
-        guard let spanEndIndex else { return [0] }
+        guard let spanEndIndex else { return [0, notes.count - 1] }
         return [0, spanEndIndex]
     }
 
@@ -1102,14 +1078,63 @@ private struct NaturalScaleDiagram: View {
     private func noteTile(_ name: String, isEndpoint: Bool) -> some View {
         Text(name)
             .font(LumenoteFont.rounded(size: 16, weight: .bold))
-            .minimumScaleFactor(0.6)
+            .minimumScaleFactor(0.5)
             .lineLimit(1)
             .foregroundStyle(isEndpoint ? Color.white : idleForeground)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(
-                RoundedRectangle(cornerRadius: LumenoteRadius.card, style: .continuous)
-                    .fill(isEndpoint ? rootFill : idleFill)
-            )
+            .background(Circle().fill(isEndpoint ? rootFill : idleFill))
+    }
+
+    private func intervalMarker(isHalfStep: Bool) -> some View {
+        let color = isHalfStep ? halfStep : Color.primary
+        return VStack(spacing: LumenoteSpacing.xxs) {
+            Group {
+                if isHalfStep {
+                    HalfStepChevron()
+                        .stroke(color, style: StrokeStyle(lineWidth: 1.6, lineCap: .round, lineJoin: .round))
+                } else {
+                    WholeStepBracket()
+                        .stroke(color, style: StrokeStyle(lineWidth: 1.6, lineCap: .round, lineJoin: .round))
+                }
+            }
+            .frame(maxWidth: isHalfStep ? 16 : 26)
+            .frame(height: markHeight)
+            .frame(maxWidth: .infinity)
+
+            Text(isHalfStep ? "반음" : "온음")
+                .font(LumenoteFont.caption2(.bold))
+                .foregroundStyle(color)
+                .minimumScaleFactor(0.5)
+                .lineLimit(1)
+                .frame(height: labelHeight)
+        }
+    }
+}
+
+/// Staple open at the top, marking a whole step between two letter names.
+private struct WholeStepBracket: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        let bottom = rect.maxY - 1
+        let leg = min(rect.height * 0.62, 9)
+        path.move(to: CGPoint(x: rect.minX, y: bottom - leg))
+        path.addLine(to: CGPoint(x: rect.minX, y: bottom))
+        path.addLine(to: CGPoint(x: rect.maxX, y: bottom))
+        path.addLine(to: CGPoint(x: rect.maxX, y: bottom - leg))
+        return path
+    }
+}
+
+/// Downward chevron marking a half step between two letter names.
+private struct HalfStepChevron: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        let top = rect.minY + 1
+        let bottom = rect.maxY - 1
+        path.move(to: CGPoint(x: rect.minX, y: top))
+        path.addLine(to: CGPoint(x: rect.midX, y: bottom))
+        path.addLine(to: CGPoint(x: rect.maxX, y: top))
+        return path
     }
 }
 
