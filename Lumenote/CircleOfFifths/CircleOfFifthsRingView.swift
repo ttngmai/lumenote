@@ -6,6 +6,12 @@ struct CircleOfFifthsRingView: View {
     @Bindable var model: CircleOfFifthsModel
     /// When true, layout is a landscape column: only the top is reserved for interval labels.
     var placesLegendBeside: Bool = false
+    /// Guide pages show the same ring without drag or tap, so paging stays available.
+    var isInteractive: Bool = true
+    /// Optional washes over the white wedges. Nil keeps the plain ring on the main screen.
+    var signatureTint: Color? = nil
+    var noteTint: Color? = nil
+    var relativeTint: Color? = nil
 
     @Environment(\.appPalette) private var palette
 
@@ -93,7 +99,15 @@ struct CircleOfFifthsRingView: View {
                 .position(x: ringOriginX + size / 2, y: ringOriginY + size / 2)
                 .frame(width: geo.size.width, height: geo.size.height)
         }
-        .accessibilityHint("칸을 탭하면 그 음이 1도가 됩니다. 원을 드래그하면 시계 방향은 5도 상행 (4도 하행), 반시계 방향은 4도 상행 (5도 하행)입니다.")
+        .accessibilityHint(ringAccessibilityHint)
+    }
+
+    private var ringAccessibilityHint: String {
+        if isInteractive {
+            "칸을 탭하면 그 음이 1도가 됩니다. 원을 드래그하면 시계 방향은 5도 상행 (4도 하행), 반시계 방향은 4도 상행 (5도 하행)입니다."
+        } else {
+            "C 장조가 위에 있는 5도권입니다. 바깥쪽은 장조, 안쪽은 관계단조입니다."
+        }
     }
 
     /// Fixed-size ring (drawing + gesture). Used by both portrait and landscape layouts.
@@ -109,6 +123,9 @@ struct CircleOfFifthsRingView: View {
             // Raised 12 o'clock wedge drawn above neighbors with a drop shadow.
             RaisedTonicWedgeView(
                 noteColor: wedgeFill,
+                signatureTint: signatureTint,
+                noteTint: noteTint,
+                relativeTint: relativeTint,
                 ringStroke: ringStroke,
                 signatureOuterRatio: signatureOuterRatio,
                 outerRadiusRatio: outerRadiusRatio,
@@ -143,15 +160,16 @@ struct CircleOfFifthsRingView: View {
         }
         .frame(width: size, height: size)
         .animation(.easeInOut(duration: 0.2), value: model.emphasizedClockPositions)
-        .contentShape(Circle().scale(1.12))
-        .gesture(rotationDragGesture(center: localCenter))
-        .simultaneousGesture(wedgeTapGesture(center: localCenter, size: size))
         .onAppear {
             ringRotationDegrees = canonicalRotationDegrees(for: model.tonicArrowPosition)
         }
+        .modifier(RingInteraction(
+            isEnabled: isInteractive,
+            drag: rotationDragGesture(center: localCenter),
+            tap: wedgeTapGesture(center: localCenter, size: size)
+        ))
         .onChange(of: model.selectedTonic) { _, _ in
-            // Picker / external tonic changes: take the shortest arc (fixes C ↔ F spin).
-            guard dragStartAngle == nil else { return }
+            guard isInteractive, dragStartAngle == nil else { return }
             withAnimation(.spring(response: 0.45, dampingFraction: 0.82)) {
                 ringRotationDegrees += shortestRotationDelta(
                     from: ringRotationDegrees,
@@ -160,12 +178,12 @@ struct CircleOfFifthsRingView: View {
             }
         }
         .animation(
-            dragStartAngle == nil
+            isInteractive && dragStartAngle == nil
                 ? .spring(response: 0.45, dampingFraction: 0.82)
                 : nil,
             value: model.selectedMode
         )
-        .accessibilityHint("칸을 탭하면 그 음이 1도가 됩니다. 원을 드래그하면 시계 방향은 5도 상행 (4도 하행), 반시계 방향은 4도 상행 (5도 하행)입니다.")
+        .accessibilityHint(ringAccessibilityHint)
     }
 
     /// Diameter limited by width and by height after label margins.
@@ -181,34 +199,29 @@ struct CircleOfFifthsRingView: View {
 
         // Outer → inner: signature, note, degree. Skip position 12; raised overlay redraws it.
         for position in 1...12 where position != 12 {
-            fillSector(
+            fillBand(
                 context: context,
                 center: center,
                 inner: radii.signatureInner,
                 outer: radii.signatureOuter,
                 clockPosition: position,
-                color: wedgeFill,
-                angularPad: 0
+                tint: signatureTint
             )
-
-            fillSector(
+            fillBand(
                 context: context,
                 center: center,
                 inner: radii.noteInner,
                 outer: radii.noteOuter,
                 clockPosition: position,
-                color: wedgeFill,
-                angularPad: 0
+                tint: noteTint
             )
-
-            fillSector(
+            fillBand(
                 context: context,
                 center: center,
                 inner: radii.degreeInner,
                 outer: radii.degreeOuter,
                 clockPosition: position,
-                color: wedgeFill,
-                angularPad: 0
+                tint: relativeTint
             )
         }
 
@@ -269,6 +282,37 @@ struct CircleOfFifthsRingView: View {
                 color: emphasisStroke,
                 lineWidth: emphasisLineWidth,
                 angularPad: -angularInsetDegrees
+            )
+        }
+    }
+
+    /// White wedge, then a light wash of an existing accent so dark note names stay readable.
+    private func fillBand(
+        context: GraphicsContext,
+        center: CGPoint,
+        inner: CGFloat,
+        outer: CGFloat,
+        clockPosition: Int,
+        tint: Color?
+    ) {
+        fillSector(
+            context: context,
+            center: center,
+            inner: inner,
+            outer: outer,
+            clockPosition: clockPosition,
+            color: wedgeFill,
+            angularPad: 0
+        )
+        if let tint {
+            fillSector(
+                context: context,
+                center: center,
+                inner: inner,
+                outer: outer,
+                clockPosition: clockPosition,
+                color: tint.opacity(GuideBandWash.opacity),
+                angularPad: 0
             )
         }
     }
@@ -691,10 +735,18 @@ struct CircleOfFifthsRingView: View {
     }
 }
 
+/// Light wash of an existing accent over the white wedges. Dark note names stay readable.
+private enum GuideBandWash {
+    static let opacity = 0.34
+}
+
 // MARK: - Raised tonic wedge
 
-private struct RaisedTonicWedgeView: View {
+struct RaisedTonicWedgeView: View {
     let noteColor: Color
+    var signatureTint: Color? = nil
+    var noteTint: Color? = nil
+    var relativeTint: Color? = nil
     let ringStroke: Color
     let signatureOuterRatio: CGFloat
     let outerRadiusRatio: CGFloat
@@ -723,23 +775,26 @@ private struct RaisedTonicWedgeView: View {
                 .offset(y: size * 0.01)
                 .blur(radius: size * 0.014)
 
-                // Outer → inner: signature, note, degree (degree shares note color).
+                // Outer → inner: signature, note, relative minor.
                 band(
                     innerRatio: outerRadiusRatio * raisedScale,
                     outerRatio: signatureOuterRatio * raisedScale,
                     fill: noteColor,
+                    tint: signatureTint,
                     strokeWidth: 1.6
                 )
                 band(
                     innerRatio: degreeOuterRatio * raisedScale,
                     outerRatio: outerRadiusRatio * raisedScale,
                     fill: noteColor,
+                    tint: noteTint,
                     strokeWidth: 1.6
                 )
                 band(
                     innerRatio: degreeInnerRatio * raisedScale,
                     outerRatio: degreeOuterRatio * raisedScale,
                     fill: noteColor,
+                    tint: relativeTint,
                     strokeWidth: 1.1
                 )
 
@@ -780,6 +835,7 @@ private struct RaisedTonicWedgeView: View {
         innerRatio: CGFloat,
         outerRatio: CGFloat,
         fill: Color,
+        tint: Color?,
         strokeWidth: CGFloat
     ) -> some View {
         let shape = AnnularSector(
@@ -790,6 +846,11 @@ private struct RaisedTonicWedgeView: View {
         )
         return shape
             .fill(fill)
+            .overlay {
+                if let tint {
+                    shape.fill(tint.opacity(GuideBandWash.opacity))
+                }
+            }
             .overlay(shape.stroke(ringStroke, lineWidth: strokeWidth))
     }
 }
@@ -827,6 +888,25 @@ private struct AnnularSector: Shape {
         )
         path.closeSubpath()
         return path
+    }
+}
+
+/// Drag and tap on the live circle. The guide illustration leaves both off.
+private struct RingInteraction<Drag: Gesture, Tap: Gesture>: ViewModifier {
+    var isEnabled: Bool
+    var drag: Drag
+    var tap: Tap
+
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        if isEnabled {
+            content
+                .contentShape(Circle().scale(1.12))
+                .gesture(drag)
+                .simultaneousGesture(tap)
+        } else {
+            content.allowsHitTesting(false)
+        }
     }
 }
 
