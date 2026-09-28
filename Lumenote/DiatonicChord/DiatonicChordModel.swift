@@ -2,7 +2,7 @@
 
 import Foundation
 
-/// Lesson state: tonic + scale kind + triad/7th voicing → spelled diatonic chords.
+/// Spells diatonic chords from a tonic, scale kind, and triad/7th voicing.
 @Observable
 final class DiatonicChordModel {
     var tonicSpelling: String = "C" {
@@ -15,10 +15,6 @@ final class DiatonicChordModel {
 
     var kind: ScaleKind = .major
     var voicing: DiatonicVoicing = .triad
-    /// Scale-degree button currently lighting a chord on the construction staff.
-    var highlightedDegree: DiatonicDegree?
-    /// Degree whose function lesson is shown in the role card.
-    var selectedRoleDegree: DiatonicDegree = .i
 
     // MARK: - Derived
 
@@ -43,23 +39,19 @@ final class DiatonicChordModel {
         Self.chords(tonic: tonicSpelling, kind: kind, voicing: voicing)
     }
 
-    var selectedRole: DiatonicDegreeRole? {
-        Self.roles.first { $0.degree == selectedRoleDegree }
-    }
-
-    func toggleHighlightedDegree(_ degree: DiatonicDegree) {
-        if highlightedDegree == degree {
-            highlightedDegree = nil
-        } else {
-            highlightedDegree = degree
-        }
-    }
-
     /// Root-position staff columns for the seven live diatonic chords, sharing one octave register.
     var staffColumns: [DiatonicStaffColumn] {
-        let chords = self.chords
+        Self.staffColumns(tonic: tonicSpelling, kind: kind, voicing: voicing)
+    }
+
+    static func staffColumns(
+        tonic: String,
+        kind: ScaleKind,
+        voicing: DiatonicVoicing
+    ) -> [DiatonicStaffColumn] {
+        let chords = chords(tonic: tonic, kind: kind, voicing: voicing)
         guard
-            let tonicLetter = Self.letterIndex(of: tonicSpelling),
+            let tonicLetter = letterIndex(of: tonic),
             chords.count == DiatonicDegree.allCases.count
         else { return [] }
 
@@ -74,7 +66,7 @@ final class DiatonicChordModel {
                     id: chord.degree.rawValue * 10 + index,
                     spelling: spelling,
                     staffStep: rootStep + offset,
-                    accidentalSymbol: Self.accidentalSymbol(for: spelling)
+                    accidentalSymbol: accidentalSymbol(for: spelling)
                 )
             }
             return DiatonicStaffColumn(chord: chord, notes: notes)
@@ -231,7 +223,7 @@ final class DiatonicChordModel {
 
 // MARK: - Voicing
 
-enum DiatonicVoicing: String, CaseIterable, Identifiable {
+enum DiatonicVoicing: String, CaseIterable, Identifiable, Equatable {
     case triad
     case seventh
 
@@ -261,7 +253,7 @@ enum DiatonicVoicing: String, CaseIterable, Identifiable {
 
 // MARK: - Degree & function
 
-enum DiatonicDegree: Int, CaseIterable, Identifiable {
+enum DiatonicDegree: Int, CaseIterable, Identifiable, Equatable {
     case i, ii, iii, iv, v, vi, vii
 
     var id: Int { rawValue }
@@ -292,49 +284,6 @@ enum HarmonicFunction: String {
     case tonic
     case subdominant
     case dominant
-
-    var englishTitle: String {
-        switch self {
-        case .tonic: "Tonic"
-        case .subdominant: "Subdominant"
-        case .dominant: "Dominant"
-        }
-    }
-}
-
-enum HarmonicMotionStep: String, CaseIterable, Identifiable {
-    case rest
-    case depart
-    case tension
-    case resolve
-
-    var id: String { rawValue }
-
-    var function: HarmonicFunction {
-        switch self {
-        case .rest, .resolve: .tonic
-        case .depart: .subdominant
-        case .tension: .dominant
-        }
-    }
-
-    var title: String {
-        switch self {
-        case .rest: "안정"
-        case .depart: "전개"
-        case .tension: "긴장"
-        case .resolve: "해결"
-        }
-    }
-
-    var romans: String {
-        switch self {
-        case .rest: "I · iii · vi"
-        case .depart: "ii · IV"
-        case .tension: "V · vii°"
-        case .resolve: "I"
-        }
-    }
 }
 
 // MARK: - Quality & entries
@@ -451,6 +400,62 @@ struct DiatonicChordEntry: Identifiable, Equatable {
 
     var toneDisplayNames: [String] {
         toneSpellings.map(ScaleModel.formatNoteName)
+    }
+}
+
+/// One diatonic-chord card. The screen shows up to `maximumCount` cards for comparison.
+struct DiatonicChordCard: Identifiable, Equatable {
+    static let maximumCount = 4
+
+    let id: UUID
+    var tonicSpelling: String
+    var kind: ScaleKind
+    var voicing: DiatonicVoicing
+    /// Scale-degree button currently lighting a chord on this card's staff.
+    var highlightedDegree: DiatonicDegree?
+
+    init(
+        id: UUID = UUID(),
+        tonicSpelling: String = "C",
+        kind: ScaleKind = .major,
+        voicing: DiatonicVoicing = .triad,
+        highlightedDegree: DiatonicDegree? = nil
+    ) {
+        self.id = id
+        self.tonicSpelling = ScaleModel.isKnownSpelling(tonicSpelling) ? tonicSpelling : "C"
+        self.kind = kind
+        self.voicing = voicing
+        self.highlightedDegree = highlightedDegree
+    }
+
+    var tonicDisplayName: String {
+        ScaleModel.formatNoteName(tonicSpelling)
+    }
+
+    var scaleNoteDisplayNames: [String] {
+        Array(ScaleModel.spellings(tonic: tonicSpelling, kind: kind).dropLast())
+            .map(ScaleModel.formatNoteName)
+    }
+
+    var staffColumns: [DiatonicStaffColumn] {
+        DiatonicChordModel.staffColumns(tonic: tonicSpelling, kind: kind, voicing: voicing)
+    }
+
+    /// Same tonic and voicing, next scale kind. Used when the user adds another card.
+    func addingNextKind() -> DiatonicChordCard {
+        let kinds = ScaleKind.allCases
+        let index = kinds.firstIndex(of: kind) ?? 0
+        let next = kinds[(index + 1) % kinds.count]
+        return DiatonicChordCard(tonicSpelling: tonicSpelling, kind: next, voicing: voicing)
+    }
+
+    mutating func setTonic(_ spelling: String) {
+        guard ScaleModel.isKnownSpelling(spelling) else { return }
+        tonicSpelling = spelling
+    }
+
+    mutating func toggleHighlightedDegree(_ degree: DiatonicDegree) {
+        highlightedDegree = highlightedDegree == degree ? nil : degree
     }
 }
 

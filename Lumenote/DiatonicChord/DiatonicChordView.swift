@@ -2,19 +2,26 @@
 
 import SwiftUI
 
-/// Textbook-style diatonic-chord lesson: construction and harmonic function.
 struct DiatonicChordView: View {
     @Environment(\.appPalette) private var palette
     @AppStorage(AppearanceMode.storageKey) private var appearance: AppearanceMode = .system
 
-    @State private var model = DiatonicChordModel()
-    @State private var activePicker: PickerTarget?
+    @State private var cards: [DiatonicChordCard] = [DiatonicChordCard()]
+    @State private var activePicker: ActivePicker?
     @State private var tonicStripScrollPosition: String?
     @State private var kindStripScrollPosition: String?
+    @State private var scrollTarget: DiatonicChordCard.ID?
+    @State private var reorderingCardID: DiatonicChordCard.ID?
+    @State private var showsGuide = false
 
-    private enum PickerTarget: Equatable {
-        case tonic
-        case kind
+    private struct ActivePicker: Equatable {
+        enum Field: Equatable {
+            case tonic
+            case kind
+        }
+
+        let cardID: DiatonicChordCard.ID
+        let field: Field
     }
 
     private let noteChipWidth: CGFloat = 64
@@ -23,42 +30,51 @@ struct DiatonicChordView: View {
     var body: some View {
         GeometryReader { geo in
             VStack(spacing: 0) {
-                ScrollView {
-                    VStack(alignment: .leading, spacing: LumenoteSpacing.section) {
-                        constructionCard(
-                            availableWidth: geo.size.width - LumenoteSpacing.popupInset * 2
-                        )
-
-                        functionFlowCard
-                            .overlay {
-                                if activePicker != nil { dismissTapLayer }
+                ScrollViewReader { proxy in
+                    ScrollView {
+                        VStack(spacing: LumenoteSpacing.section) {
+                            ForEach(cards) { card in
+                                staffCard(
+                                    card,
+                                    availableWidth: geo.size.width - LumenoteSpacing.popupInset * 2
+                                )
+                                .fixedSize(horizontal: false, vertical: true)
+                                .id(card.id)
                             }
 
-                        rolesSection
-                            .overlay {
-                                if activePicker != nil { dismissTapLayer }
+                            if cards.count < DiatonicChordCard.maximumCount {
+                                addCardButton
                             }
 
-                        dismissTapLayer
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                            .layoutPriority(-1)
-                            .allowsHitTesting(activePicker != nil)
-                    }
-                    .padding(.horizontal, LumenoteSpacing.popupInset)
-                    .padding(.vertical, LumenoteSpacing.xxxl)
-                    .animation(.easeOut(duration: 0.2), value: model.tonicSpelling)
-                    .animation(.easeOut(duration: 0.2), value: model.kind)
-                    .animation(.easeOut(duration: 0.2), value: model.voicing)
-                    .animation(.easeOut(duration: 0.2), value: model.highlightedDegree)
-                    .animation(.easeOut(duration: 0.2), value: model.selectedRoleDegree)
-                    .frame(maxWidth: .infinity, minHeight: geo.size.height, alignment: .top)
-                    .background {
-                        if activePicker != nil {
+                            // Fills leftover viewport so taps below the cards dismiss the strip.
+                            // minHeight (not containerRelativeFrame) avoids compressing cards when
+                            // the bottom picker shortens the ScrollView.
                             dismissTapLayer
+                                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                .layoutPriority(-1)
+                                .allowsHitTesting(activePicker != nil)
+                        }
+                        .padding(.horizontal, LumenoteSpacing.popupInset)
+                        .padding(.vertical, LumenoteSpacing.xxxl)
+                        .animation(.easeOut(duration: 0.2), value: cards)
+                        .frame(maxWidth: .infinity, minHeight: geo.size.height, alignment: .top)
+                        .background {
+                            if activePicker != nil {
+                                dismissTapLayer
+                            }
+                        }
+                    }
+                    .scrollIndicators(.hidden)
+                    .onChange(of: scrollTarget) { _, target in
+                        guard let target else { return }
+                        DispatchQueue.main.async {
+                            withAnimation(.easeOut(duration: 0.22)) {
+                                proxy.scrollTo(target, anchor: .top)
+                            }
+                            scrollTarget = nil
                         }
                     }
                 }
-                .scrollIndicators(.hidden)
 
                 if let activePicker {
                     pickerStrip(for: activePicker)
@@ -70,7 +86,26 @@ struct DiatonicChordView: View {
         }
         .background(background)
         .lumenoteCompactHeader(title: "다이아토닉 코드", showsBackButton: true) {
-            AppearanceToggleButton(appearance: $appearance)
+            HStack(spacing: LumenoteSpacing.sm) {
+                Button {
+                    showsGuide = true
+                } label: {
+                    Image(systemName: "info")
+                        .font(LumenoteFont.rounded(size: 15, weight: .bold))
+                        .foregroundStyle(.primary)
+                        .frame(width: 34, height: 34)
+                        .background(Circle().fill(palette.cardBackground))
+                        .overlay(Circle().strokeBorder(palette.cardBorder, lineWidth: LumenoteStroke.compact))
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("이론")
+                .accessibilityHint("다이아토닉 코드 이론 페이지를 엽니다")
+
+                AppearanceToggleButton(appearance: $appearance)
+            }
+        }
+        .sheet(isPresented: $showsGuide) {
+            DiatonicChordGuideView()
         }
     }
 
@@ -83,41 +118,34 @@ struct DiatonicChordView: View {
             }
     }
 
-    // MARK: - Construction
+    // MARK: - Sections
 
-    private func constructionCard(availableWidth: CGFloat) -> some View {
+    private func staffCard(_ card: DiatonicChordCard, availableWidth: CGFloat) -> some View {
         let innerWidth = max(0, availableWidth - LumenoteSpacing.xxl * 2)
         let staffSpace = staffSpace(for: innerWidth)
 
-        return lessonCard {
-            HStack(alignment: .firstTextBaseline) {
-                sectionTitle("만들어지는 원리")
-                Spacer()
-                voicingToggle
-            }
-            .overlay {
-                if activePicker != nil { dismissTapLayer }
-            }
-
-            Text("각 음을 근음으로 삼고 스케일 안에서 3도 간격으로 음을 쌓으면 7개의 다이아토닉 코드가 만들어집니다.")
-                .font(LumenoteFont.callout(.medium))
-                .foregroundStyle(.primary)
-                .fixedSize(horizontal: false, vertical: true)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .overlay {
-                    if activePicker != nil { dismissTapLayer }
+        return VStack(spacing: LumenoteSpacing.section) {
+            VStack(spacing: LumenoteSpacing.md) {
+                selectionHeader(for: card)
+                if reorderingCardID == card.id {
+                    moveControls(for: card.id)
                 }
+            }
 
-            constructionSettings
-            scaleNoteRow
+            HStack {
+                voicingToggle(for: card)
+                Spacer(minLength: 0)
+            }
+
+            scaleNoteRow(for: card)
                 .overlay {
                     if activePicker != nil { dismissTapLayer }
                 }
 
             ScrollView(.horizontal, showsIndicators: false) {
                 DiatonicChordStaffView(
-                    columns: model.staffColumns,
-                    highlightedDegree: model.highlightedDegree,
+                    columns: card.staffColumns,
+                    highlightedDegree: card.highlightedDegree,
                     staffSpace: staffSpace,
                     targetWidth: innerWidth,
                     lineColor: Color.primary.opacity(0.75),
@@ -134,31 +162,63 @@ struct DiatonicChordView: View {
                 if activePicker != nil { dismissTapLayer }
             }
         }
+        .padding(LumenoteSpacing.xxl)
+        .frame(maxWidth: .infinity)
+        .lumenoteCard()
         .accessibilityElement(children: .contain)
-        .accessibilityLabel("만들어지는 원리")
+        .accessibilityLabel("\(card.tonicDisplayName) \(card.kind.englishTitle) \(card.voicing.title)")
     }
 
-    private var scaleNoteRow: some View {
+    private func selectionHeader(for card: DiatonicChordCard) -> some View {
+        HStack(spacing: LumenoteSpacing.md) {
+            compactSettingButton(
+                title: "으뜸음",
+                value: card.tonicDisplayName,
+                isActive: activePicker == ActivePicker(cardID: card.id, field: .tonic),
+                accessibilityHint: "으뜸음을 변경하려면 두 번 탭하세요"
+            ) {
+                togglePicker(for: card.id, field: .tonic)
+            }
+
+            compactSettingButton(
+                title: "스케일",
+                value: card.kind.englishTitle,
+                isActive: activePicker == ActivePicker(cardID: card.id, field: .kind),
+                accessibilityHint: "스케일을 변경하려면 두 번 탭하세요"
+            ) {
+                togglePicker(for: card.id, field: .kind)
+            }
+
+            if cards.count > 1 {
+                reorderToggle(card.id)
+                removeCardButton(card.id)
+            }
+        }
+    }
+
+    private func scaleNoteRow(for card: DiatonicChordCard) -> some View {
         HStack(spacing: LumenoteSpacing.sm) {
             ForEach(DiatonicDegree.allCases) { degree in
-                scaleNoteButton(degree)
+                scaleNoteButton(degree, card: card)
             }
         }
         .accessibilityElement(children: .contain)
-        .accessibilityLabel("\(model.tonicDisplayName) \(model.kind.englishTitle) 스케일")
+        .accessibilityLabel("\(card.tonicDisplayName) \(card.kind.englishTitle) 스케일")
     }
 
-    private func scaleNoteButton(_ degree: DiatonicDegree) -> some View {
-        let names = model.scaleNoteDisplayNames
+    private func scaleNoteButton(_ degree: DiatonicDegree, card: DiatonicChordCard) -> some View {
+        let names = card.scaleNoteDisplayNames
         let name = names.indices.contains(degree.rawValue) ? names[degree.rawValue] : ""
-        let selected = model.highlightedDegree == degree
+        let selected = card.highlightedDegree == degree
 
         return Button {
-            model.toggleHighlightedDegree(degree)
+            toggleHighlightedDegree(degree, cardID: card.id)
         } label: {
             Text(name)
                 .font(LumenoteFont.caption(.bold))
                 .foregroundStyle(selected ? palette.emphasisStroke : .primary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.6)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, LumenoteSpacing.sm)
                 .background(
@@ -179,28 +239,136 @@ struct DiatonicChordView: View {
         .accessibilityAddTraits(selected ? .isSelected : [])
     }
 
-    // MARK: - Construction helpers
-
-    private var constructionSettings: some View {
-        HStack(spacing: LumenoteSpacing.md) {
-            compactSettingButton(
-                title: "으뜸음",
-                value: model.tonicDisplayName,
-                isActive: activePicker == .tonic,
-                accessibilityHint: "으뜸음을 변경하려면 두 번 탭하세요"
-            ) {
-                togglePicker(.tonic)
-            }
-
-            compactSettingButton(
-                title: "스케일",
-                value: model.kind.englishTitle,
-                isActive: activePicker == .kind,
-                accessibilityHint: "스케일을 변경하려면 두 번 탭하세요"
-            ) {
-                togglePicker(.kind)
+    private func voicingToggle(for card: DiatonicChordCard) -> some View {
+        HStack(spacing: LumenoteSpacing.xs) {
+            ForEach(DiatonicVoicing.allCases) { voicing in
+                let selected = card.voicing == voicing
+                Button {
+                    setVoicing(voicing, cardID: card.id)
+                } label: {
+                    Text(voicing.title)
+                        .font(LumenoteFont.caption2(.bold))
+                        .foregroundStyle(selected ? palette.emphasisStroke : .secondary)
+                        .padding(.horizontal, LumenoteSpacing.md)
+                        .padding(.vertical, LumenoteSpacing.xs)
+                        .background(
+                            RoundedRectangle(cornerRadius: LumenoteRadius.chip, style: .continuous)
+                                .fill(selected ? palette.highlight : Color.clear)
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: LumenoteRadius.chip, style: .continuous)
+                                .strokeBorder(
+                                    selected ? palette.cardBorderActive : palette.divider,
+                                    lineWidth: selected ? LumenoteStroke.compact : LumenoteStroke.hairline
+                                )
+                        )
+                }
+                .buttonStyle(.plain)
+                .accessibilityAddTraits(selected ? .isSelected : [])
             }
         }
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel("코드 구성")
+    }
+
+    private var addCardButton: some View {
+        Button(action: addCard) {
+            HStack(spacing: LumenoteSpacing.sm) {
+                Image(systemName: "plus")
+                    .font(LumenoteFont.callout(.bold))
+                Text("다이아토닉 추가")
+                    .font(LumenoteFont.callout(.semibold))
+            }
+            .foregroundStyle(palette.minor)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, LumenoteSpacing.xl)
+            .background(
+                RoundedRectangle(cornerRadius: LumenoteRadius.card, style: .continuous)
+                    .fill(Color.primary.opacity(0.001))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: LumenoteRadius.card, style: .continuous)
+                    .strokeBorder(palette.divider, lineWidth: LumenoteStroke.compact)
+            )
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("다이아토닉 추가")
+        .accessibilityHint("다이아토닉 코드 카드를 추가합니다. 최대 \(DiatonicChordCard.maximumCount)개")
+    }
+
+    private func reorderToggle(_ cardID: DiatonicChordCard.ID) -> some View {
+        let isActive = reorderingCardID == cardID
+        return Button {
+            let opening = reorderingCardID != cardID
+            withAnimation(.easeOut(duration: 0.2)) {
+                reorderingCardID = opening ? cardID : nil
+            }
+            if opening {
+                activePicker = nil
+            }
+        } label: {
+            Image(systemName: "arrow.up.arrow.down")
+                .font(LumenoteFont.caption2(.bold))
+                .foregroundStyle(isActive ? palette.minor : .secondary)
+                .frame(width: 28, height: 28)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(isActive ? "순서 이동 닫기" : "순서 이동")
+        .accessibilityHint("위, 아래 이동 버튼을 표시합니다")
+        .accessibilityAddTraits(isActive ? .isSelected : [])
+    }
+
+    private func moveControls(for cardID: DiatonicChordCard.ID) -> some View {
+        HStack(spacing: LumenoteSpacing.md) {
+            moveCardButton(cardID, direction: -1)
+            moveCardButton(cardID, direction: 1)
+        }
+    }
+
+    private func moveCardButton(_ cardID: DiatonicChordCard.ID, direction: Int) -> some View {
+        let index = cards.firstIndex(where: { $0.id == cardID }) ?? 0
+        let enabled = direction < 0 ? index > 0 : index < cards.count - 1
+        let title = direction < 0 ? "위로" : "아래로"
+        let symbol = direction < 0 ? "chevron.up" : "chevron.down"
+
+        return Button {
+            moveCard(cardID, by: direction)
+        } label: {
+            HStack(spacing: LumenoteSpacing.xs) {
+                Image(systemName: symbol)
+                Text(title)
+            }
+            .font(LumenoteFont.caption(.semibold))
+            .foregroundStyle(enabled ? palette.minor : Color.secondary.opacity(0.4))
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, LumenoteSpacing.md)
+            .background(
+                RoundedRectangle(cornerRadius: LumenoteRadius.chip, style: .continuous)
+                    .fill(Color.primary.opacity(0.001))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: LumenoteRadius.chip, style: .continuous)
+                    .strokeBorder(palette.divider, lineWidth: LumenoteStroke.hairline)
+            )
+        }
+        .buttonStyle(.plain)
+        .disabled(!enabled)
+        .accessibilityLabel(title + " 이동")
+    }
+
+    private func removeCardButton(_ cardID: DiatonicChordCard.ID) -> some View {
+        Button {
+            removeCard(cardID)
+        } label: {
+            Image(systemName: "xmark")
+                .font(LumenoteFont.caption2(.bold))
+                .foregroundStyle(.secondary)
+                .frame(width: 28, height: 28)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("다이아토닉 코드 카드 삭제")
     }
 
     private func compactSettingButton(
@@ -244,219 +412,11 @@ struct DiatonicChordView: View {
         .accessibilityAddTraits(isActive ? .isSelected : [])
     }
 
-    private var voicingToggle: some View {
-        HStack(spacing: LumenoteSpacing.xs) {
-            ForEach(DiatonicVoicing.allCases) { voicing in
-                let selected = model.voicing == voicing
-                Button {
-                    model.voicing = voicing
-                } label: {
-                    Text(voicing.title)
-                        .font(LumenoteFont.caption2(.bold))
-                        .foregroundStyle(selected ? palette.emphasisStroke : .secondary)
-                        .padding(.horizontal, LumenoteSpacing.md)
-                        .padding(.vertical, LumenoteSpacing.xs)
-                        .background(
-                            RoundedRectangle(cornerRadius: LumenoteRadius.chip, style: .continuous)
-                                .fill(selected ? palette.highlight : Color.clear)
-                        )
-                        .overlay(
-                            RoundedRectangle(cornerRadius: LumenoteRadius.chip, style: .continuous)
-                                .strokeBorder(
-                                    selected ? palette.cardBorderActive : palette.divider,
-                                    lineWidth: selected ? LumenoteStroke.compact : LumenoteStroke.hairline
-                                )
-                        )
-                }
-                .buttonStyle(.plain)
-                .accessibilityAddTraits(selected ? .isSelected : [])
-            }
-        }
-        .accessibilityElement(children: .contain)
-        .accessibilityLabel("코드 구성")
-    }
-
-    // MARK: - Function
-
-    private var functionFlowCard: some View {
-        lessonCard {
-            sectionTitle("다이아토닉 코드의 기능 (메이저 키 기준)")
-            Text("다이아토닉 코드는 화성적 역할에 따라 Tonic, Subdominant, Dominant로 나뉩니다.\n\n대표적인 진행은 다음과 같습니다.")
-                .font(LumenoteFont.callout(.medium))
-                .foregroundStyle(.primary)
-                .fixedSize(horizontal: false, vertical: true)
-
-            VStack(spacing: LumenoteSpacing.sm) {
-                ForEach(Array(HarmonicMotionStep.allCases.enumerated()), id: \.element.id) { index, step in
-                    if index > 0 {
-                        Image(systemName: "arrow.down")
-                            .font(LumenoteFont.caption(.bold))
-                            .foregroundStyle(.secondary)
-                            .frame(maxWidth: .infinity)
-                            .accessibilityHidden(true)
-                    }
-                    motionStepRow(step)
-                }
-            }
-        }
-        .accessibilityElement(children: .contain)
-        .accessibilityLabel("다이아토닉 코드의 기능, 메이저 키 기준, Tonic, Subdominant, Dominant, 안정, 전개, 긴장, 해결")
-    }
-
-    private func motionStepRow(_ step: HarmonicMotionStep) -> some View {
-        HStack(alignment: .center, spacing: LumenoteSpacing.lg) {
-            Text(step.title)
-                .font(LumenoteFont.body(.bold))
-                .foregroundStyle(functionTint(step.function))
-                .frame(width: 44, alignment: .leading)
-
-            VStack(alignment: .leading, spacing: LumenoteSpacing.xxs) {
-                Text(step.function.englishTitle)
-                    .font(LumenoteFont.callout(.bold))
-                    .foregroundStyle(.primary)
-                Text(step.romans)
-                    .font(LumenoteFont.caption(.semibold))
-                    .foregroundStyle(.secondary)
-            }
-
-            Spacer(minLength: 0)
-        }
-        .padding(.horizontal, LumenoteSpacing.lg)
-        .padding(.vertical, LumenoteSpacing.lg)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(
-            RoundedRectangle(cornerRadius: LumenoteRadius.softRow, style: .continuous)
-                .fill(functionTint(step.function).opacity(0.14))
-        )
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(step.title), \(step.function.englishTitle), \(step.romans)")
-    }
-
-    // MARK: - Roles
-
-    private var rolesSection: some View {
-        lessonCard {
-            sectionTitle("각 코드의 역할")
-
-            HStack(spacing: LumenoteSpacing.sm) {
-                ForEach(DiatonicDegree.allCases) { degree in
-                    roleDegreeButton(degree)
-                }
-            }
-
-            if let role = model.selectedRole {
-                roleDetail(role)
-            }
-        }
-        .accessibilityElement(children: .contain)
-        .accessibilityLabel("각 코드의 역할")
-    }
-
-    private func roleDegreeButton(_ degree: DiatonicDegree) -> some View {
-        let selected = model.selectedRoleDegree == degree
-
-        return Button {
-            model.selectedRoleDegree = degree
-        } label: {
-            Text(degree.functionRoman)
-                .font(LumenoteFont.caption(.bold))
-                .foregroundStyle(selected ? palette.emphasisStroke : .primary)
-                .lineLimit(1)
-                .minimumScaleFactor(0.65)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, LumenoteSpacing.sm)
-                .background(
-                    RoundedRectangle(cornerRadius: LumenoteRadius.chip, style: .continuous)
-                        .fill(selected ? palette.highlight : Color.clear)
-                )
-                .overlay(
-                    RoundedRectangle(cornerRadius: LumenoteRadius.chip, style: .continuous)
-                        .strokeBorder(
-                            selected ? palette.cardBorderActive : palette.divider,
-                            lineWidth: selected ? LumenoteStroke.compact : LumenoteStroke.hairline
-                        )
-                )
-        }
-        .buttonStyle(.plain)
-        .accessibilityLabel(degree.functionRoman)
-        .accessibilityHint("이 코드의 역할을 보려면 두 번 탭하세요")
-        .accessibilityAddTraits(selected ? .isSelected : [])
-    }
-
-    private func roleDetail(_ role: DiatonicDegreeRole) -> some View {
-        VStack(alignment: .leading, spacing: LumenoteSpacing.lg) {
-            HStack(alignment: .firstTextBaseline, spacing: LumenoteSpacing.md) {
-                Text(role.degree.functionRoman)
-                    .font(LumenoteFont.headline(.bold))
-                    .foregroundStyle(functionTint(role.function))
-                Text(role.functionLabel)
-                    .font(LumenoteFont.caption(.bold))
-                    .foregroundStyle(functionTint(role.function))
-                Spacer(minLength: 0)
-            }
-
-            Text(role.title)
-                .font(LumenoteFont.callout(.bold))
-                .foregroundStyle(.primary)
-                .fixedSize(horizontal: false, vertical: true)
-
-            Text(role.body)
-                .font(LumenoteFont.callout(.medium))
-                .foregroundStyle(.primary)
-                .fixedSize(horizontal: false, vertical: true)
-
-            Text("핵심: \(role.takeaway)")
-                .font(LumenoteFont.caption(.bold))
-                .foregroundStyle(functionTint(role.function))
-                .fixedSize(horizontal: false, vertical: true)
-        }
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel(
-            "\(role.degree.functionRoman), \(role.functionLabel), \(role.title), \(role.body), 핵심 \(role.takeaway)"
-        )
-    }
-
-    // MARK: - Shared chrome
-
-    private func sectionTitle(_ title: String) -> some View {
-        Text(title)
-            .font(LumenoteFont.body(.bold))
-            .foregroundStyle(.primary)
-            .accessibilityAddTraits(.isHeader)
-    }
-
-    private func lessonCard<Content: View>(@ViewBuilder content: () -> Content) -> some View {
-        VStack(alignment: .leading, spacing: LumenoteSpacing.lg) {
-            content()
-        }
-        .padding(LumenoteSpacing.xxl)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(palette.cardBackground)
-        .clipShape(RoundedRectangle(cornerRadius: LumenoteRadius.card, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: LumenoteRadius.card, style: .continuous)
-                .strokeBorder(palette.divider, lineWidth: LumenoteStroke.compact)
-        )
-    }
-
-    private func functionTint(_ function: HarmonicFunction) -> Color {
-        switch function {
-        case .tonic: palette.quizCorrect
-        case .subdominant: palette.minor
-        case .dominant: palette.major
-        }
-    }
-
-    private func staffSpace(for availableWidth: CGFloat) -> CGFloat {
-        let fitted = availableWidth / 26
-        return min(13, max(8.5, fitted))
-    }
-
     // MARK: - Bottom picker strips
 
     @ViewBuilder
-    private func pickerStrip(for target: PickerTarget) -> some View {
-        switch target {
+    private func pickerStrip(for target: ActivePicker) -> some View {
+        switch target.field {
         case .tonic:
             tonicPickerStrip
         case .kind:
@@ -472,11 +432,10 @@ struct DiatonicChordView: View {
 
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: LumenoteSpacing.md) {
-                    ForEach(model.noteOptions, id: \.spelling) { option in
-                        let selected = option.spelling == model.tonicSpelling
+                    ForEach(ScaleModel.selectableNotes, id: \.spelling) { option in
+                        let selected = option.spelling == activeCard?.tonicSpelling
                         Button {
-                            model.tonicSpelling = option.spelling
-                            tonicStripScrollPosition = option.spelling
+                            setActiveTonic(option.spelling)
                         } label: {
                             Text(option.displayName)
                                 .font(.system(size: 17, weight: selected ? .bold : .semibold))
@@ -509,7 +468,7 @@ struct DiatonicChordView: View {
         }
         .pickerStripChrome()
         .onAppear {
-            tonicStripScrollPosition = model.tonicSpelling
+            tonicStripScrollPosition = activeCard?.tonicSpelling
         }
     }
 
@@ -522,10 +481,9 @@ struct DiatonicChordView: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: LumenoteSpacing.md) {
                     ForEach(ScaleKind.allCases) { kind in
-                        let selected = model.kind == kind
+                        let selected = activeCard?.kind == kind
                         Button {
-                            model.kind = kind
-                            kindStripScrollPosition = kind.id
+                            setActiveKind(kind)
                         } label: {
                             Text(kind.englishTitle)
                                 .font(.system(size: 17, weight: selected ? .bold : .semibold))
@@ -559,7 +517,7 @@ struct DiatonicChordView: View {
         }
         .pickerStripChrome()
         .onAppear {
-            kindStripScrollPosition = model.kind.id
+            kindStripScrollPosition = activeCard?.kind.id
         }
     }
 
@@ -582,17 +540,89 @@ struct DiatonicChordView: View {
         .padding(.horizontal, LumenoteSpacing.popupInset)
     }
 
-    private func togglePicker(_ target: PickerTarget) {
+    // MARK: - Helpers
+
+    private func staffSpace(for availableWidth: CGFloat) -> CGFloat {
+        let fitted = availableWidth / 26
+        return min(13, max(8.5, fitted))
+    }
+
+    private var activeCard: DiatonicChordCard? {
+        guard let cardID = activePicker?.cardID else { return nil }
+        return cards.first { $0.id == cardID }
+    }
+
+    private func togglePicker(for cardID: DiatonicChordCard.ID, field: ActivePicker.Field) {
+        let target = ActivePicker(cardID: cardID, field: field)
         if activePicker == target {
             activePicker = nil
-        } else {
-            activePicker = target
-            switch target {
-            case .tonic:
-                tonicStripScrollPosition = model.tonicSpelling
-            case .kind:
-                kindStripScrollPosition = model.kind.id
+            return
+        }
+        activePicker = target
+        guard let card = cards.first(where: { $0.id == cardID }) else { return }
+        switch field {
+        case .tonic:
+            tonicStripScrollPosition = card.tonicSpelling
+        case .kind:
+            kindStripScrollPosition = card.kind.id
+        }
+    }
+
+    private func setActiveTonic(_ spelling: String) {
+        guard let cardID = activePicker?.cardID,
+              let index = cards.firstIndex(where: { $0.id == cardID })
+        else { return }
+        cards[index].setTonic(spelling)
+        tonicStripScrollPosition = cards[index].tonicSpelling
+    }
+
+    private func setActiveKind(_ kind: ScaleKind) {
+        guard let cardID = activePicker?.cardID,
+              let index = cards.firstIndex(where: { $0.id == cardID })
+        else { return }
+        cards[index].kind = kind
+        kindStripScrollPosition = kind.id
+    }
+
+    private func setVoicing(_ voicing: DiatonicVoicing, cardID: DiatonicChordCard.ID) {
+        guard let index = cards.firstIndex(where: { $0.id == cardID }) else { return }
+        cards[index].voicing = voicing
+    }
+
+    private func toggleHighlightedDegree(_ degree: DiatonicDegree, cardID: DiatonicChordCard.ID) {
+        guard let index = cards.firstIndex(where: { $0.id == cardID }) else { return }
+        cards[index].toggleHighlightedDegree(degree)
+    }
+
+    private func addCard() {
+        guard cards.count < DiatonicChordCard.maximumCount else { return }
+        activePicker = nil
+        let next = cards.last?.addingNextKind() ?? DiatonicChordCard()
+        withAnimation(.easeOut(duration: 0.22)) {
+            cards.append(next)
+            scrollTarget = next.id
+        }
+    }
+
+    private func removeCard(_ cardID: DiatonicChordCard.ID) {
+        guard cards.count > 1 else { return }
+        if activePicker?.cardID == cardID {
+            activePicker = nil
+        }
+        withAnimation(.easeOut(duration: 0.22)) {
+            cards.removeAll { $0.id == cardID }
+            if cards.count < 2 || reorderingCardID == cardID {
+                reorderingCardID = nil
             }
+        }
+    }
+
+    private func moveCard(_ cardID: DiatonicChordCard.ID, by direction: Int) {
+        guard let index = cards.firstIndex(where: { $0.id == cardID }) else { return }
+        let target = index + direction
+        guard cards.indices.contains(target) else { return }
+        withAnimation(.easeOut(duration: 0.2)) {
+            cards.swapAt(index, target)
         }
     }
 
