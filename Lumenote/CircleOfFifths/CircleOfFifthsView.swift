@@ -4,6 +4,7 @@ import SwiftUI
 
 struct CircleOfFifthsView: View {
     @Environment(\.appPalette) private var palette
+    @Environment(\.verticalSizeClass) private var verticalSizeClass
     @AppStorage(AppearanceMode.storageKey) private var appearance: AppearanceMode = .system
 
     @State private var model = CircleOfFifthsModel()
@@ -25,7 +26,7 @@ struct CircleOfFifthsView: View {
                             selectors
                         }
                         .scrollIndicators(.hidden)
-                        .frame(width: min(330, geo.size.width * 0.34))
+                        .frame(width: selectorColumnWidth(for: geo.size.width))
                     }
                 } else {
                     ScrollView {
@@ -73,6 +74,16 @@ struct CircleOfFifthsView: View {
             endPoint: .bottomTrailing
         )
         .ignoresSafeArea()
+    }
+
+    /// Side column for the key picker and accidental-order card.
+    /// Phone landscape is short, so the column takes a larger share and the
+    /// longest labels (C♯ · D♭) fit on one line. Wider layouts keep the 330pt cap.
+    private func selectorColumnWidth(for containerWidth: CGFloat) -> CGFloat {
+        let isPhoneLandscape = verticalSizeClass == .compact
+        let fraction: CGFloat = isPhoneLandscape ? 0.48 : 0.34
+        let maximum: CGFloat = isPhoneLandscape ? 400 : 330
+        return min(maximum, containerWidth * fraction)
     }
 
     private func circleSection(placesLegendBeside: Bool) -> some View {
@@ -167,8 +178,7 @@ struct CircleOfFifthsView: View {
                     )
                     accidentalOrderRow(
                         title: "♭",
-                        sequence: "B → E → A → D → G → C → F",
-                        footnote: "♯이 붙는 순서의 역순입니다."
+                        sequence: "B → E → A → D → G → C → F"
                     )
                 }
                 .padding(.horizontal, LumenoteSpacing.xxl)
@@ -179,7 +189,7 @@ struct CircleOfFifthsView: View {
         .lumenoteCard()
     }
 
-    private func accidentalOrderRow(title: String, sequence: String, footnote: String? = nil) -> some View {
+    private func accidentalOrderRow(title: String, sequence: String) -> some View {
         VStack(alignment: .leading, spacing: LumenoteSpacing.xs) {
             Text(title)
                 .font(LumenoteFont.caption(.bold))
@@ -188,18 +198,13 @@ struct CircleOfFifthsView: View {
                 .font(LumenoteFont.body(.semibold))
                 .foregroundStyle(.primary)
                 .fixedSize(horizontal: false, vertical: true)
-            if let footnote {
-                Text(footnote)
-                    .font(LumenoteFont.caption(.medium))
-                    .foregroundStyle(.secondary)
-            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private var tonicOptionGrid: some View {
         let options = CircleOfFifthsModel.Tonic.chromaticPickerOptions
-        let columnCount = 3
+        let columnCount = 4
 
         return Grid(horizontalSpacing: LumenoteSpacing.md, verticalSpacing: LumenoteSpacing.md) {
             ForEach(Array(stride(from: 0, to: options.count, by: columnCount)), id: \.self) { start in
