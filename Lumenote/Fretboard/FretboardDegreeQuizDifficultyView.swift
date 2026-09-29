@@ -7,7 +7,6 @@ import SwiftUI
 struct FretboardDegreeQuizDifficultyView: View {
     @Environment(\.appPalette) private var palette
     @Environment(\.dismiss) private var dismiss
-    @AppStorage(AppearanceMode.storageKey) private var appearance: AppearanceMode = .system
 
     @State private var selectedDifficulty: FretboardDegreeQuizDifficulty = .easy
     @State private var questionCount = 10
@@ -29,9 +28,7 @@ struct FretboardDegreeQuizDifficultyView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(background)
-        .lumenoteCompactHeader(title: "지판 퀴즈 (도수)", showsBackButton: true) {
-            AppearanceToggleButton(appearance: $appearance)
-        }
+        .lumenoteCompactHeader(title: "지판 퀴즈 (도수)", showsBackButton: true)
     }
 
     private var setup: some View {

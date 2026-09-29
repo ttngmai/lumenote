@@ -105,9 +105,7 @@ extension View {
 #Preview {
     NavigationStack {
         Color.clear
-            .lumenoteCompactHeader(title: "Lumenote") {
-                AppearanceToggleButton(appearance: .constant(.system))
-            }
+            .lumenoteCompactHeader(title: "Lumenote")
             .background(
                 LinearGradient(
                     colors: AppPalette(colorScheme: .light).backgroundColors,

@@ -21,14 +21,33 @@ struct FeatureMenuView: View {
             }
 
             Section {
-                LanguageMenuButton()
+                NavigationLink(value: AppSettingsDestination.language) {
+                    FeatureMenuRow(
+                        title: "언어 설정".l10n,
+                        subtitle: LanguageSettings.shared.language.nativeName,
+                        systemImage: "globe"
+                    )
+                }
+                NavigationLink(value: AppSettingsDestination.appearance) {
+                    FeatureMenuRow(
+                        title: "화면 모드".l10n,
+                        subtitle: appearance.title,
+                        systemImage: "circle.lefthalf.filled"
+                    )
+                }
             }
         }
         .listStyle(.insetGrouped)
         .scrollContentBackground(.hidden)
         .background(FeatureMenuBackground())
-        .lumenoteCompactHeader(title: "Lumenote") {
-            AppearanceToggleButton(appearance: $appearance)
+        .lumenoteCompactHeader(title: "Lumenote")
+        .navigationDestination(for: AppSettingsDestination.self) { destination in
+            switch destination {
+            case .language:
+                LanguageSettingsView()
+            case .appearance:
+                AppearanceSettingsView()
+            }
         }
         .navigationDestination(for: FeatureDomain.self) { domain in
             FeatureModeMenuView(domain: domain)
@@ -75,7 +94,6 @@ struct FeatureMenuView: View {
 
 private struct FeatureModeMenuView: View {
     let domain: FeatureDomain
-    @AppStorage(AppearanceMode.storageKey) private var appearance: AppearanceMode = .system
     @State private var expandedModes: Set<FeatureMode> = []
 
     var body: some View {
@@ -92,9 +110,7 @@ private struct FeatureModeMenuView: View {
         .listSectionSpacing(LumenoteSpacing.xl)
         .scrollContentBackground(.hidden)
         .background(FeatureMenuBackground())
-        .lumenoteCompactHeader(title: domain.title, showsBackButton: true) {
-            AppearanceToggleButton(appearance: $appearance)
-        }
+        .lumenoteCompactHeader(title: domain.title, showsBackButton: true)
     }
 
     private func expansionBinding(for mode: FeatureMode) -> Binding<Bool> {

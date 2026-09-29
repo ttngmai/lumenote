@@ -4,7 +4,6 @@ import SwiftUI
 
 struct ScaleView: View {
     @Environment(\.appPalette) private var palette
-    @AppStorage(AppearanceMode.storageKey) private var appearance: AppearanceMode = .system
 
     @State private var cards: [ScaleCard] = [ScaleCard()]
     @State private var activePicker: ActivePicker?
@@ -84,9 +83,7 @@ struct ScaleView: View {
             .animation(.easeOut(duration: 0.22), value: activePicker)
         }
         .background(background)
-        .lumenoteCompactHeader(title: "스케일", showsBackButton: true) {
-            AppearanceToggleButton(appearance: $appearance)
-        }
+        .lumenoteCompactHeader(title: "스케일", showsBackButton: true)
     }
 
     /// Nearly-invisible hit target; `Color.clear` alone can miss taps in ScrollView.

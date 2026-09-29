@@ -4,7 +4,6 @@ import SwiftUI
 
 struct DiatonicChordView: View {
     @Environment(\.appPalette) private var palette
-    @AppStorage(AppearanceMode.storageKey) private var appearance: AppearanceMode = .system
 
     @State private var cards: [DiatonicChordCard] = [DiatonicChordCard()]
     @State private var activePicker: ActivePicker?
@@ -86,23 +85,19 @@ struct DiatonicChordView: View {
         }
         .background(background)
         .lumenoteCompactHeader(title: "다이아토닉 코드", showsBackButton: true) {
-            HStack(spacing: LumenoteSpacing.sm) {
-                Button {
-                    showsGuide = true
-                } label: {
-                    Image(systemName: "info")
-                        .font(LumenoteFont.rounded(size: 15, weight: .bold))
-                        .foregroundStyle(.primary)
-                        .frame(width: 34, height: 34)
-                        .background(Circle().fill(palette.cardBackground))
-                        .overlay(Circle().strokeBorder(palette.cardBorder, lineWidth: LumenoteStroke.compact))
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel("이론")
-                .accessibilityHint("다이아토닉 코드 이론 페이지를 엽니다")
-
-                AppearanceToggleButton(appearance: $appearance)
+            Button {
+                showsGuide = true
+            } label: {
+                Image(systemName: "info")
+                    .font(LumenoteFont.rounded(size: 15, weight: .bold))
+                    .foregroundStyle(.primary)
+                    .frame(width: 34, height: 34)
+                    .background(Circle().fill(palette.cardBackground))
+                    .overlay(Circle().strokeBorder(palette.cardBorder, lineWidth: LumenoteStroke.compact))
             }
+            .buttonStyle(.plain)
+            .accessibilityLabel("이론")
+            .accessibilityHint("다이아토닉 코드 이론 페이지를 엽니다")
         }
         .sheet(isPresented: $showsGuide) {
             DiatonicChordGuideView()

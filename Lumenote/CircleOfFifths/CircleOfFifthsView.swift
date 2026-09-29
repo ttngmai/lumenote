@@ -5,7 +5,6 @@ import SwiftUI
 struct CircleOfFifthsView: View {
     @Environment(\.appPalette) private var palette
     @Environment(\.verticalSizeClass) private var verticalSizeClass
-    @AppStorage(AppearanceMode.storageKey) private var appearance: AppearanceMode = .system
 
     @State private var model = CircleOfFifthsModel()
     @State private var isTonicExpanded = false
@@ -45,22 +44,18 @@ struct CircleOfFifthsView: View {
         }
         .background(background)
         .lumenoteCompactHeader(title: "5도권", showsBackButton: true) {
-            HStack(spacing: LumenoteSpacing.sm) {
-                Button {
-                    showsGuide = true
-                } label: {
-                    Image(systemName: "info")
-                        .font(LumenoteFont.rounded(size: 15, weight: .bold))
-                        .foregroundStyle(.primary)
-                        .frame(width: 34, height: 34)
-                        .background(Circle().fill(palette.cardBackground))
-                        .overlay(Circle().strokeBorder(palette.cardBorder, lineWidth: LumenoteStroke.compact))
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel("5도권 안내")
-
-                AppearanceToggleButton(appearance: $appearance)
+            Button {
+                showsGuide = true
+            } label: {
+                Image(systemName: "info")
+                    .font(LumenoteFont.rounded(size: 15, weight: .bold))
+                    .foregroundStyle(.primary)
+                    .frame(width: 34, height: 34)
+                    .background(Circle().fill(palette.cardBackground))
+                    .overlay(Circle().strokeBorder(palette.cardBorder, lineWidth: LumenoteStroke.compact))
             }
+            .buttonStyle(.plain)
+            .accessibilityLabel("5도권 안내")
         }
         .sheet(isPresented: $showsGuide) {
             CircleOfFifthsGuideView()

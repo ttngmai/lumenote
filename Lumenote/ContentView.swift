@@ -3,10 +3,11 @@
 import SwiftUI
 
 struct ContentView: View {
+    @State private var path = NavigationPath()
     private var language: LanguageSettings { .shared }
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $path) {
             FeatureMenuView()
         }
         .lumenotePalette()
