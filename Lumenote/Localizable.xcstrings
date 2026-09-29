@@ -1,0 +1,4540 @@
+{
+  "sourceLanguage" : "ko",
+  "strings" : {
+    "" : {
+
+    },
+    "-" : {
+
+    },
+    ", " : {
+
+    },
+    "?" : {
+
+    },
+    "·" : {
+
+    },
+    "%@ · %lld문제" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ · %2$lld questions"
+          }
+        }
+      }
+    },
+    "%@ %@" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ %2$@"
+          }
+        }
+      }
+    },
+    "%@ %@ %@" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ %2$@ %3$@"
+          }
+        }
+      }
+    },
+    "%@ %@ 스케일" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ %2$@ scale"
+          }
+        }
+      }
+    },
+    "%@ %lld개" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@: %2$lld"
+          }
+        }
+      }
+    },
+    "%@ is not in the %@ scale." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ is not in the %2$@ scale."
+          }
+        }
+      }
+    },
+    "%@ Key" : {
+
+    },
+    "%@ 스케일" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ scale"
+          }
+        }
+      }
+    },
+    "%@ 스케일에 포함되지 않는 음은?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Which note is not in the %@ scale?"
+          }
+        }
+      }
+    },
+    "%@ 스케일에서 %@ 음을 근음으로 하는 %@는 %@(%@)입니다.\n%@ 스케일의 다이아토닉 %@ 규칙 : %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The %3$@ built on %2$@ of the %1$@ scale is %4$@ (%5$@).\nDiatonic %7$@ rule of the %6$@ scale: %8$@"
+          }
+        }
+      }
+    },
+    "%@ 스케일에서 %@ 음을 근음으로 하는 %@의 품질은?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "What is the quality of the %3$@ built on %2$@ of the %1$@ scale?"
+          }
+        }
+      }
+    },
+    "%@ 스케일을 완성하세요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Complete the %@ scale."
+          }
+        }
+      }
+    },
+    "%@ 스케일의 %lld도 음은 %@입니다." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Degree %2$lld of the %1$@ scale is %3$@."
+          }
+        }
+      }
+    },
+    "%@ 스케일의 %lld도 음은?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "What is degree %2$lld of the %1$@ scale?"
+          }
+        }
+      }
+    },
+    "%@ 스케일의 다이아토닉 %@ 규칙 : %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diatonic %2$@ rule of the %1$@ scale: %3$@"
+          }
+        }
+      }
+    },
+    "%@ 스케일의 음정 패턴을 완성하세요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Complete the interval pattern of the %@ scale."
+          }
+        }
+      }
+    },
+    "%@ 코드" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ chord"
+          }
+        }
+      }
+    },
+    "%@ 코드를 완성하세요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Complete the %@ chord."
+          }
+        }
+      }
+    },
+    "%@ 코드에서 %lld도 음은 %@입니다." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In the %1$@ chord, degree %2$lld is %3$@."
+          }
+        }
+      }
+    },
+    "%@ 코드의 %lld도 음은 %@입니다." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Degree %2$lld of the %1$@ chord is %3$@."
+          }
+        }
+      }
+    },
+    "%@ 코드의 %lld도 음은?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "What is degree %2$lld of the %1$@ chord?"
+          }
+        }
+      }
+    },
+    "%@ 코드의 도수 공식 : %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Degree formula of the %1$@ chord: %2$@"
+          }
+        }
+      }
+    },
+    "%@ 코드의 도수 공식을 완성하세요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Complete the degree formula of the %@ chord."
+          }
+        }
+      }
+    },
+    "%@, %@" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@, %2$@"
+          }
+        }
+      }
+    },
+    "%@, %@, %@" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@, %2$@, %3$@"
+          }
+        }
+      }
+    },
+    "%@, %@, %@, %@" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@, %2$@, %3$@, %4$@"
+          }
+        }
+      }
+    },
+    "%@, %@, %@, %@, 핵심 %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@, %2$@, %3$@, %4$@. Key point: %5$@"
+          }
+        }
+      }
+    },
+    "%@, 구성음 %@, 표기 %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@, notes %2$@, symbol %3$@"
+          }
+        }
+      }
+    },
+    "%@. %@ %lld개. 최근 조표 %@." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@. %3$lld %2$@. Latest accidental: %4$@."
+          }
+        }
+      }
+    },
+    "%@. 구성: %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@. Steps: %2$@"
+          }
+        }
+      }
+    },
+    "%@. 조표 없음" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@. No signature"
+          }
+        }
+      }
+    },
+    "%@에서 %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ to %2$@"
+          }
+        }
+      }
+    },
+    "%@의 다이아토닉 %@ : %@ (%@)\n%@는 %@의 다이아토닉 코드가 아닙니다." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diatonic %2$@ of %1$@: %3$@ (%4$@)\n%5$@ is not a diatonic chord of %6$@."
+          }
+        }
+      }
+    },
+    "%@의 다이아토닉 %@ 규칙을 완성하세요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Complete the diatonic %2$@ rule for %1$@."
+          }
+        }
+      }
+    },
+    "%lld" : {
+
+    },
+    "%lld / %lld, %@" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld / %2$lld, %3$@"
+          }
+        }
+      }
+    },
+    "%lld개" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld"
+          }
+        }
+      }
+    },
+    "%lld도" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "degree %lld"
+          }
+        }
+      }
+    },
+    "%lld문제" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld"
+          }
+        }
+      }
+    },
+    "%lld문제 중 %lld문제, 맞힌 %lld개, 틀린 %lld개" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%2$lld of %1$lld · %3$lld correct, %4$lld incorrect"
+          }
+        }
+      }
+    },
+    "%lld번줄 %lld프렛" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "String %1$lld, fret %2$lld"
+          }
+        }
+      }
+    },
+    "%lld번줄 개방현" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "String %lld, open"
+          }
+        }
+      }
+    },
+    "+" : {
+
+    },
+    "=" : {
+
+    },
+    "𝄞" : {
+
+    },
+    "♭ %lld개" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "♭ %lld"
+          }
+        }
+      }
+    },
+    "♭ 1개 (B♭)" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 ♭ (B♭)"
+          }
+        }
+      }
+    },
+    "♯ %lld개" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "♯ %lld"
+          }
+        }
+      }
+    },
+    "♯ 1개 (F♯)" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 ♯ (F♯)"
+          }
+        }
+      }
+    },
+    "0반음" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "0 semitones"
+          }
+        }
+      }
+    },
+    "1도" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1st"
+          }
+        }
+      }
+    },
+    "1도를 기준으로 도수의 위치를 찾아 보세요" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Using degree 1 as the reference, find each degree"
+          }
+        }
+      }
+    },
+    "2도" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2nd"
+          }
+        }
+      }
+    },
+    "3도" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "3rd"
+          }
+        }
+      }
+    },
+    "3반음" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "3 semitones"
+          }
+        }
+      }
+    },
+    "4도" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "4th"
+          }
+        }
+      }
+    },
+    "4도 상행\n(5도 하행)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Up a 4th\n(down a 5th)"
+          }
+        }
+      }
+    },
+    "4반음" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "4 semitones"
+          }
+        }
+      }
+    },
+    "5도" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "5th"
+          }
+        }
+      }
+    },
+    "5도 상행\n(4도 하행)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Up a 5th\n(down a 4th)"
+          }
+        }
+      }
+    },
+    "5도권" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Circle of Fifths"
+          }
+        }
+      }
+    },
+    "5도권 안내" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Circle of Fifths Guide"
+          }
+        }
+      }
+    },
+    "5도권에서 같은 칸에 배치된 장조와 단조는 서로 관계조입니다." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A major key and minor key in the same slice are relatives."
+          }
+        }
+      }
+    },
+    "5도권은 시계 방향으로 이동하면 완전5도, 반시계 방향으로 이동하면 완전4도씩 으뜸음이 바뀝니다." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clockwise steps move by a perfect 5th, and counterclockwise steps move by a perfect 4th."
+          }
+        }
+      }
+    },
+    "5도권은 장조와 관계단조, 조표를 완전5도 관계에 따라 원형으로 배치한 도표입니다. 한 칸씩 이동하며 조표의 변화와 조성 간의 관계를 확인할 수 있습니다." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The circle of fifths places major keys, their relative minors, and key signatures around a circle in perfect-fifth order. Move one step at a time to see how signatures and keys relate."
+          }
+        }
+      }
+    },
+    "5도권의 구성" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Layout of the Circle"
+          }
+        }
+      }
+    },
+    "5도권의 이동 방향" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Direction around the Circle"
+          }
+        }
+      }
+    },
+    "5도권이란?" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "What Is the Circle of Fifths?"
+          }
+        }
+      }
+    },
+    "5반음" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "5 semitones"
+          }
+        }
+      }
+    },
+    "6도" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "6th"
+          }
+        }
+      }
+    },
+    "6반음" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "6 semitones"
+          }
+        }
+      }
+    },
+    "7도" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "7th"
+          }
+        }
+      }
+    },
+    "7반음" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "7 semitones"
+          }
+        }
+      }
+    },
+    "8반음" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "8 semitones"
+          }
+        }
+      }
+    },
+    "10문제 늘리기" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Increase by 10"
+          }
+        }
+      }
+    },
+    "10문제 줄이기" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Decrease by 10"
+          }
+        }
+      }
+    },
+    "A 단조" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A minor"
+          }
+        }
+      }
+    },
+    "Augmented(증)" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Augmented"
+          }
+        }
+      }
+    },
+    "C → E는 3도이고 4반음이므로 장3도입니다." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "C → E is a 3rd and 4 semitones, so it is a major 3rd."
+          }
+        }
+      }
+    },
+    "C Major" : {
+
+    },
+    "C Major 7 코드를 완성하세요." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Complete the C major 7 chord."
+          }
+        }
+      }
+    },
+    "C Major Triad 코드를 완성하세요." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Complete the C major triad."
+          }
+        }
+      }
+    },
+    "C Major 스케일, %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "C major scale, %@"
+          }
+        }
+      }
+    },
+    "C Major 스케일. 온음, 온음, 반음, 온음, 온음, 온음, 반음. E-F와 B-C는 자연 반음 구간." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "C major scale. Whole, whole, half, whole, whole, whole, half. E–F and B–C are the natural half steps."
+          }
+        }
+      }
+    },
+    "C Major 스케일을 완성하세요." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Complete the C major scale."
+          }
+        }
+      }
+    },
+    "C Major를 기준으로 각 방향으로 이동하며 조표가 어떻게 변하는지 살펴보세요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start from C major and watch how the signature changes in each direction."
+          }
+        }
+      }
+    },
+    "C Major를 기준으로 이동할 때마다 샵(♯)이 하나씩 추가됩니다." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Starting from C major, each step adds one sharp (♯)."
+          }
+        }
+      }
+    },
+    "C Major를 기준으로 이동할 때마다 플랫(♭)이 하나씩 추가됩니다." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Starting from C major, each step adds one flat (♭)."
+          }
+        }
+      }
+    },
+    "C 장조" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "C major"
+          }
+        }
+      }
+    },
+    "C 장조가 위에 있는 5도권입니다. 바깥쪽은 장조, 안쪽은 관계단조입니다." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The circle of fifths with C major at the top. The outside is major, and the inside is the relative minor."
+          }
+        }
+      }
+    },
+    "C 장조와 관계단조 A 단조가 같은 칸에 있습니다." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "C major and its relative minor, A minor, share a slice."
+          }
+        }
+      }
+    },
+    "C7 코드를 완성하세요." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Complete the C7 chord."
+          }
+        }
+      }
+    },
+    "C를 기준으로 음정을 선택하면 자연 반음 구간, 전체 반음 간격, 음정 이름을 확인할 수 있습니다." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pick an interval above C to see the natural half steps, the total semitone distance, and the interval name."
+          }
+        }
+      }
+    },
+    "C에서 %@까지, 음이름을 세면 %lld도이고 전체 간격은 %lld반음이므로 %@입니다." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "From C to %1$@, the letter names span a %2$lld and the distance is %3$lld semitones, so it is %4$@."
+          }
+        }
+      }
+    },
+    "C에서 %@까지. %@." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "From C to %1$@. %2$@."
+          }
+        }
+      }
+    },
+    "C에서 각 도수까지 이동하면서 E–F, B–C의 자연 반음 구간이 몇 개 포함되는지 확인하고, 전체 반음 간격과 함께 비교해 보세요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Move from C to each degree and see how many of the natural half steps, E–F and B–C, are included. Compare that with the total semitone distance."
+          }
+        }
+      }
+    },
+    "C와 6개 음을 공유" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shares 6 notes with C"
+          }
+        }
+      }
+    },
+    "D 단조" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "D minor"
+          }
+        }
+      }
+    },
+    "Diminished(감)" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diminished"
+          }
+        }
+      }
+    },
+    "Dominant 계열" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dominant family"
+          }
+        }
+      }
+    },
+    "Doubly Augmented(겹증)" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Doubly Augmented"
+          }
+        }
+      }
+    },
+    "Doubly Diminished(겹감)" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Doubly Diminished"
+          }
+        }
+      }
+    },
+    "E 단조" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "E minor"
+          }
+        }
+      }
+    },
+    "F 장조" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "F major"
+          }
+        }
+      }
+    },
+    "G 장조" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "G major"
+          }
+        }
+      }
+    },
+    "I 코드와 공통음을 가지고 있어 토닉을 어느 정도 대신할 수 있는 코드입니다." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shares notes with I, so it can stand in for the tonic to some extent."
+          }
+        }
+      }
+    },
+    "I 코드와 일부 음을 공유하여 비교적 안정적인 성격을 갖습니다." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shares some notes with I, so it feels relatively stable."
+          }
+        }
+      }
+    },
+    "I만큼 강한 중심감을 갖지는 않으며, 실제 진행에서는 앞뒤 코드에 따라 다른 코드를 연결하는 역할로도 자주 사용됩니다." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "It is less centered than I, and in real progressions it often links the chords around it."
+          }
+        }
+      }
+    },
+    "Key" : {
+
+    },
+    "Major 스케일의 다이아토닉 Triad 코드 규칙을 완성하세요." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Complete the diatonic triad rule of the major scale."
+          }
+        }
+      }
+    },
+    "Major(장)" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Major"
+          }
+        }
+      }
+    },
+    "Minor(단)" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Minor"
+          }
+        }
+      }
+    },
+    "Perfect(완전)" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Perfect"
+          }
+        }
+      }
+    },
+    "Subdominant 계열" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Subdominant family"
+          }
+        }
+      }
+    },
+    "T 안정에서 S 전개, D 긴장으로 진행한 뒤 다시 안정으로 돌아옵니다" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Moves from rest (T) through motion (S) and tension (D), then back to rest"
+          }
+        }
+      }
+    },
+    "Tonic 계열" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tonic family"
+          }
+        }
+      }
+    },
+    "V로 진행하여 긴장을 높이거나, 다시 I로 돌아갈 수도 있습니다." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "It can go to V to raise the tension, or return to I."
+          }
+        }
+      }
+    },
+    "각 장조와 동일한 조표를 사용하는 관계단조를 나타냅니다. 표시된 음이름은 해당 단조의 으뜸음입니다." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shows the relative minor that shares each major key's signature. The note name is that minor key's tonic."
+          }
+        }
+      }
+    },
+    "각 장조의 으뜸음을 나타냅니다." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shows the tonic of each major key."
+          }
+        }
+      }
+    },
+    "각 조성에서 사용하는 샵(♯) 또는 플랫(♭)의 개수를 나타냅니다." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shows how many sharps (♯) or flats (♭) each key uses."
+          }
+        }
+      }
+    },
+    "각 코드의 역할" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Role of Each Chord"
+          }
+        }
+      }
+    },
+    "감2도" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diminished 2nd"
+          }
+        }
+      }
+    },
+    "감3도" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diminished 3rd"
+          }
+        }
+      }
+    },
+    "감4도" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diminished 4th"
+          }
+        }
+      }
+    },
+    "감5도" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diminished 5th"
+          }
+        }
+      }
+    },
+    "감6도" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diminished 6th"
+          }
+        }
+      }
+    },
+    "감7도" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diminished 7th"
+          }
+        }
+      }
+    },
+    "감8도" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diminished Octave"
+          }
+        }
+      }
+    },
+    "강한 긴장 · 불안정 · I로 해결" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Strong tension · unstable · resolves to I"
+          }
+        }
+      }
+    },
+    "강한 긴장감을 만들고 I로 해결되려는 성질을 가진 코드입니다." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Creates strong tension and wants to resolve to I."
+          }
+        }
+      }
+    },
+    "같은 난이도와 문제 수로 다시 풀려면 두 번 탭하세요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Double-tap to retry with the same difficulty and question count"
+          }
+        }
+      }
+    },
+    "같은 도수에서 반음 간격이 넓어지면 ♯ 방향, 좁아지면 ♭ 방향으로 음정 이름이 바뀝니다.\n\n1·4·5·8도는 완전(Perfect), 2·3·6·7도는 장·단(Major/Minor)을 기준으로 합니다." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "On the same degree, a wider semitone distance moves the name toward ♯, and a narrower one moves it toward ♭.\n\n1, 4, 5, and 8 are perfect. 2, 3, 6, and 7 are major or minor."
+          }
+        }
+      }
+    },
+    "같은 도수에서도 반음 간격이 달라지면 음정의 성질이 달라집니다." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The same degree can change quality when the semitone distance changes."
+          }
+        }
+      }
+    },
+    "같은 설정으로 다시 풀기" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Retry with the Same Settings"
+          }
+        }
+      }
+    },
+    "같은 음" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Same note"
+          }
+        }
+      }
+    },
+    "같은 칸에 위치한 장조와 관계단조는 조표가 같으며, 으뜸음은 단3도(3반음) 차이가 납니다." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A major key and its relative minor share a signature, and their tonics are a minor 3rd (3 semitones) apart."
+          }
+        }
+      }
+    },
+    "같은 키에 속한 다이아토닉 코드라도 음악에서 수행하는 역할은 서로 다릅니다." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diatonic chords in the same key still play different roles in the music."
+          }
+        }
+      }
+    },
+    "개념과 구성을 살펴보세요" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Look through the ideas and how they are built"
+          }
+        }
+      }
+    },
+    "결과 보기" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "See Results"
+          }
+        }
+      }
+    },
+    "결과를 보려면 두 번 탭하세요" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Double-tap to see the results"
+          }
+        }
+      }
+    },
+    "겹감2도" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Doubly Diminished 2nd"
+          }
+        }
+      }
+    },
+    "겹감3도" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Doubly Diminished 3rd"
+          }
+        }
+      }
+    },
+    "겹감4도" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Doubly Diminished 4th"
+          }
+        }
+      }
+    },
+    "겹감5도" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Doubly Diminished 5th"
+          }
+        }
+      }
+    },
+    "겹감6도" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Doubly Diminished 6th"
+          }
+        }
+      }
+    },
+    "겹감7도" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Doubly Diminished 7th"
+          }
+        }
+      }
+    },
+    "겹감8도" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Doubly Diminished Octave"
+          }
+        }
+      }
+    },
+    "겹증1도" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Doubly Augmented Unison"
+          }
+        }
+      }
+    },
+    "겹증2도" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Doubly Augmented 2nd"
+          }
+        }
+      }
+    },
+    "겹증3도" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Doubly Augmented 3rd"
+          }
+        }
+      }
+    },
+    "겹증4도" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Doubly Augmented 4th"
+          }
+        }
+      }
+    },
+    "겹증5도" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Doubly Augmented 5th"
+          }
+        }
+      }
+    },
+    "겹증6도" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Doubly Augmented 6th"
+          }
+        }
+      }
+    },
+    "겹증7도" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Doubly Augmented 7th"
+          }
+        }
+      }
+    },
+    "곡의 시작이나 끝에서 자주 사용되며, 다른 코드에서 발생한 긴장이 I로 돌아오면서 해결되는 느낌을 줍니다." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Often used at the beginning or end of a piece. Tension from other chords resolves when it returns to I."
+          }
+        }
+      }
+    },
+    "곡의 중심이 되는 기능으로, 안정감과 마무리되는 느낌을 줍니다." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The function at the center of the key. It feels stable and conclusive."
+          }
+        }
+      }
+    },
+    "공통으로 사용하는 음이 많아 전조하거나 코드를 연결할 때 활용할 수 있습니다." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "They share most of their notes, which helps when modulating or connecting chords."
+          }
+        }
+      }
+    },
+    "관계조 예시" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Relative Key Examples"
+          }
+        }
+      }
+    },
+    "관계조의 특징" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "What Relatives Share"
+          }
+        }
+      }
+    },
+    "구성음" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notes"
+          }
+        }
+      }
+    },
+    "구성음 · 공식 · 도수를 맞춰 보세요" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Match the notes, formula, and degrees"
+          }
+        }
+      }
+    },
+    "구성음 · 패턴 · 도수를 맞춰 보세요" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Match the notes, pattern, and degrees"
+          }
+        }
+      }
+    },
+    "구성음 %@, 표기 %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notes %1$@, symbol %2$@"
+          }
+        }
+      }
+    },
+    "구성음 %@는 %@ 코드 입니다.\n%@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notes %1$@ form a %2$@ chord.\n%3$@"
+          }
+        }
+      }
+    },
+    "규칙 · 품질 · 코드를 맞혀 보세요" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Match the rule, quality, and chord"
+          }
+        }
+      }
+    },
+    "근음" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Root"
+          }
+        }
+      }
+    },
+    "근음 자체가 이끈음(Leading Tone)이므로 반음 위에 있는 으뜸음으로 진행하려는 강한 성질을 갖습니다. C Major에서는 B Diminished → C Major와 같은 진행에서 이러한 해결 성향을 확인할 수 있습니다." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Its root is the leading tone, so it pulls up by a half step to the tonic. In C major, B diminished → C major shows that pull."
+          }
+        }
+      }
+    },
+    "근음을 C로 둔 Triad와 7th 코드의 이름, 구성음, 표기입니다. 근음이 바뀌면 같은 간격으로 구성음과 기호가 옮겨집니다." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Names, notes, and symbols for triads and 7th chords with C as the root. When the root changes, the notes and symbols move by the same intervals."
+          }
+        }
+      }
+    },
+    "근음을 변경하려면 두 번 탭하세요" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Double-tap to change the root"
+          }
+        }
+      }
+    },
+    "기본 음정에서 변형 음정으로" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "From basic intervals to altered ones"
+          }
+        }
+      }
+    },
+    "기준" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Root"
+          }
+        }
+      }
+    },
+    "기준 조성" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reference key"
+          }
+        }
+      }
+    },
+    "기준음" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Root"
+          }
+        }
+      }
+    },
+    "기준음 %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Root %@"
+          }
+        }
+      }
+    },
+    "기준음 %@." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Root %1$@."
+          }
+        }
+      }
+    },
+    "기준음 C와 이웃한 F, G가 보입니다." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "C is shown with its neighbors F and G."
+          }
+        }
+      }
+    },
+    "기준음으로 설정하려면 두 번 탭하세요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Double-tap to set this as the root"
+          }
+        }
+      }
+    },
+    "기준음을 C로 되돌립니다" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Returns the tonic to C"
+          }
+        }
+      }
+    },
+    "기준음을 변경하려면 두 번 탭하세요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Double-tap to change the root"
+          }
+        }
+      }
+    },
+    "기준음입니다" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This is the root"
+          }
+        }
+      }
+    },
+    "기타" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Guitar"
+          }
+        }
+      }
+    },
+    "기타 지판" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Guitar fretboard"
+          }
+        }
+      }
+    },
+    "기타 지판, 도수 표시, 기준음 %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Guitar fretboard, degrees, root %@"
+          }
+        }
+      }
+    },
+    "긴장" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tension"
+          }
+        }
+      }
+    },
+    "긴장 · 불안정 · I로 해결" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tension · unstable · resolves to I"
+          }
+        }
+      }
+    },
+    "긴장감을 형성하며, 토닉으로 진행해 해결되려는 성향이 강합니다." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Creates tension and a strong pull back to the tonic."
+          }
+        }
+      }
+    },
+    "긴장과 해결" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tension and resolution"
+          }
+        }
+      }
+    },
+    "난이도를 선택하려면 두 번 탭하세요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Double-tap to choose a difficulty"
+          }
+        }
+      }
+    },
+    "난이도와 문제 수를 선택하세요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose a difficulty and the number of questions."
+          }
+        }
+      }
+    },
+    "다른 도수의 예시 · 완전5도" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Another degree · Perfect 5th"
+          }
+        }
+      }
+    },
+    "다음 두 음의 음정은?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "What is the interval between these two notes?"
+          }
+        }
+      }
+    },
+    "다음 문제" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Next Question"
+          }
+        }
+      }
+    },
+    "다음 문제로 넘어가려면 두 번 탭하세요" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Double-tap to go to the next question"
+          }
+        }
+      }
+    },
+    "다음 스케일은 무엇일까요?" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "What is this scale?"
+          }
+        }
+      }
+    },
+    "다음 조표의 키는?" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "What is the key of this signature?"
+          }
+        }
+      }
+    },
+    "다음 중, %@의 다이아토닉 %@가 아닌 것은?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Which of these is not a diatonic %2$@ of %1$@?"
+          }
+        }
+      }
+    },
+    "다음 코드는 무엇일까요?" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "What is this chord?"
+          }
+        }
+      }
+    },
+    "다음 키의 조표는?" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "What is the signature of this key?"
+          }
+        }
+      }
+    },
+    "다음 페이지" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Next Page"
+          }
+        }
+      }
+    },
+    "다이아토닉 추가" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add Diatonic"
+          }
+        }
+      }
+    },
+    "다이아토닉 코드" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diatonic Chord"
+          }
+        }
+      }
+    },
+    "다이아토닉 코드 오선" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diatonic chord staff"
+          }
+        }
+      }
+    },
+    "다이아토닉 코드 이론 페이지를 엽니다" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opens the diatonic chord theory page"
+          }
+        }
+      }
+    },
+    "다이아토닉 코드 카드 삭제" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete Diatonic Chord Card"
+          }
+        }
+      }
+    },
+    "다이아토닉 코드 카드를 추가합니다. 최대 %lld개" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adds a diatonic chord card. Up to %lld."
+          }
+        }
+      }
+    },
+    "다이아토닉 코드 퀴즈" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diatonic Chord Quiz"
+          }
+        }
+      }
+    },
+    "다이아토닉 코드의 기능" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Function of Diatonic Chords"
+          }
+        }
+      }
+    },
+    "다크 모드로 전환" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Switch to Dark Mode"
+          }
+        }
+      }
+    },
+    "단2도" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Minor 2nd"
+          }
+        }
+      }
+    },
+    "단3도" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Minor 3rd"
+          }
+        }
+      }
+    },
+    "단6도" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Minor 6th"
+          }
+        }
+      }
+    },
+    "단7도" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Minor 7th"
+          }
+        }
+      }
+    },
+    "닫기" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Close"
+          }
+        }
+      }
+    },
+    "답을 선택하려면 두 번 탭하세요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Double-tap to choose an answer"
+          }
+        }
+      }
+    },
+    "대표적인 서브도미넌트(Subdominant) 코드로, 안정된 토닉(Tonic)에서 벗어나 음악을 전개시키는 역할을 합니다." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The main subdominant chord. It leaves the stable tonic and moves the music forward."
+          }
+        }
+      }
+    },
+    "대표적인 진행을 단순화한 예시이며, 모든 곡이 이 순서를 따르는 것은 아닙니다." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This is a simplified example of a typical progression. Not every piece follows this order."
+          }
+        }
+      }
+    },
+    "대표적인 화성 진행" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A Typical Progression"
+          }
+        }
+      }
+    },
+    "도미넌트" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dominant"
+          }
+        }
+      }
+    },
+    "도수" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Degree"
+          }
+        }
+      }
+    },
+    "도수 (음이름)" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Degree (letter names)"
+          }
+        }
+      }
+    },
+    "도수 표시로 전환" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Switch to Degrees"
+          }
+        }
+      }
+    },
+    "도수는 음이름으로 결정되므로 그대로 유지되고, 두 음 사이의 반음 간격이 달라지면 장·단·완전·증·감으로 이름이 바뀝니다." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The degree stays the same because it comes from the letter names. When the semitone distance changes, the name becomes major, minor, perfect, augmented, or diminished."
+          }
+        }
+      }
+    },
+    "도수를 구합니다" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Find the degree"
+          }
+        }
+      }
+    },
+    "도수별 자연 반음 구간" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Natural half steps by degree"
+          }
+        }
+      }
+    },
+    "두 음 사이의 거리" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The distance between two notes"
+          }
+        }
+      }
+    },
+    "두 음 사이의 반음 간격으로 장·단·완전·증·감을 결정합니다." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The semitone distance decides major, minor, perfect, augmented, or diminished."
+          }
+        }
+      }
+    },
+    "두 음의 음이름으로 몇 도의 관계인지 결정합니다." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The letter names decide which degree the two notes span."
+          }
+        }
+      }
+    },
+    "두 음의 음이름으로 몇 도인지 셉니다." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Count the degree from the two letter names."
+          }
+        }
+      }
+    },
+    "두 음의 음정을 맞춰 보세요" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Name the interval between two notes"
+          }
+        }
+      }
+    },
+    "뒤로" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Back"
+          }
+        }
+      }
+    },
+    "라이트 모드로 전환" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Switch to Light Mode"
+          }
+        }
+      }
+    },
+    "마이너 + 감5도" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Minor + diminished 5th"
+          }
+        }
+      }
+    },
+    "마이너 + 단2도" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Minor + minor 2nd"
+          }
+        }
+      }
+    },
+    "마이너 + 장6도" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Minor + major 6th"
+          }
+        }
+      }
+    },
+    "만들어지는 원리" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "How They Are Built"
+          }
+        }
+      }
+    },
+    "매우 불안정하며 I로 해결되려는 성질이 강한 감3화음입니다." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A very unstable diminished triad with a strong pull toward I."
+          }
+        }
+      }
+    },
+    "먼저, 자연음의 간격을 살펴봅시다." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start with the distances between natural notes."
+          }
+        }
+      }
+    },
+    "메뉴로 돌아가기" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Back to Menu"
+          }
+        }
+      }
+    },
+    "메뉴로 돌아가려면 두 번 탭하세요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Double-tap to return to the menu"
+          }
+        }
+      }
+    },
+    "메이저 + 단7도" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Major + minor 7th"
+          }
+        }
+      }
+    },
+    "메이저 + 증4도" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Major + augmented 4th"
+          }
+        }
+      }
+    },
+    "모두 숨김" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All hidden"
+          }
+        }
+      }
+    },
+    "모두 표시됨" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All shown"
+          }
+        }
+      }
+    },
+    "모든 음 숨기기" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hide All Notes"
+          }
+        }
+      }
+    },
+    "모든 음 표시" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show All Notes"
+          }
+        }
+      }
+    },
+    "목표 도수 %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Target degree %@"
+          }
+        }
+      }
+    },
+    "목표음" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Target"
+          }
+        }
+      }
+    },
+    "목표음 %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Target note %@"
+          }
+        }
+      }
+    },
+    "목표음을 변경하려면 두 번 탭하세요" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Double-tap to change the target note"
+          }
+        }
+      }
+    },
+    "문제 수" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questions"
+          }
+        }
+      }
+    },
+    "문제 수 %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld questions"
+          }
+        }
+      }
+    },
+    "문제를 풀어 보세요" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Try some questions"
+          }
+        }
+      }
+    },
+    "바깥쪽 고리 : 조표" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Outer ring: key signature"
+          }
+        }
+      }
+    },
+    "반시계 방향" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Counterclockwise"
+          }
+        }
+      }
+    },
+    "반시계 방향 : 완전4도 상행" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Counterclockwise: up a perfect 4th"
+          }
+        }
+      }
+    },
+    "반시계 방향으로 한 칸 이동하면 으뜸음이 완전4도 높아집니다." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "One step counterclockwise raises the tonic by a perfect 4th."
+          }
+        }
+      }
+    },
+    "반시계 방향으로 한 칸씩 이동하면 플랫(♭)이 B, E, A, D, G, C, F 순서로 하나씩 추가됩니다." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Each counterclockwise step adds one flat (♭), in the order B, E, A, D, G, C, F."
+          }
+        }
+      }
+    },
+    "반음" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Half"
+          }
+        }
+      }
+    },
+    "반음 간격" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Semitone distance"
+          }
+        }
+      }
+    },
+    "반음 간격 계산 과정" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "How the semitone count is built"
+          }
+        }
+      }
+    },
+    "반음 간격 계산 과정. %@. 합계 %lld반음." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "How the semitone count is built. %1$@. Total: %2$lld semitones."
+          }
+        }
+      }
+    },
+    "반음 간격 계산 과정. 0반음." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "How the semitone count is built. 0 semitones."
+          }
+        }
+      }
+    },
+    "반음 간격으로 장·단·완전·증·감을 정합니다." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Use the semitone distance to choose major, minor, perfect, augmented, or diminished."
+          }
+        }
+      }
+    },
+    "방향없음" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unison"
+          }
+        }
+      }
+    },
+    "비교적 안정 · 연결 · I과 유사한 성격" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fairly stable · connective · similar to I"
+          }
+        }
+      }
+    },
+    "빈칸" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Blank"
+          }
+        }
+      }
+    },
+    "상행" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ascending"
+          }
+        }
+      }
+    },
+    "샵" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sharp"
+          }
+        }
+      }
+    },
+    "샵 1도" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "sharp 1st"
+          }
+        }
+      }
+    },
+    "샵 2도" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "sharp 2nd"
+          }
+        }
+      }
+    },
+    "샵 4도" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "sharp 4th"
+          }
+        }
+      }
+    },
+    "샵 5도" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "sharp 5th"
+          }
+        }
+      }
+    },
+    "샵 6도" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "sharp 6th"
+          }
+        }
+      }
+    },
+    "샵 표기" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sharp spelling"
+          }
+        }
+      }
+    },
+    "샵 표기로 전환" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Switch to Sharps"
+          }
+        }
+      }
+    },
+    "서브도미넌트" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Subdominant"
+          }
+        }
+      }
+    },
+    "선택 닫기" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Close Picker"
+          }
+        }
+      }
+    },
+    "선택 닫힘" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Picker closed"
+          }
+        }
+      }
+    },
+    "선택 열림" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Picker open"
+          }
+        }
+      }
+    },
+    "선택한 방향으로 한 칸 이동합니다" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Moves one step in the selected direction"
+          }
+        }
+      }
+    },
+    "성질 (반음 간격)" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quality (semitones)"
+          }
+        }
+      }
+    },
+    "성질 이름이 어떻게 이어지는지는 다음 페이지에서 확인할 수 있습니다." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The next page shows how those quality names connect."
+          }
+        }
+      }
+    },
+    "성질을 정합니다" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose the quality"
+          }
+        }
+      }
+    },
+    "세 가지 화성 기능" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Three Harmonic Functions"
+          }
+        }
+      }
+    },
+    "세 음정은 모두 3도입니다. 장3도(4반음)를 기준으로 간격이 1반음 좁아지면 단3도, 1반음 넓어지면 증3도가 됩니다." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All three intervals are 3rds. From a major 3rd (4 semitones), one semitone narrower is a minor 3rd, and one semitone wider is an augmented 3rd."
+          }
+        }
+      }
+    },
+    "세 음정은 모두 5도입니다. 완전5도(7반음)를 기준으로 간격이 1반음 좁아지면 감5도, 1반음 넓어지면 증5도가 됩니다." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All three intervals are 5ths. From a perfect 5th (7 semitones), one semitone narrower is a diminished 5th, and one semitone wider is an augmented 5th."
+          }
+        }
+      }
+    },
+    "순서 이동" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reorder"
+          }
+        }
+      }
+    },
+    "순서 이동 닫기" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Close Reorder"
+          }
+        }
+      }
+    },
+    "숨김" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hidden"
+          }
+        }
+      }
+    },
+    "스케일" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scale"
+          }
+        }
+      }
+    },
+    "스케일 추가" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add Scale"
+          }
+        }
+      }
+    },
+    "스케일 카드 삭제" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete Scale Card"
+          }
+        }
+      }
+    },
+    "스케일 카드를 추가합니다. 최대 %lld개" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adds a scale card. Up to %lld."
+          }
+        }
+      }
+    },
+    "스케일 퀴즈" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scale Quiz"
+          }
+        }
+      }
+    },
+    "스케일을 변경하려면 두 번 탭하세요" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Double-tap to change the scale"
+          }
+        }
+      }
+    },
+    "스케일의 각 음을 근음으로 삼고 스케일 안에서 3도 간격으로 음을 쌓으면 다이아토닉 코드가 만들어집니다." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stacking notes a 3rd apart on each scale degree, using only notes from the scale, builds the diatonic chords."
+          }
+        }
+      }
+    },
+    "스케일의 구성음으로 만들어지는 코드" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chords built from the notes of a scale"
+          }
+        }
+      }
+    },
+    "시계 방향" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clockwise"
+          }
+        }
+      }
+    },
+    "시계 방향 : 완전5도 상행" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clockwise: up a perfect 5th"
+          }
+        }
+      }
+    },
+    "시계 방향으로 한 칸 이동하면 으뜸음이 완전5도 높아집니다." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "One step clockwise raises the tonic by a perfect 5th."
+          }
+        }
+      }
+    },
+    "시계 방향으로 한 칸씩 이동하면 샵(♯)이 F, C, G, D, A, E, B 순서로 하나씩 추가됩니다." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Each clockwise step adds one sharp (♯), in the order F, C, G, D, A, E, B."
+          }
+        }
+      }
+    },
+    "시작" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start"
+          }
+        }
+      }
+    },
+    "아래로" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Down"
+          }
+        }
+      }
+    },
+    "아래로 이동" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Move Down"
+          }
+        }
+      }
+    },
+    "아직 해당되는 메뉴가 없습니다" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No items here yet"
+          }
+        }
+      }
+    },
+    "안정" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rest"
+          }
+        }
+      }
+    },
+    "안정 · 중심 · 해결" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stable · center · resolution"
+          }
+        }
+      }
+    },
+    "안정 · 토닉 대리 · 분위기 변화" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stable · tonic substitute · change of color"
+          }
+        }
+      }
+    },
+    "안정 → 전개 → 긴장 → 안정" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rest → motion → tension → rest"
+          }
+        }
+      }
+    },
+    "안정과 휴식" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rest and repose"
+          }
+        }
+      }
+    },
+    "안쪽 고리 : 관계단조(Relative Minor)" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inner ring: relative minor"
+          }
+        }
+      }
+    },
+    "앞에서 살펴본 규칙을 직접 확인해 보세요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Check the rule for yourself."
+          }
+        }
+      }
+    },
+    "앱에서 사용할 언어를 선택하세요" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose the language to use in the app."
+          }
+        }
+      }
+    },
+    "언어 설정" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Language"
+          }
+        }
+      }
+    },
+    "여러 음이 동시에 울리는 화음" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Several notes sounding together"
+          }
+        }
+      }
+    },
+    "예시" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Example"
+          }
+        }
+      }
+    },
+    "예시 · 장3도" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Example · Major 3rd"
+          }
+        }
+      }
+    },
+    "예시. C에서 E까지는 3도이고 4반음이므로 장3도입니다." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Example. C to E is a 3rd and 4 semitones, so it is a major 3rd."
+          }
+        }
+      }
+    },
+    "오답" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Incorrect"
+          }
+        }
+      }
+    },
+    "온음" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Whole"
+          }
+        }
+      }
+    },
+    "온음은 2반음, 반음은 1반음입니다." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A whole step is 2 semitones, and a half step is 1 semitone."
+          }
+        }
+      }
+    },
+    "완전1도" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Perfect Unison"
+          }
+        }
+      }
+    },
+    "완전4도" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Perfect 4th"
+          }
+        }
+      }
+    },
+    "완전5도" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Perfect 5th"
+          }
+        }
+      }
+    },
+    "완전8도" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Perfect Octave"
+          }
+        }
+      }
+    },
+    "원위치" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reset"
+          }
+        }
+      }
+    },
+    "위, 아래 이동 버튼을 표시합니다" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shows buttons to move up or down"
+          }
+        }
+      }
+    },
+    "위로" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Up"
+          }
+        }
+      }
+    },
+    "위로 이동" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Move Up"
+          }
+        }
+      }
+    },
+    "으뜸음" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tonic"
+          }
+        }
+      }
+    },
+    "으뜸음을 변경하려면 두 번 탭하세요" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Double-tap to change the tonic"
+          }
+        }
+      }
+    },
+    "음이름" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Note Name"
+          }
+        }
+      }
+    },
+    "음이름 표시로 전환" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Switch to Note Names"
+          }
+        }
+      }
+    },
+    "음이름과 도수로 지판 위치를 살펴보세요" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "See fretboard positions by note name and degree"
+          }
+        }
+      }
+    },
+    "음정" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Interval"
+          }
+        }
+      }
+    },
+    "음정 · 스케일 · 조표 · 코드 · 다이아토닉" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Intervals · Scales · Signatures · Chords · Diatonic"
+          }
+        }
+      }
+    },
+    "음정 구조 살펴보기" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Explore Interval Structure"
+          }
+        }
+      }
+    },
+    "음정 안내" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Interval Guide"
+          }
+        }
+      }
+    },
+    "음정 이름 규칙" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "How Interval Names Work"
+          }
+        }
+      }
+    },
+    "음정 퀴즈" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Interval Quiz"
+          }
+        }
+      }
+    },
+    "음정 품질 규칙 다이어그램" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Interval quality diagram"
+          }
+        }
+      }
+    },
+    "음정의 기본 구조" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Basic Interval Structure"
+          }
+        }
+      }
+    },
+    "음정의 이름은 두 가지로 결정됩니다." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "An interval's name comes from two things."
+          }
+        }
+      }
+    },
+    "이 코드의 역할을 보려면 두 번 탭하세요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Double-tap to see this chord's role"
+          }
+        }
+      }
+    },
+    "이동 방향과 조표 변화" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Direction and Signature Changes"
+          }
+        }
+      }
+    },
+    "이동과 전개" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Motion and departure"
+          }
+        }
+      }
+    },
+    "이동하기" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Move"
+          }
+        }
+      }
+    },
+    "이러한 역할을 화성 기능(Harmonic Function)이라고 하며, 대표적으로 토닉(Tonic), 서브도미넌트(Subdominant), 도미넌트(Dominant)로 구분할 수 있습니다." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "These roles are called harmonic functions. The main ones are tonic, subdominant, and dominant."
+          }
+        }
+      }
+    },
+    "이론" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Theory"
+          }
+        }
+      }
+    },
+    "이웃한 장조끼리 또는 단조끼리는 단 하나의 음만 다릅니다." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Neighboring major keys, or neighboring minor keys, differ by only one note."
+          }
+        }
+      }
+    },
+    "이웃한 조성" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Neighboring Keys"
+          }
+        }
+      }
+    },
+    "이전 페이지" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Previous Page"
+          }
+        }
+      }
+    },
+    "일반적인 내추럴 마이너" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Typical natural minor"
+          }
+        }
+      }
+    },
+    "일반적인 메이저" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Typical major"
+          }
+        }
+      }
+    },
+    "일부 표시됨" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Some shown"
+          }
+        }
+      }
+    },
+    "일정한 음정 규칙에 따라 배열된 음들의 체계" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A set of notes arranged by a repeating interval pattern"
+          }
+        }
+      }
+    },
+    "임시표가 없는 자연음에서는 E–F와 B–C만 반음이고, 나머지는 온음입니다." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Among natural notes, only E–F and B–C are half steps. The rest are whole steps."
+          }
+        }
+      }
+    },
+    "자연 반음 구간" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Natural half steps"
+          }
+        }
+      }
+    },
+    "자연 반음 구간은 전체 반음 간격을 이해하기 위한 보조 기준입니다. 음정의 성질은 전체 반음 간격으로 결정됩니다." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Natural half steps are only a guide to the total distance. Quality is decided by the total number of semitones."
+          }
+        }
+      }
+    },
+    "장2도" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Major 2nd"
+          }
+        }
+      }
+    },
+    "장3도" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Major 3rd"
+          }
+        }
+      }
+    },
+    "장6도" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Major 6th"
+          }
+        }
+      }
+    },
+    "장7도" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Major 7th"
+          }
+        }
+      }
+    },
+    "장조와 관계단조" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Major and Relative Minor"
+          }
+        }
+      }
+    },
+    "전개" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Motion"
+          }
+        }
+      }
+    },
+    "전개 · 변화 · 이동" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Motion · change · departure"
+          }
+        }
+      }
+    },
+    "전개 · 이동 · V로 연결" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Motion · departure · into V"
+          }
+        }
+      }
+    },
+    "전체 반음 간격" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Total semitones"
+          }
+        }
+      }
+    },
+    "접기" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Collapse"
+          }
+        }
+      }
+    },
+    "정답" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Correct"
+          }
+        }
+      }
+    },
+    "정리" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Summary"
+          }
+        }
+      }
+    },
+    "조성의 중심이 되는 가장 안정적인 코드입니다." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The most stable chord, and the center of the key."
+          }
+        }
+      }
+    },
+    "조표 붙는 순서" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Order of Accidentals"
+          }
+        }
+      }
+    },
+    "조표 없는 오선" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Staff with no signature"
+          }
+        }
+      }
+    },
+    "조표 없음" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No signature"
+          }
+        }
+      }
+    },
+    "조표가 표시된 오선" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Staff with a signature"
+          }
+        }
+      }
+    },
+    "중간 고리 : 장조(Major)" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Middle ring: major"
+          }
+        }
+      }
+    },
+    "증1도" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Augmented Unison"
+          }
+        }
+      }
+    },
+    "증2도" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Augmented 2nd"
+          }
+        }
+      }
+    },
+    "증3도" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Augmented 3rd"
+          }
+        }
+      }
+    },
+    "증4도" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Augmented 4th"
+          }
+        }
+      }
+    },
+    "증5도" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Augmented 5th"
+          }
+        }
+      }
+    },
+    "증6도" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Augmented 6th"
+          }
+        }
+      }
+    },
+    "증7도" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Augmented 7th"
+          }
+        }
+      }
+    },
+    "증8도" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Augmented Octave"
+          }
+        }
+      }
+    },
+    "지판 보기" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fretboard"
+          }
+        }
+      }
+    },
+    "지판 퀴즈 (도수)" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fretboard Quiz (Degrees)"
+          }
+        }
+      }
+    },
+    "지판 퀴즈 (음이름)" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fretboard Quiz (Note Names)"
+          }
+        }
+      }
+    },
+    "지판 표시를 전환하려면 두 번 탭하세요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Double-tap to toggle the fretboard display"
+          }
+        }
+      }
+    },
+    "지판과 주법" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fretboard and technique"
+          }
+        }
+      }
+    },
+    "지판에서 음의 위치를 찾아 보세요" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Find where a note sits on the fretboard"
+          }
+        }
+      }
+    },
+    "지판의 모든 음 표시를 전환하려면 두 번 탭하세요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Double-tap to toggle every note on the fretboard"
+          }
+        }
+      }
+    },
+    "칸을 탭하면 그 음이 1도가 됩니다. 원을 드래그하면 시계 방향은 5도 상행 (4도 하행), 반시계 방향은 4도 상행 (5도 하행)입니다." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tap a slice to make that note degree 1. Drag the circle: clockwise is up a 5th (down a 4th), counterclockwise is up a 4th (down a 5th)."
+          }
+        }
+      }
+    },
+    "코드" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chord"
+          }
+        }
+      }
+    },
+    "코드 구성" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chord Tones"
+          }
+        }
+      }
+    },
+    "코드 정리" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chord Summary"
+          }
+        }
+      }
+    },
+    "코드 추가" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add Chord"
+          }
+        }
+      }
+    },
+    "코드 카드 삭제" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete Chord Card"
+          }
+        }
+      }
+    },
+    "코드 카드를 추가합니다. 최대 %lld개" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adds a chord card. Up to %lld."
+          }
+        }
+      }
+    },
+    "코드 퀴즈" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chord Quiz"
+          }
+        }
+      }
+    },
+    "코드를 변경하려면 두 번 탭하세요" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Double-tap to change the chord"
+          }
+        }
+      }
+    },
+    "퀴즈" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quiz"
+          }
+        }
+      }
+    },
+    "퀴즈 풀이 결과" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quiz Results"
+          }
+        }
+      }
+    },
+    "퀴즈를 시작하려면 두 번 탭하세요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Double-tap to start the quiz"
+          }
+        }
+      }
+    },
+    "키 · 조표 · 관계조" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Key · Signature · Relatives"
+          }
+        }
+      }
+    },
+    "키 · 조표 퀴즈" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Key Signature Quiz"
+          }
+        }
+      }
+    },
+    "키와 조표를 맞춰 보세요" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Match keys and signatures"
+          }
+        }
+      }
+    },
+    "토닉" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tonic"
+          }
+        }
+      }
+    },
+    "토닉에서 벗어나 음악을 전개시키며, 특히 도미넌트로 진행하는 역할을 자주 합니다." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leaves the tonic and moves the music forward, often toward the dominant."
+          }
+        }
+      }
+    },
+    "토닉의 안정된 상태에서 벗어나 음악을 전개하며, 다른 기능으로 연결하는 역할을 합니다." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leaves the stability of the tonic, moves the music forward, and connects to other functions."
+          }
+        }
+      }
+    },
+    "특히 V 다음에 예상되는 I 대신 vi가 등장하면 거짓종지(Deceptive Cadence)가 만들어질 수 있습니다. 또한 vi는 메이저 키의 관계단조(Relative Minor)에서 으뜸화음이 됩니다." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "If vi arrives where I was expected after V, that can create a deceptive cadence. vi is also the tonic chord of the relative minor."
+          }
+        }
+      }
+    },
+    "특히 V 코드의 3음은 조의 이끈음(Leading Tone)으로, 반음 위에 있는 으뜸음으로 진행하려는 강한 성질을 갖습니다. C Major에서는 G 코드의 B → C 움직임이 이에 해당합니다." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The 3rd of V is the leading tone of the key, which pulls up by a half step to the tonic. In C major, that is B → C in the G chord."
+          }
+        }
+      }
+    },
+    "특히 V로 자연스럽게 이어지며, ii → V → I은 재즈를 비롯한 다양한 음악에서 자주 사용되는 대표적인 진행입니다." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "It leads naturally to V. ii → V → I is a standard progression in jazz and many other styles."
+          }
+        }
+      }
+    },
+    "펼치기" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Expand"
+          }
+        }
+      }
+    },
+    "표기" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Symbol"
+          }
+        }
+      }
+    },
+    "표시됨" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shown"
+          }
+        }
+      }
+    },
+    "플랫" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Flat"
+          }
+        }
+      }
+    },
+    "플랫 2도" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "flat 2nd"
+          }
+        }
+      }
+    },
+    "플랫 3도" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "flat 3rd"
+          }
+        }
+      }
+    },
+    "플랫 5도" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "flat 5th"
+          }
+        }
+      }
+    },
+    "플랫 6도" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "flat 6th"
+          }
+        }
+      }
+    },
+    "플랫 7도" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "flat 7th"
+          }
+        }
+      }
+    },
+    "플랫 표기" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Flat spelling"
+          }
+        }
+      }
+    },
+    "플랫 표기로 전환" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Switch to Flats"
+          }
+        }
+      }
+    },
+    "하행" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Descending"
+          }
+        }
+      }
+    },
+    "학습" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Learn"
+          }
+        }
+      }
+    },
+    "해당 다이아토닉 코드를 오선에서 보려면 두 번 탭하세요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Double-tap to see this diatonic chord on the staff"
+          }
+        }
+      }
+    },
+    "핵심: %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Key point: %@"
+          }
+        }
+      }
+    },
+    "화성학" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harmony"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

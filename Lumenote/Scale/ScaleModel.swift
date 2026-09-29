@@ -272,9 +272,10 @@ enum ScaleStepInterval: Equatable {
 
     var koreanLabel: String {
         switch self {
-        case .half: return "반음"
-        case .whole: return "온음"
-        case .augmentedSecond: return "증2도"
+        case .half: return "반음".l10n
+        case .whole: return "온음".l10n
+        case .augmentedSecond:
+            return LanguageSettings.shared.language == .english ? "A2" : "증2도"
         }
     }
 

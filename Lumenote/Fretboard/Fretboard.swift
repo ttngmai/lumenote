@@ -19,8 +19,8 @@ enum Fretboard {
 
         var title: String {
             switch self {
-            case .noteName: return "음이름"
-            case .degree: return "도수"
+            case .noteName: return "음이름".l10n
+            case .degree: return "도수".l10n
             }
         }
 
@@ -33,8 +33,8 @@ enum Fretboard {
 
         var toggleAccessibilityLabel: String {
             switch self {
-            case .noteName: return "도수 표시로 전환"
-            case .degree: return "음이름 표시로 전환"
+            case .noteName: return "도수 표시로 전환".l10n
+            case .degree: return "음이름 표시로 전환".l10n
             }
         }
     }
@@ -183,7 +183,7 @@ enum Fretboard {
         accidental: AccidentalPreference
     ) -> String {
         let names = accidental == .flat ? flatDegreeAccessibilityNames : sharpDegreeAccessibilityNames
-        return names[semitones(from: rootPitchClass, to: pitchClass)]
+        return names[semitones(from: rootPitchClass, to: pitchClass)].l10n
     }
 
     static func normalizedPitchClass(_ pitchClass: Int) -> Int {

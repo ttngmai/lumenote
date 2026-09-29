@@ -100,7 +100,7 @@ struct ScaleStaffView: View {
         }.joined(separator: ", ")
         guard showsIntervalAnnotations else { return names }
         let steps = intervals.map(\.koreanLabel).joined(separator: ", ")
-        return "\(names). 구성: \(steps)"
+        return L10n.s("\(names). 구성: \(steps)")
     }
 
     // MARK: - Staff

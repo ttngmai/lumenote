@@ -304,15 +304,15 @@ struct FretboardDiagramView: View {
     private func accessibilityHint(for position: Fretboard.Position) -> String {
         guard isInteractive else { return "" }
         if position == hintPosition {
-            return "기준음입니다"
+            return "기준음입니다".l10n
         }
-        return "답을 선택하려면 두 번 탭하세요"
+        return "답을 선택하려면 두 번 탭하세요".l10n
     }
 
     private func accessibilityLabel(for position: Fretboard.Position, markerName: String?) -> String {
         let location = position.fret == 0
-            ? "\(position.stringIndex + 1)번줄 개방현"
-            : "\(position.stringIndex + 1)번줄 \(position.fret)프렛"
+            ? L10n.s("\(position.stringIndex + 1)번줄 개방현")
+            : L10n.s("\(position.stringIndex + 1)번줄 \(position.fret)프렛")
         if let markerName {
             return "\(location), \(markerName)"
         }

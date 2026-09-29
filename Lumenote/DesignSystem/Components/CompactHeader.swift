@@ -13,7 +13,7 @@ struct CompactHeader<Trailing: View>: View {
 
     var body: some View {
         ZStack {
-            Text(title)
+            Text(title.l10n)
                 .font(LumenoteFont.headline(.bold))
                 .foregroundStyle(.primary)
                 .lineLimit(1)

@@ -103,7 +103,7 @@ final class ChordQuizModel {
         case .identifyTone:
             let name = chordLabel(root: ctx.rootSpelling, kind: ctx.kind)
             guard let degree = ctx.degreeNumber else { return [name] }
-            return [name, "\(degree)도"]
+            return [name, L10n.s("\(degree)도")]
         case .identifyChord:
             return []
         }
@@ -159,7 +159,7 @@ final class ChordQuizModel {
 
         if answer == question.correctAnswer {
             return Feedback(
-                headline: "정답",
+                headline: "정답".l10n,
                 detail: correctDetail(
                     for: question.kind,
                     chordName: chordName,
@@ -283,7 +283,7 @@ final class ChordQuizModel {
 
         return Question(
             kind: .completeChord,
-            promptTitle: "\(entry.displayName) 코드를 완성하세요.",
+            promptTitle: L10n.s("\(entry.displayName) 코드를 완성하세요."),
             promptTokens: tokens,
             staffNotes: staff.notes,
             staffNoteNames: staff.names,
@@ -317,7 +317,7 @@ final class ChordQuizModel {
 
         return Question(
             kind: .identifyChord,
-            promptTitle: "다음 코드는 무엇일까요?",
+            promptTitle: "다음 코드는 무엇일까요?".l10n,
             promptTokens: [],
             staffNotes: explorer.staffNotes,
             staffNoteNames: explorer.toneDisplayNames,
@@ -355,7 +355,7 @@ final class ChordQuizModel {
 
         return Question(
             kind: .completeFormula,
-            promptTitle: "\(kindLabel(kind)) 코드의 도수 공식을 완성하세요.",
+            promptTitle: L10n.s("\(kindLabel(kind)) 코드의 도수 공식을 완성하세요."),
             promptTokens: tokens,
             staffNotes: [],
             staffNoteNames: [],
@@ -392,7 +392,7 @@ final class ChordQuizModel {
 
         return Question(
             kind: .identifyTone,
-            promptTitle: "\(entry.displayName) 코드의 \(degree)도 음은?",
+            promptTitle: L10n.s("\(entry.displayName) 코드의 \(degree)도 음은?"),
             promptTokens: [],
             staffNotes: staff.notes,
             staffNoteNames: staff.names,
@@ -486,19 +486,19 @@ final class ChordQuizModel {
     ) -> String {
         let names = tones.joined(separator: " · ")
         let formulaLine = completeFormulaDetail(kind: kind, formula: formula)
-        return "구성음 \(names)는 \(symbol) 코드 입니다.\n\(formulaLine)"
+        return L10n.s("구성음 \(names)는 \(symbol) 코드 입니다.\n\(formulaLine)")
     }
 
     private func completeChordDetail(chordName: String, degree: Int, note: String) -> String {
-        "\(chordName) 코드에서 \(degree)도 음은 \(note)입니다."
+        L10n.s("\(chordName) 코드에서 \(degree)도 음은 \(note)입니다.")
     }
 
     private func identifyToneDetail(chordName: String, degree: Int, note: String) -> String {
-        "\(chordName) 코드의 \(degree)도 음은 \(note)입니다."
+        L10n.s("\(chordName) 코드의 \(degree)도 음은 \(note)입니다.")
     }
 
     private func completeFormulaDetail(kind: ChordKind, formula: String) -> String {
-        "\(kindLabel(kind)) 코드의 도수 공식 : \(formula)"
+        L10n.s("\(kindLabel(kind)) 코드의 도수 공식 : \(formula)")
     }
 
     // MARK: - Distractors & catalog
@@ -901,7 +901,7 @@ final class ChordQuizModel {
             let staff = capturedStaff(root: "C", kind: .majorTriad)
             return Question(
                 kind: .completeChord,
-                promptTitle: "C Major Triad 코드를 완성하세요.",
+                promptTitle: "C Major Triad 코드를 완성하세요.".l10n,
                 promptTokens: [.note("C"), .blank, .note("G")],
                 staffNotes: staff.notes,
                 staffNoteNames: staff.names,
@@ -919,7 +919,7 @@ final class ChordQuizModel {
             let staff = capturedStaff(root: "C", kind: .dominant7)
             return Question(
                 kind: .completeChord,
-                promptTitle: "C7 코드를 완성하세요.",
+                promptTitle: "C7 코드를 완성하세요.".l10n,
                 promptTokens: [.note("C"), .note("E"), .note("G"), .blank],
                 staffNotes: staff.notes,
                 staffNoteNames: staff.names,
@@ -939,7 +939,7 @@ final class ChordQuizModel {
             let staff = capturedStaff(root: "C", kind: .major7)
             return Question(
                 kind: .completeChord,
-                promptTitle: "C Major 7 코드를 완성하세요.",
+                promptTitle: "C Major 7 코드를 완성하세요.".l10n,
                 promptTokens: [.note("C"), .note("E"), .note("G"), .blank],
                 staffNotes: staff.notes,
                 staffNoteNames: staff.names,

@@ -296,17 +296,17 @@ struct CircleOfFifthsGuideView: View {
     private func relationRow(major: String, minor: String, signature: String) -> some View {
         VStack(alignment: .leading, spacing: LumenoteSpacing.xxs) {
             HStack(spacing: 0) {
-                Text(major)
+                Text(major.l10n)
                     .font(LumenoteFont.subheadline(.bold))
                     .foregroundStyle(palette.major)
                 Text(", ")
                     .font(LumenoteFont.subheadline(.bold))
                     .foregroundStyle(.primary)
-                Text(minor)
+                Text(minor.l10n)
                     .font(LumenoteFont.subheadline(.bold))
                     .foregroundStyle(palette.minor)
             }
-            Text(signature)
+            Text(signature.l10n)
                 .font(LumenoteFont.caption(.medium))
                 .foregroundStyle(.secondary)
         }
@@ -323,11 +323,11 @@ struct CircleOfFifthsGuideView: View {
     ) -> some View {
         VStack(alignment: .leading, spacing: LumenoteSpacing.sm) {
             HStack(alignment: .firstTextBaseline) {
-                Text(title)
+                Text(title.l10n)
                     .font(LumenoteFont.subheadline(.bold))
                     .foregroundStyle(titleColor)
                 Spacer(minLength: LumenoteSpacing.sm)
-                Text(footnote)
+                Text(footnote.l10n)
                     .font(LumenoteFont.caption2(.medium))
                     .foregroundStyle(.secondary)
             }
@@ -367,7 +367,7 @@ struct CircleOfFifthsGuideView: View {
         @ViewBuilder content: () -> Content
     ) -> some View {
         VStack(alignment: .leading, spacing: LumenoteSpacing.lg) {
-            Text(title)
+            Text(title.l10n)
                 .font(LumenoteFont.headline(.bold))
                 .foregroundStyle(.primary)
             content()
@@ -388,13 +388,13 @@ struct CircleOfFifthsGuideView: View {
                         }
                         .accessibilityHidden(true)
                 }
-                Text(title)
+                Text(title.l10n)
                     .font(LumenoteFont.subheadline(.bold))
                     .foregroundStyle(.primary)
                     .fixedSize(horizontal: false, vertical: true)
             }
             ForEach(paragraphs, id: \.self) { paragraph in
-                Text(paragraph)
+                Text(paragraph.l10n)
                     .font(LumenoteFont.callout(.medium))
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
@@ -416,10 +416,10 @@ private enum GuidePage: Int, CaseIterable, Hashable {
 
     var title: String {
         switch self {
-        case .overview: "5도권이란?"
-        case .direction: "이동 방향과 조표 변화"
-        case .relative: "장조와 관계단조"
-        case .shared: "이웃한 조성"
+        case .overview: "5도권이란?".l10n
+        case .direction: "이동 방향과 조표 변화".l10n
+        case .relative: "장조와 관계단조".l10n
+        case .shared: "이웃한 조성".l10n
         }
     }
 }
@@ -489,7 +489,7 @@ private struct RotationStepCard: View {
                     phase = .ready
                     direction = item
                 } label: {
-                    Text(item.title)
+                    Text(item.title.l10n)
                         .font(LumenoteFont.caption(.bold))
                         .foregroundStyle(isSelected ? Color.primary : Color.secondary)
                         .frame(maxWidth: .infinity)
@@ -545,7 +545,7 @@ private struct RotationStepCard: View {
 
     private var moveButton: some View {
         Button(action: showsReturn ? returnHome : moveForward) {
-            Text(showsReturn ? "원위치" : "이동하기")
+            Text((showsReturn ? "원위치" : "이동하기").l10n)
                 .font(LumenoteFont.body(.bold))
                 .foregroundStyle(.white)
                 .frame(maxWidth: .infinity)
@@ -555,17 +555,17 @@ private struct RotationStepCard: View {
         .buttonStyle(.plain)
         .disabled(isAnimating)
         .opacity(isAnimating ? 0.45 : 1)
-        .accessibilityHint(showsReturn ? "기준음을 C로 되돌립니다" : "선택한 방향으로 한 칸 이동합니다")
+        .accessibilityHint((showsReturn ? "기준음을 C로 되돌립니다" : "선택한 방향으로 한 칸 이동합니다").l10n)
     }
 
     private var circleAccessibilityLabel: String {
-        "기준음 \(direction.tonicName(at: displayedStep))."
+        L10n.s("기준음 \(direction.tonicName(at: displayedStep)).")
     }
 
     private var staffAccessibilityLabel: String {
-        guard revealedCount > 0 else { return "\(keyTitle). 조표 없음" }
+        guard revealedCount > 0 else { return L10n.s("\(keyTitle). 조표 없음") }
         let newest = direction.accidentalName(at: revealedCount - 1)
-        return "\(keyTitle). \(direction.signatureKind) \(revealedCount)개. 최근 조표 \(newest)."
+        return L10n.s("\(keyTitle). \(direction.signatureKind) \(revealedCount)개. 최근 조표 \(newest).")
     }
 
     private func moveForward() {
@@ -910,8 +910,8 @@ private enum RotationStepDirection: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .clockwise: "시계 방향"
-        case .counterclockwise: "반시계 방향"
+        case .clockwise: "시계 방향".l10n
+        case .counterclockwise: "반시계 방향".l10n
         }
     }
 
@@ -954,8 +954,8 @@ private enum RotationStepDirection: String, CaseIterable, Identifiable {
 
     var signatureKind: String {
         switch self {
-        case .clockwise: "샵"
-        case .counterclockwise: "플랫"
+        case .clockwise: "샵".l10n
+        case .counterclockwise: "플랫".l10n
         }
     }
 

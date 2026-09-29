@@ -95,7 +95,7 @@ struct IntervalQuizView: View {
             model.select(choice)
         } label: {
             HStack {
-                Text(choice)
+                Text(choice.l10n)
                     .font(LumenoteFont.body(.bold))
                     .foregroundStyle(.primary)
                 Spacer()
@@ -127,7 +127,7 @@ struct IntervalQuizView: View {
         .buttonStyle(.plain)
         .opacity(answered && !showsCorrect && !showsIncorrect ? 0.45 : 1)
         .allowsHitTesting(!answered)
-        .accessibilityLabel(choice)
+        .accessibilityLabel(choice.l10n)
         .accessibilityAddTraits(isSelected ? .isSelected : [])
         .accessibilityHint(answered ? "" : "답을 선택하려면 두 번 탭하세요")
     }
@@ -153,7 +153,7 @@ struct IntervalQuizView: View {
                 model.nextQuestion()
             }
         } label: {
-            Text(showsResult ? "결과 보기" : "다음 문제")
+            Text((showsResult ? "결과 보기" : "다음 문제").l10n)
                 .font(LumenoteFont.body(.bold))
                 .foregroundStyle(.white)
                 .frame(maxWidth: .infinity)
@@ -164,7 +164,7 @@ struct IntervalQuizView: View {
                 )
         }
         .buttonStyle(.plain)
-        .accessibilityHint(showsResult ? "결과를 보려면 두 번 탭하세요" : "다음 문제로 넘어가려면 두 번 탭하세요")
+        .accessibilityHint((showsResult ? "결과를 보려면 두 번 탭하세요" : "다음 문제로 넘어가려면 두 번 탭하세요").l10n)
     }
 }
 

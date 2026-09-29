@@ -8,14 +8,20 @@ struct FeatureMenuView: View {
 
     var body: some View {
         List {
-            ForEach(FeatureDomain.allCases) { domain in
-                NavigationLink(value: domain) {
-                    FeatureMenuRow(
-                        title: domain.title,
-                        subtitle: domain.subtitle,
-                        systemImage: domain.systemImage
-                    )
+            Section {
+                ForEach(FeatureDomain.allCases) { domain in
+                    NavigationLink(value: domain) {
+                        FeatureMenuRow(
+                            title: domain.title,
+                            subtitle: domain.subtitle,
+                            systemImage: domain.systemImage
+                        )
+                    }
                 }
+            }
+
+            Section {
+                LanguageMenuButton()
             }
         }
         .listStyle(.insetGrouped)
@@ -139,7 +145,7 @@ private struct FeatureModeSection: View {
             .buttonStyle(.plain)
             .accessibilityElement(children: .ignore)
             .accessibilityLabel("\(mode.title), \(mode.subtitle)")
-            .accessibilityHint(isExpanded ? "접기" : "펼치기")
+            .accessibilityHint((isExpanded ? "접기" : "펼치기").l10n)
             .accessibilityAddTraits(.isButton)
             .accessibilityAddTraits(isExpanded ? .isSelected : [])
 

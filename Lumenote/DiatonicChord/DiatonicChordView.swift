@@ -246,7 +246,7 @@ struct DiatonicChordView: View {
                 Button {
                     setVoicing(voicing, cardID: card.id)
                 } label: {
-                    Text(voicing.title)
+                    Text(voicing.title.l10n)
                         .font(LumenoteFont.caption2(.bold))
                         .foregroundStyle(selected ? palette.emphasisStroke : .secondary)
                         .padding(.horizontal, LumenoteSpacing.md)
@@ -314,7 +314,7 @@ struct DiatonicChordView: View {
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(isActive ? "순서 이동 닫기" : "순서 이동")
+        .accessibilityLabel((isActive ? "순서 이동 닫기" : "순서 이동").l10n)
         .accessibilityHint("위, 아래 이동 버튼을 표시합니다")
         .accessibilityAddTraits(isActive ? .isSelected : [])
     }
@@ -337,7 +337,7 @@ struct DiatonicChordView: View {
         } label: {
             HStack(spacing: LumenoteSpacing.xs) {
                 Image(systemName: symbol)
-                Text(title)
+                Text(title.l10n)
             }
             .font(LumenoteFont.caption(.semibold))
             .foregroundStyle(enabled ? palette.minor : Color.secondary.opacity(0.4))
@@ -354,7 +354,7 @@ struct DiatonicChordView: View {
         }
         .buttonStyle(.plain)
         .disabled(!enabled)
-        .accessibilityLabel(title + " 이동")
+        .accessibilityLabel((direction < 0 ? "위로 이동" : "아래로 이동").l10n)
     }
 
     private func removeCardButton(_ cardID: DiatonicChordCard.ID) -> some View {
@@ -380,7 +380,7 @@ struct DiatonicChordView: View {
     ) -> some View {
         Button(action: action) {
             VStack(alignment: .leading, spacing: LumenoteSpacing.xxs) {
-                Text(title)
+                Text(title.l10n)
                     .font(LumenoteFont.caption2(.semibold))
                     .foregroundStyle(isActive ? palette.minor : .secondary)
                 Text(value)
@@ -523,7 +523,7 @@ struct DiatonicChordView: View {
 
     private func pickerStripHeader(title: String, dismiss: @escaping () -> Void) -> some View {
         HStack {
-            Text(title)
+            Text(title.l10n)
                 .font(LumenoteFont.caption(.semibold))
                 .foregroundStyle(palette.minor)
             Spacer()

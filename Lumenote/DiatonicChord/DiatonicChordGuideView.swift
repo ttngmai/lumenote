@@ -132,7 +132,7 @@ struct DiatonicChordGuideView: View {
                 Button {
                     selectVoicing(option)
                 } label: {
-                    Text(option.title)
+                    Text(option.title.l10n)
                         .font(LumenoteFont.caption(.bold))
                         .foregroundStyle(selected ? palette.emphasisStroke : .secondary)
                         .frame(maxWidth: .infinity)
@@ -299,22 +299,22 @@ struct DiatonicChordGuideView: View {
     private func harmonicFunctionCard(_ card: HarmonicFunctionCard) -> some View {
         let tint = functionTint(card.function)
         return VStack(alignment: .leading, spacing: LumenoteSpacing.sm) {
-            Text(card.badge)
+            Text(card.badge.l10n)
                 .font(LumenoteFont.caption2(.bold))
                 .foregroundStyle(tint)
                 .padding(.horizontal, LumenoteSpacing.md)
                 .padding(.vertical, LumenoteSpacing.xxs)
                 .background(Capsule().fill(tint.opacity(0.16)))
 
-            Text(card.title)
+            Text(card.title.l10n)
                 .font(LumenoteFont.headline(.bold))
                 .foregroundStyle(.primary)
 
-            Text(card.subtitle)
+            Text(card.subtitle.l10n)
                 .font(LumenoteFont.caption(.medium))
                 .foregroundStyle(.secondary)
 
-            Text(card.body)
+            Text(card.body.l10n)
                 .font(LumenoteFont.callout(.medium))
                 .foregroundStyle(.primary)
                 .fixedSize(horizontal: false, vertical: true)
@@ -338,7 +338,7 @@ struct DiatonicChordGuideView: View {
         return VStack(spacing: LumenoteSpacing.xxs) {
             Text(letter)
                 .font(LumenoteFont.rounded(size: 26, weight: .bold))
-            Text(title)
+            Text(title.l10n)
                 .font(LumenoteFont.caption(.bold))
         }
         .foregroundStyle(tint)
@@ -399,30 +399,30 @@ struct DiatonicChordGuideView: View {
                 Text(role.degree.functionRoman)
                     .font(LumenoteFont.headline(.bold))
                     .foregroundStyle(functionTint(role.function))
-                Text(role.functionLabel)
+                Text(role.functionLabel.l10n)
                     .font(LumenoteFont.caption(.bold))
                     .foregroundStyle(functionTint(role.function))
                 Spacer(minLength: 0)
             }
 
-            Text(role.title)
+            Text(role.title.l10n)
                 .font(LumenoteFont.callout(.bold))
                 .foregroundStyle(.primary)
                 .fixedSize(horizontal: false, vertical: true)
 
-            Text(role.body)
+            Text(role.body.l10n)
                 .font(LumenoteFont.callout(.medium))
                 .foregroundStyle(.primary)
                 .fixedSize(horizontal: false, vertical: true)
 
-            Text("핵심: \(role.takeaway)")
+            Text("핵심: \(role.takeaway.l10n)")
                 .font(LumenoteFont.caption(.bold))
                 .foregroundStyle(functionTint(role.function))
                 .fixedSize(horizontal: false, vertical: true)
         }
         .accessibilityElement(children: .combine)
         .accessibilityLabel(
-            "\(role.degree.functionRoman), \(role.functionLabel), \(role.title), \(role.body), 핵심 \(role.takeaway)"
+            L10n.s("\(role.degree.functionRoman), \(role.functionLabel.l10n), \(role.title.l10n), \(role.body.l10n), 핵심 \(role.takeaway.l10n)")
         )
     }
 
@@ -514,7 +514,7 @@ struct DiatonicChordGuideView: View {
     }
 
     private func sectionTitle(_ title: String) -> some View {
-        Text(title)
+        Text(title.l10n)
             .font(LumenoteFont.body(.bold))
             .foregroundStyle(.primary)
             .accessibilityAddTraits(.isHeader)
@@ -571,25 +571,25 @@ private enum HarmonicFunctionCard: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .tonic: "토닉"
-        case .subdominant: "서브도미넌트"
-        case .dominant: "도미넌트"
+        case .tonic: "토닉".l10n
+        case .subdominant: "서브도미넌트".l10n
+        case .dominant: "도미넌트".l10n
         }
     }
 
     var subtitle: String {
         switch self {
-        case .tonic: "안정과 휴식"
-        case .subdominant: "이동과 전개"
-        case .dominant: "긴장과 해결"
+        case .tonic: "안정과 휴식".l10n
+        case .subdominant: "이동과 전개".l10n
+        case .dominant: "긴장과 해결".l10n
         }
     }
 
     var body: String {
         switch self {
-        case .tonic: "곡의 중심이 되는 기능으로, 안정감과 마무리되는 느낌을 줍니다."
-        case .subdominant: "토닉의 안정된 상태에서 벗어나 음악을 전개하며, 다른 기능으로 연결하는 역할을 합니다."
-        case .dominant: "긴장감을 형성하며, 토닉으로 진행해 해결되려는 성향이 강합니다."
+        case .tonic: "곡의 중심이 되는 기능으로, 안정감과 마무리되는 느낌을 줍니다.".l10n
+        case .subdominant: "토닉의 안정된 상태에서 벗어나 음악을 전개하며, 다른 기능으로 연결하는 역할을 합니다.".l10n
+        case .dominant: "긴장감을 형성하며, 토닉으로 진행해 해결되려는 성향이 강합니다.".l10n
         }
     }
 }
@@ -640,8 +640,8 @@ private enum GuidePage: Int, CaseIterable, Hashable {
 
     var title: String {
         switch self {
-        case .principle: "만들어지는 원리"
-        case .function: "다이아토닉 코드의 기능"
+        case .principle: "만들어지는 원리".l10n
+        case .function: "다이아토닉 코드의 기능".l10n
         }
     }
 }

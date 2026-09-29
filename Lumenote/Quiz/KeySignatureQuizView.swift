@@ -70,9 +70,11 @@ struct KeySignatureQuizView: View {
                 )
                 .frame(maxWidth: .infinity)
                 .accessibilityLabel(
-                    model.question.promptAccidentals.isEmpty
-                        ? "조표 없는 오선"
-                        : "조표가 표시된 오선"
+                    (
+                        model.question.promptAccidentals.isEmpty
+                            ? "조표 없는 오선"
+                            : "조표가 표시된 오선"
+                    ).l10n
                 )
             }
         }
@@ -89,9 +91,9 @@ struct KeySignatureQuizView: View {
     private var promptTitle: String {
         switch model.question.kind {
         case .pickStaff:
-            return "다음 키의 조표는?"
+            return "다음 키의 조표는?".l10n
         case .pickKey:
-            return "다음 조표의 키는?"
+            return "다음 조표의 키는?".l10n
         }
     }
 
@@ -230,10 +232,10 @@ struct KeySignatureQuizView: View {
 
     private func staffAccessibilityLabel(for choice: KeySignatureQuizModel.StaffChoice) -> String {
         if choice.accidentals.isEmpty {
-            return "조표 없음"
+            return "조표 없음".l10n
         }
-        let symbol = choice.signatureIndex > 0 ? "샵" : "플랫"
-        return "\(symbol) \(abs(choice.signatureIndex))개"
+        let symbol = choice.signatureIndex > 0 ? "샵".l10n : "플랫".l10n
+        return L10n.s("\(symbol) \(abs(choice.signatureIndex))개")
     }
 
     private var advanceButton: some View {
@@ -245,7 +247,7 @@ struct KeySignatureQuizView: View {
                 model.nextQuestion()
             }
         } label: {
-            Text(showsResult ? "결과 보기" : "다음 문제")
+            Text((showsResult ? "결과 보기" : "다음 문제").l10n)
                 .font(LumenoteFont.body(.bold))
                 .foregroundStyle(.white)
                 .frame(maxWidth: .infinity)
@@ -256,7 +258,7 @@ struct KeySignatureQuizView: View {
                 )
         }
         .buttonStyle(.plain)
-        .accessibilityHint(showsResult ? "결과를 보려면 두 번 탭하세요" : "다음 문제로 넘어가려면 두 번 탭하세요")
+        .accessibilityHint((showsResult ? "결과를 보려면 두 번 탭하세요" : "다음 문제로 넘어가려면 두 번 탭하세요").l10n)
     }
 }
 
