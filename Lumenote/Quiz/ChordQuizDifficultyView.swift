@@ -7,7 +7,6 @@ import SwiftUI
 struct ChordQuizDifficultyView: View {
     @Environment(\.appPalette) private var palette
     @Environment(\.dismiss) private var dismiss
-    @AppStorage(AppearanceMode.storageKey) private var appearance: AppearanceMode = .system
 
     @State private var selectedDifficulty: ChordQuizDifficulty = .easy
     @State private var questionCount = 10
@@ -29,9 +28,7 @@ struct ChordQuizDifficultyView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(background)
-        .lumenoteCompactHeader(title: "코드 퀴즈", showsBackButton: true) {
-            AppearanceToggleButton(appearance: $appearance)
-        }
+        .lumenoteCompactHeader(title: "코드 퀴즈", showsBackButton: true)
     }
 
     private var setup: some View {

@@ -7,7 +7,6 @@ import SwiftUI
 struct KeySignatureQuizDifficultyView: View {
     @Environment(\.appPalette) private var palette
     @Environment(\.dismiss) private var dismiss
-    @AppStorage(AppearanceMode.storageKey) private var appearance: AppearanceMode = .system
 
     @State private var selectedDifficulty: KeySignatureQuizDifficulty = .easy
     @State private var questionCount = 10
@@ -29,9 +28,7 @@ struct KeySignatureQuizDifficultyView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(background)
-        .lumenoteCompactHeader(title: "키 · 조표 퀴즈", showsBackButton: true) {
-            AppearanceToggleButton(appearance: $appearance)
-        }
+        .lumenoteCompactHeader(title: "키 · 조표 퀴즈", showsBackButton: true)
     }
 
     private var setup: some View {

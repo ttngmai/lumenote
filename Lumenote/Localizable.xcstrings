@@ -1866,6 +1866,17 @@
         }
       }
     },
+    "기기의 설정을 따릅니다" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Follows the device setting"
+          }
+        }
+      }
+    },
     "기타" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2151,6 +2162,17 @@
         }
       }
     },
+    "다크" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dark"
+          }
+        }
+      }
+    },
     "다크 모드로 전환" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -2394,6 +2416,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Back"
+          }
+        }
+      }
+    },
+    "라이트" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Light"
           }
         }
       }
@@ -3155,6 +3188,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Each clockwise step adds one sharp (♯), in the order F, C, G, D, A, E, B."
+          }
+        }
+      }
+    },
+    "시스템" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "System"
           }
         }
       }
@@ -4504,6 +4548,28 @@
         }
       }
     },
+    "항상 밝은 화면을 사용합니다" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Always uses a light screen"
+          }
+        }
+      }
+    },
+    "항상 어두운 화면을 사용합니다" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Always uses a dark screen"
+          }
+        }
+      }
+    },
     "해당 다이아토닉 코드를 오선에서 보려면 두 번 탭하세요" : {
       "localizations" : {
         "en" : {
@@ -4520,6 +4586,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Key point: %@"
+          }
+        }
+      }
+    },
+    "화면 모드" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Appearance"
+          }
+        }
+      }
+    },
+    "화면의 밝기를 선택하세요" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose the screen appearance."
           }
         }
       }

@@ -5,7 +5,6 @@ import SwiftUI
 struct FretboardExplorerView: View {
     @Environment(\.appPalette) private var palette
     @Environment(\.verticalSizeClass) private var verticalSizeClass
-    @AppStorage(AppearanceMode.storageKey) private var appearance: AppearanceMode = .system
     @AppStorage(AccidentalPreference.fretboardStorageKey) private var accidental: AccidentalPreference = .sharp
 
     @State private var model = FretboardExplorerModel()
@@ -39,9 +38,7 @@ struct FretboardExplorerView: View {
         }
         .scrollIndicators(.hidden)
         .background(background)
-        .lumenoteCompactHeader(title: "지판 보기", showsBackButton: true) {
-            AppearanceToggleButton(appearance: $appearance)
-        }
+        .lumenoteCompactHeader(title: "지판 보기", showsBackButton: true)
     }
 
     private var fretboardCard: some View {
