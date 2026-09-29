@@ -68,7 +68,21 @@ enum Fretboard {
         }
     }
 
-    /// Consecutive 5-fret windows on the 22-fret board.
+    /// Every 5-fret window a quiz can show, from the nut through fret 22.
+    static var quizFretWindowChoices: [ClosedRange<Int>] {
+        quizFretWindows(lastFret: explorerLastFret)
+    }
+
+    static func clampedQuizFretWindow(_ window: ClosedRange<Int>) -> ClosedRange<Int> {
+        if quizFretWindowChoices.contains(window) { return window }
+        return quizFretWindowChoices.first ?? 0...(quizWindowLength - 1)
+    }
+
+    static func quizWindowTitle(_ window: ClosedRange<Int>) -> String {
+        L10n.s("\(window.lowerBound)-\(window.upperBound)프렛")
+    }
+
+    /// Consecutive 5-fret windows ending at `lastFret`.
     static func quizFretWindows(
         lastFret: Int = explorerLastFret
     ) -> [ClosedRange<Int>] {
@@ -79,7 +93,7 @@ enum Fretboard {
         }
     }
 
-    /// Consecutive 5-fret windows on the 22-fret board that contain `pitchClass`.
+    /// Consecutive 5-fret windows ending at `lastFret` that contain `pitchClass`.
     static func quizFretWindows(
         containing pitchClass: Int,
         lastFret: Int = explorerLastFret

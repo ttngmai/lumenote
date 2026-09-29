@@ -93,7 +93,7 @@ struct FretboardNoteQuizView: View {
                 accidental: model.question.accidental,
                 firstFret: frets.lowerBound,
                 lastFret: frets.upperBound,
-                selectedPosition: model.selectedPosition,
+                selectedPositions: model.selectedPositions,
                 targetPitchClass: model.question.targetPitchClass,
                 hasAnswered: model.hasAnswered,
                 showsStringLabels: false,

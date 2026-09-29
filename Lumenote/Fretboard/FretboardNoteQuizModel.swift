@@ -16,22 +16,13 @@ enum FretboardNoteQuizDifficulty: String, CaseIterable, Hashable, Identifiable {
         }
     }
 
-    /// Naturals through the 12th fret, or every pitch class through the 22nd.
+    /// Naturals, or every pitch class. The visible fret window is chosen separately.
     fileprivate var pitchClasses: [Int] {
         switch self {
         case .normal:
             return [0, 2, 4, 5, 7, 9, 11]
         case .hard:
             return Fretboard.pitchClasses
-        }
-    }
-
-    fileprivate var lastFret: Int {
-        switch self {
-        case .normal:
-            return Fretboard.lastFret
-        case .hard:
-            return Fretboard.explorerLastFret
         }
     }
 }
@@ -48,22 +39,32 @@ final class FretboardNoteQuizModel {
     let difficulty: FretboardNoteQuizDifficulty
     /// Number of questions in this session: 10, 20, 30, 40, or 50.
     let questionLimit: Int
+    let fretRangeMode: FretboardQuizFretRangeMode
+    /// Window used for the whole session when `fretRangeMode` is `.fixed`.
+    let fretWindow: ClosedRange<Int>
+    let answerMode: FretboardQuizAnswerMode
 
     private(set) var question: Question
-    private(set) var selectedPosition: Fretboard.Position?
+    private(set) var selectedPositions: Set<Fretboard.Position> = []
+    private(set) var hasAnswered = false
     private(set) var correctCount = 0
     private(set) var answeredCount = 0
     /// One entry per answered question, in order. `true` is a correct answer.
     private(set) var outcomes: [Bool] = []
     private(set) var isFinished = false
 
-    var hasAnswered: Bool { selectedPosition != nil }
-
     var incorrectCount: Int { answeredCount - correctCount }
 
     var isSelectionCorrect: Bool {
-        guard let selectedPosition else { return false }
-        return Fretboard.pitchClass(at: selectedPosition) == question.targetPitchClass
+        guard hasAnswered else { return false }
+        switch answerMode {
+        case .findOne:
+            return selectedPositions.allSatisfy {
+                Fretboard.pitchClass(at: $0) == question.targetPitchClass
+            }
+        case .findAll:
+            return Set(matchingPositions) == selectedPositions
+        }
     }
 
     var isOnFinalAnswer: Bool {
@@ -81,9 +82,18 @@ final class FretboardNoteQuizModel {
         )
     }
 
-    init(difficulty: FretboardNoteQuizDifficulty, questionLimit: Int) {
+    init(
+        difficulty: FretboardNoteQuizDifficulty,
+        questionLimit: Int,
+        fretRangeMode: FretboardQuizFretRangeMode = .eachQuestion,
+        fretWindow: ClosedRange<Int> = 0...(Fretboard.quizWindowLength - 1),
+        answerMode: FretboardQuizAnswerMode = .findOne
+    ) {
         self.difficulty = difficulty
         self.questionLimit = Self.normalizedQuestionCount(questionLimit)
+        self.fretRangeMode = fretRangeMode
+        self.fretWindow = Fretboard.clampedQuizFretWindow(fretWindow)
+        self.answerMode = answerMode
         question = Question(
             targetPitchClass: 0,
             accidental: .sharp,
@@ -93,21 +103,27 @@ final class FretboardNoteQuizModel {
     }
 
     func select(_ position: Fretboard.Position) {
-        guard selectedPosition == nil, !isFinished else { return }
+        guard !hasAnswered, !isFinished else { return }
         guard question.fretWindow.contains(position.fret) else { return }
-        selectedPosition = position
-        answeredCount += 1
-        let correct = Fretboard.pitchClass(at: position) == question.targetPitchClass
-        if correct {
-            correctCount += 1
+        switch FretboardQuizGrading.select(
+            position: position,
+            answerMode: answerMode,
+            targetPitchClass: question.targetPitchClass,
+            matches: matchingPositions,
+            selected: &selectedPositions
+        ) {
+        case .inProgress:
+            break
+        case .finished(let isCorrect):
+            completeSelection(isCorrect: isCorrect)
         }
-        outcomes.append(correct)
     }
 
     func nextQuestion() {
         guard hasAnswered, !isFinished, answeredCount < questionLimit else { return }
         let previous = question.targetPitchClass
-        selectedPosition = nil
+        selectedPositions = []
+        hasAnswered = false
         question = makeQuestion(avoiding: previous)
     }
 
@@ -125,16 +141,34 @@ final class FretboardNoteQuizModel {
         let pool = difficulty.pitchClasses
         let candidates = pool.filter { $0 != previous }
         let pitchClass = (candidates.isEmpty ? pool : candidates).randomElement() ?? pool[0]
-        let windows = Fretboard.quizFretWindows(
-            containing: pitchClass,
-            lastFret: difficulty.lastFret
-        )
-        let window = windows.randomElement() ?? 0...(Fretboard.quizWindowLength - 1)
+        let window = window(containing: pitchClass)
         return Question(
             targetPitchClass: pitchClass,
             accidental: accidental(for: pitchClass),
             fretWindow: window
         )
+    }
+
+    private func window(containing pitchClass: Int) -> ClosedRange<Int> {
+        switch fretRangeMode {
+        case .fixed:
+            return fretWindow
+        case .eachQuestion:
+            let windows = Fretboard.quizFretWindows(
+                containing: pitchClass,
+                lastFret: Fretboard.explorerLastFret
+            )
+            return windows.randomElement() ?? fretWindow
+        }
+    }
+
+    private func completeSelection(isCorrect: Bool) {
+        hasAnswered = true
+        answeredCount += 1
+        if isCorrect {
+            correctCount += 1
+        }
+        outcomes.append(isCorrect)
     }
 
     /// Black keys pick sharp or flat at random; naturals keep sharp spellings for markers.

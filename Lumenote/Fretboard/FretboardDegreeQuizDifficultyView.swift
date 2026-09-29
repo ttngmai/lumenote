@@ -9,6 +9,9 @@ struct FretboardDegreeQuizDifficultyView: View {
     @Environment(\.dismiss) private var dismiss
 
     @State private var selectedDifficulty: FretboardDegreeQuizDifficulty = .easy
+    @State private var fretRangeMode: FretboardQuizFretRangeMode = .eachQuestion
+    @State private var fretWindow = Fretboard.clampedQuizFretWindow(0...(Fretboard.quizWindowLength - 1))
+    @State private var answerMode: FretboardQuizAnswerMode = .findOne
     @State private var questionCount = 10
     @State private var model: FretboardDegreeQuizModel?
 
@@ -34,7 +37,7 @@ struct FretboardDegreeQuizDifficultyView: View {
     private var setup: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: LumenoteSpacing.section) {
-                Text("난이도와 문제 수를 선택하세요.")
+                Text("난이도, 프렛 범위, 정답 방식, 문제 수를 선택하세요.".l10n)
                     .font(LumenoteFont.callout(.medium))
                     .foregroundStyle(.primary)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -49,6 +52,12 @@ struct FretboardDegreeQuizDifficultyView: View {
                         .buttonStyle(.plain)
                     }
                 }
+
+                FretboardQuizOptionSections(
+                    fretRangeMode: $fretRangeMode,
+                    fretWindow: $fretWindow,
+                    answerMode: $answerMode
+                )
 
                 questionCountRow
 
@@ -136,7 +145,13 @@ struct FretboardDegreeQuizDifficultyView: View {
 
     private var startButton: some View {
         Button {
-            model = FretboardDegreeQuizModel(difficulty: selectedDifficulty, questionLimit: questionCount)
+            model = makeModel(
+                difficulty: selectedDifficulty,
+                questionLimit: questionCount,
+                fretRangeMode: fretRangeMode,
+                fretWindow: fretWindow,
+                answerMode: answerMode
+            )
         } label: {
             Text("시작")
                 .font(LumenoteFont.body(.bold))
@@ -169,9 +184,12 @@ struct FretboardDegreeQuizDifficultyView: View {
                 }
 
                 Button {
-                    self.model = FretboardDegreeQuizModel(
+                    self.model = makeModel(
                         difficulty: model.difficulty,
-                        questionLimit: model.questionLimit
+                        questionLimit: model.questionLimit,
+                        fretRangeMode: model.fretRangeMode,
+                        fretWindow: model.fretWindow,
+                        answerMode: model.answerMode
                     )
                 } label: {
                     Text("같은 설정으로 다시 풀기")
@@ -185,7 +203,7 @@ struct FretboardDegreeQuizDifficultyView: View {
                         )
                 }
                 .buttonStyle(.plain)
-                .accessibilityHint("같은 난이도와 문제 수로 다시 풀려면 두 번 탭하세요")
+                .accessibilityHint("같은 설정으로 다시 풀려면 두 번 탭하세요")
 
                 Button {
                     dismiss()
@@ -205,6 +223,22 @@ struct FretboardDegreeQuizDifficultyView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
         }
         .scrollIndicators(.hidden)
+    }
+
+    private func makeModel(
+        difficulty: FretboardDegreeQuizDifficulty,
+        questionLimit: Int,
+        fretRangeMode: FretboardQuizFretRangeMode,
+        fretWindow: ClosedRange<Int>,
+        answerMode: FretboardQuizAnswerMode
+    ) -> FretboardDegreeQuizModel {
+        FretboardDegreeQuizModel(
+            difficulty: difficulty,
+            questionLimit: questionLimit,
+            fretRangeMode: fretRangeMode,
+            fretWindow: fretWindow,
+            answerMode: answerMode
+        )
     }
 
     private func resultRow(title: String, count: Int, color: Color) -> some View {

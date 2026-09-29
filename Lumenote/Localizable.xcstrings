@@ -362,6 +362,16 @@
         }
       }
     },
+    "%lld-%lld프렛" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Frets %1$lld–%2$lld"
+          }
+        }
+      }
+    },
     "%lld개" : {
       "localizations" : {
         "en" : {
@@ -1373,6 +1383,16 @@
         }
       }
     },
+    "같은 설정으로 다시 풀려면 두 번 탭하세요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Double-tap to retry with the same settings"
+          }
+        }
+      }
+    },
     "같은 음" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -1751,6 +1771,17 @@
         }
       }
     },
+    "기기의 설정을 따릅니다" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Follows the device setting"
+          }
+        }
+      }
+    },
     "기본 음정에서 변형 음정으로" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -1866,17 +1897,6 @@
         }
       }
     },
-    "기기의 설정을 따릅니다" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Follows the device setting"
-          }
-        }
-      }
-    },
     "기타" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1949,6 +1969,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tension and resolution"
+          }
+        }
+      }
+    },
+    "난이도, 프렛 범위, 정답 방식, 문제 수를 선택하세요." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose the difficulty, fret range, answer mode, and number of questions."
           }
         }
       }
@@ -2486,6 +2517,17 @@
         }
       }
     },
+    "매 문제 변경" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Change Every Question"
+          }
+        }
+      }
+    },
     "매우 불안정하며 I로 해결되려는 성질이 강한 감3화음입니다." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -2556,6 +2598,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "All hidden"
+          }
+        }
+      }
+    },
+    "모두 찾기" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Find All"
           }
         }
       }
@@ -2662,6 +2715,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Try some questions"
+          }
+        }
+      }
+    },
+    "문제마다 5프렛 범위를 무작위로 변경" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pick a new 5-fret range at random for each question"
           }
         }
       }
@@ -2790,6 +2854,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Unison"
+          }
+        }
+      }
+    },
+    "범위 고정" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fixed Range"
+          }
+        }
+      }
+    },
+    "범위 내 모든 정답 위치를 찾아야 완료" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Find every correct position in the range"
           }
         }
       }
@@ -2954,6 +3040,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Picker open"
+          }
+        }
+      }
+    },
+    "선택된 5프렛 범위에서 계속 출제" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keep asking questions in the selected 5-fret range"
           }
         }
       }
@@ -3944,6 +4041,28 @@
         }
       }
     },
+    "정답 방식" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Answer Mode"
+          }
+        }
+      }
+    },
+    "정답 위치 중 하나만 찾으면 완료" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Done when you find one correct position"
+          }
+        }
+      }
+    },
     "정리" : {
       "localizations" : {
         "en" : {
@@ -4438,6 +4557,28 @@
         }
       }
     },
+    "프렛 범위" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fret Range"
+          }
+        }
+      }
+    },
+    "프렛 범위를 선택하려면 두 번 탭하세요" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Double-tap to choose a fret range"
+          }
+        }
+      }
+    },
     "플랫" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -4522,6 +4663,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Switch to Flats"
+          }
+        }
+      }
+    },
+    "하나 찾기" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Find One"
           }
         }
       }

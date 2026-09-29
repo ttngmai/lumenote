@@ -37,15 +37,6 @@ enum FretboardDegreeQuizDifficulty: String, CaseIterable, Hashable, Identifiable
             return Array(0..<Fretboard.stringCount)
         }
     }
-
-    fileprivate var lastFret: Int {
-        switch self {
-        case .easy, .normal:
-            return Fretboard.lastFret
-        case .hard:
-            return Fretboard.explorerLastFret
-        }
-    }
 }
 
 /// Quiz: a tonic is marked on the board, and any matching target-degree fret is correct.
@@ -63,22 +54,32 @@ final class FretboardDegreeQuizModel {
     let difficulty: FretboardDegreeQuizDifficulty
     /// Number of questions in this session: 10, 20, 30, 40, or 50.
     let questionLimit: Int
+    let fretRangeMode: FretboardQuizFretRangeMode
+    /// Window used for the whole session when `fretRangeMode` is `.fixed`.
+    let fretWindow: ClosedRange<Int>
+    let answerMode: FretboardQuizAnswerMode
 
     private(set) var question: Question
-    private(set) var selectedPosition: Fretboard.Position?
+    private(set) var selectedPositions: Set<Fretboard.Position> = []
+    private(set) var hasAnswered = false
     private(set) var correctCount = 0
     private(set) var answeredCount = 0
     /// One entry per answered question, in order. `true` is a correct answer.
     private(set) var outcomes: [Bool] = []
     private(set) var isFinished = false
 
-    var hasAnswered: Bool { selectedPosition != nil }
-
     var incorrectCount: Int { answeredCount - correctCount }
 
     var isSelectionCorrect: Bool {
-        guard let selectedPosition else { return false }
-        return Fretboard.pitchClass(at: selectedPosition) == question.targetPitchClass
+        guard hasAnswered else { return false }
+        switch answerMode {
+        case .findOne:
+            return selectedPositions.allSatisfy {
+                Fretboard.pitchClass(at: $0) == question.targetPitchClass
+            }
+        case .findAll:
+            return Set(matchingPositions) == selectedPositions
+        }
     }
 
     var isOnFinalAnswer: Bool {
@@ -106,9 +107,18 @@ final class FretboardDegreeQuizModel {
         )
     }
 
-    init(difficulty: FretboardDegreeQuizDifficulty, questionLimit: Int) {
+    init(
+        difficulty: FretboardDegreeQuizDifficulty,
+        questionLimit: Int,
+        fretRangeMode: FretboardQuizFretRangeMode = .eachQuestion,
+        fretWindow: ClosedRange<Int> = 0...(Fretboard.quizWindowLength - 1),
+        answerMode: FretboardQuizAnswerMode = .findOne
+    ) {
         self.difficulty = difficulty
         self.questionLimit = Self.normalizedQuestionCount(questionLimit)
+        self.fretRangeMode = fretRangeMode
+        self.fretWindow = Fretboard.clampedQuizFretWindow(fretWindow)
+        self.answerMode = answerMode
         question = Question(
             rootPosition: Fretboard.Position(stringIndex: 0, fret: 0),
             rootPitchClass: 0,
@@ -121,22 +131,28 @@ final class FretboardDegreeQuizModel {
     }
 
     func select(_ position: Fretboard.Position) {
-        guard selectedPosition == nil, !isFinished else { return }
+        guard !hasAnswered, !isFinished else { return }
         guard question.fretWindow.contains(position.fret) else { return }
         guard position != question.rootPosition else { return }
-        selectedPosition = position
-        answeredCount += 1
-        let correct = Fretboard.pitchClass(at: position) == question.targetPitchClass
-        if correct {
-            correctCount += 1
+        switch FretboardQuizGrading.select(
+            position: position,
+            answerMode: answerMode,
+            targetPitchClass: question.targetPitchClass,
+            matches: matchingPositions,
+            selected: &selectedPositions
+        ) {
+        case .inProgress:
+            break
+        case .finished(let isCorrect):
+            completeSelection(isCorrect: isCorrect)
         }
-        outcomes.append(correct)
     }
 
     func nextQuestion() {
         guard hasAnswered, !isFinished, answeredCount < questionLimit else { return }
         let previous = question.intervalSemitones
-        selectedPosition = nil
+        selectedPositions = []
+        hasAnswered = false
         question = makeQuestion(avoiding: previous)
     }
 
@@ -158,7 +174,7 @@ final class FretboardDegreeQuizModel {
     }
 
     private func randomQuestion(avoiding previousInterval: Int?) -> Question? {
-        let windows = Fretboard.quizFretWindows(lastFret: difficulty.lastFret)
+        let windows = windowsForQuestion()
         let rootStrings = difficulty.rootStringIndices
         for _ in 0..<80 {
             guard let window = windows.randomElement(),
@@ -186,6 +202,24 @@ final class FretboardDegreeQuizModel {
             )
         }
         return nil
+    }
+
+    private func windowsForQuestion() -> [ClosedRange<Int>] {
+        switch fretRangeMode {
+        case .fixed:
+            return [fretWindow]
+        case .eachQuestion:
+            return Fretboard.quizFretWindows(lastFret: Fretboard.explorerLastFret)
+        }
+    }
+
+    private func completeSelection(isCorrect: Bool) {
+        hasAnswered = true
+        answeredCount += 1
+        if isCorrect {
+            correctCount += 1
+        }
+        outcomes.append(isCorrect)
     }
 
     private func availableIntervals(
