@@ -7,7 +7,7 @@ struct FretboardDiagramView: View {
     var accidental: AccidentalPreference
     var firstFret: Int = 0
     var lastFret: Int = Fretboard.lastFret
-    var selectedPosition: Fretboard.Position? = nil
+    var selectedPositions: Set<Fretboard.Position> = []
     var targetPitchClass: Int? = nil
     var hasAnswered: Bool = false
     /// Shown before and after answering, e.g. the degree-quiz tonic.
@@ -239,7 +239,7 @@ struct FretboardDiagramView: View {
         .allowsHitTesting(isInteractive)
         .accessibilityLabel(accessibilityLabel(for: position, markerName: markerAccessibilityName(for: position)))
         .accessibilityHint(accessibilityHint(for: position))
-        .accessibilityAddTraits(position == selectedPosition ? .isSelected : [])
+        .accessibilityAddTraits(selectedPositions.contains(position) ? .isSelected : [])
     }
 
     private var isExploring: Bool { visiblePitchClasses != nil }
@@ -269,17 +269,10 @@ struct FretboardDiagramView: View {
             return (color, color, name)
         }
 
-        if position == hintPosition {
-            let color = palette.fretboardQuizRoot
-            return (color, color, name)
-        }
-
-        guard hasAnswered else { return nil }
-
         let isMatch = pitchClass == targetPitchClass
-        let isSelected = position == selectedPosition
+        let isSelected = selectedPositions.contains(position)
 
-        if isMatch {
+        if isSelected && isMatch {
             let color = Self.lightQuizPalette.quizCorrect
             return (color, color, name)
         }
@@ -287,7 +280,15 @@ struct FretboardDiagramView: View {
             let color = Self.lightQuizPalette.quizIncorrect
             return (color, color, name)
         }
-        return nil
+
+        if position == hintPosition {
+            let color = palette.fretboardQuizRoot
+            return (color, color, name)
+        }
+
+        guard hasAnswered, isMatch else { return nil }
+        let color = Self.lightQuizPalette.quizCorrect
+        return (color, color, name)
     }
 
     private func markerAccessibilityName(for position: Fretboard.Position) -> String? {
@@ -325,7 +326,7 @@ struct FretboardDiagramView: View {
         accidental: .sharp,
         firstFret: 12,
         lastFret: 16,
-        selectedPosition: Fretboard.Position(stringIndex: 0, fret: 13),
+        selectedPositions: [Fretboard.Position(stringIndex: 0, fret: 13)],
         targetPitchClass: 5,
         hasAnswered: true,
         showsStringLabels: false,
