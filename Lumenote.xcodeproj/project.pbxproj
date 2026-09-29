@@ -86,9 +86,10 @@
 				};
 			};
 			buildConfigurationList = 9CE4693B3010DA0900EB94D9 /* Build configuration list for PBXProject "Lumenote" */;
-			developmentRegion = en;
+			developmentRegion = ko;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				ko,
 				en,
 				Base,
 			);

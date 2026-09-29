@@ -81,6 +81,15 @@ final class IntervalModel {
         )
     }
 
+    /// Abbreviation for the ascending interval, such as `M2` or `P5`.
+    var ascendingIntervalSymbol: String {
+        Self.intervalSymbol(
+            root: rootSpelling,
+            target: targetSpelling,
+            semitones: ascendingSemitoneDistance
+        )
+    }
+
     /// Korean name for the descending interval (named lower → upper on the staff).
     var descendingIntervalName: String {
         Self.koreanIntervalName(
@@ -93,6 +102,15 @@ final class IntervalModel {
     /// English name for the descending interval (named lower → upper on the staff).
     var descendingIntervalNameEnglish: String {
         Self.englishIntervalName(
+            root: targetSpelling,
+            target: rootSpelling,
+            semitones: descendingSemitoneDistance
+        )
+    }
+
+    /// Abbreviation for the descending interval, such as `m7`.
+    var descendingIntervalSymbol: String {
+        Self.intervalSymbol(
             root: targetSpelling,
             target: rootSpelling,
             semitones: descendingSemitoneDistance
@@ -130,6 +148,8 @@ final class IntervalModel {
     var unisonIntervalName: String { "완전1도" }
 
     var unisonIntervalNameEnglish: String { "Perfect Unison" }
+
+    var unisonIntervalSymbol: String { "P1" }
 
     /// Both notes on the same staff degree. Used when the spellings are identical.
     var unisonStaffNotes: [IntervalStaffNote] {
@@ -205,6 +225,11 @@ final class IntervalModel {
         "Perfect Octave",
     ]
 
+    /// Quality letter plus degree, matching `fallbackIntervalNames`.
+    private static let fallbackIntervalSymbols: [String] = [
+        "P1", "m2", "M2", "m3", "M3", "P4", "A4", "P5", "m6", "M6", "m7", "M7", "P8",
+    ]
+
     // MARK: - Spelling-aware interval naming
 
     private static func resolution(root: String, target: String, semitones: Int) -> IntervalResolution? {
@@ -242,6 +267,63 @@ final class IntervalModel {
             return fallbackIntervalNamesEnglish[clampDistance(actualSemitones)]
         }
         return name
+    }
+
+    /// Quality abbreviation plus the diatonic number, such as `M2`, `dd5`, or `AAA4`.
+    private static func intervalSymbol(root: String, target: String, semitones: Int) -> String {
+        if let resolution = resolution(root: root, target: target, semitones: semitones),
+           let symbol = symbol(intervalNumber: resolution.degree, offset: resolution.qualityOffset) {
+            return symbol
+        }
+        guard let number = diatonicNumber(root: root, target: target, semitones: semitones) else {
+            return fallbackIntervalSymbols[clampDistance(semitones)]
+        }
+        let actualSemitones = octaveAwareSemitones(intervalNumber: number, wrapped: semitones)
+        return fallbackIntervalSymbols[clampDistance(actualSemitones)]
+    }
+
+    /// P perfect, M major, m minor, A augmented, d diminished.
+    /// Repeated letters mark double and triple qualities: `AA`, `dd`, `AAA`, `ddd`.
+    private static func symbol(intervalNumber: Int, offset: Int) -> String? {
+        guard let quality = qualityAbbreviation(intervalNumber: intervalNumber, offset: offset) else {
+            return nil
+        }
+        return "\(quality)\(intervalNumber)"
+    }
+
+    private static func qualityAbbreviation(intervalNumber: Int, offset: Int) -> String? {
+        if perfectIntervalNumbers.contains(intervalNumber) {
+            switch offset {
+            case -3 where intervalNumber != 1:
+                return "ddd"
+            case -2 where intervalNumber != 1:
+                return "dd"
+            case -1 where intervalNumber != 1:
+                return "d"
+            case 0:
+                return "P"
+            case 1:
+                return "A"
+            case 2 where intervalNumber != 8:
+                return "AA"
+            case 3 where intervalNumber != 8:
+                return "AAA"
+            default:
+                return nil
+            }
+        }
+
+        switch offset {
+        case -4: return "ddd"
+        case -3: return "dd"
+        case -2: return "d"
+        case -1: return "m"
+        case 0: return "M"
+        case 1: return "A"
+        case 2: return "AA"
+        case 3: return "AAA"
+        default: return nil
+        }
     }
 
     /// Diatonic interval number (1…8) from letter distance.

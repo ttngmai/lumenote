@@ -91,7 +91,7 @@ struct ScaleQuizView: View {
             guard model.question.explanationContext.askedNoteDisplay == nil,
                   let degree = model.question.explanationContext.degreeNumber
             else { return [] }
-            return [model.question.scaleLabel, "\(degree)도"]
+            return [model.question.scaleLabel, L10n.s("\(degree)도")]
         case .excludedNote:
             return [model.question.scaleLabel]
         case .completeScale:
@@ -203,7 +203,7 @@ struct ScaleQuizView: View {
         tokens.map { token in
             switch token {
             case .note(let name): return name
-            case .blank, .stepBlank: return "빈칸"
+            case .blank, .stepBlank: return "빈칸".l10n
             case .step(let label): return label
             }
         }
@@ -229,7 +229,7 @@ struct ScaleQuizView: View {
             model.select(choice)
         } label: {
             HStack {
-                Text(choice)
+                Text(choice.l10n)
                     .font(LumenoteFont.body(.bold))
                     .foregroundStyle(.primary)
                 Spacer()
@@ -275,13 +275,13 @@ struct ScaleQuizView: View {
             guard model.question.explanationContext.askedNoteDisplay == nil,
                   model.question.explanationContext.degreeNumber != nil
             else { return nil }
-            return "\(model.question.scaleLabel) 스케일"
+            return L10n.s("\(model.question.scaleLabel) 스케일")
         case .excludedNote:
-            return "\(model.question.scaleLabel) 스케일"
+            return L10n.s("\(model.question.scaleLabel) 스케일")
         case .completePattern:
             return model.question.explanationContext.kind.englishTitle
         case .completeScale:
-            return "\(model.question.scaleLabel) 스케일"
+            return L10n.s("\(model.question.scaleLabel) 스케일")
         }
     }
 
@@ -302,11 +302,11 @@ struct ScaleQuizView: View {
         let isCorrect = model.isSelectionCorrect
 
         return VStack(alignment: .leading, spacing: LumenoteSpacing.sm) {
-            Text(feedback.headline)
+            Text(feedback.headline.l10n)
                 .font(LumenoteFont.body(.bold))
                 .foregroundStyle(isCorrect ? palette.quizCorrect : .primary)
             if !feedback.detail.isEmpty {
-                Text(feedback.detail)
+                Text(feedback.detail.l10n)
                     .font(LumenoteFont.callout(.medium))
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
@@ -352,7 +352,7 @@ struct ScaleQuizView: View {
                 model.nextQuestion()
             }
         } label: {
-            Text(showsResult ? "결과 보기" : "다음 문제")
+            Text((showsResult ? "결과 보기" : "다음 문제").l10n)
                 .font(LumenoteFont.body(.bold))
                 .foregroundStyle(.white)
                 .frame(maxWidth: .infinity)
@@ -363,7 +363,7 @@ struct ScaleQuizView: View {
                 )
         }
         .buttonStyle(.plain)
-        .accessibilityHint(showsResult ? "결과를 보려면 두 번 탭하세요" : "다음 문제로 넘어가려면 두 번 탭하세요")
+        .accessibilityHint((showsResult ? "결과를 보려면 두 번 탭하세요" : "다음 문제로 넘어가려면 두 번 탭하세요").l10n)
     }
 }
 

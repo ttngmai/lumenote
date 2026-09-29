@@ -17,8 +17,8 @@ struct IntervalView: View {
 
         var title: String {
             switch self {
-            case .root: return "기준음"
-            case .target: return "목표음"
+            case .root: return "기준음".l10n
+            case .target: return "목표음".l10n
             }
         }
     }
@@ -117,14 +117,20 @@ struct IntervalView: View {
             directionIcon: "arrow.up",
             notes: model.ascendingStaffNotes,
             englishName: model.ascendingIntervalNameEnglish,
-            koreanName: model.ascendingIntervalName
+            detailName: intervalDetailName(
+                korean: model.ascendingIntervalName,
+                symbol: model.ascendingIntervalSymbol
+            )
         )
         let descending = intervalStaffSection(
             title: "하행",
             directionIcon: "arrow.down",
             notes: model.descendingStaffNotes,
             englishName: model.descendingIntervalNameEnglish,
-            koreanName: model.descendingIntervalName
+            detailName: intervalDetailName(
+                korean: model.descendingIntervalName,
+                symbol: model.descendingIntervalSymbol
+            )
         )
 
         let unison = intervalStaffSection(
@@ -132,7 +138,10 @@ struct IntervalView: View {
             directionIcon: nil,
             notes: model.unisonStaffNotes,
             englishName: model.unisonIntervalNameEnglish,
-            koreanName: model.unisonIntervalName
+            detailName: intervalDetailName(
+                korean: model.unisonIntervalName,
+                symbol: model.unisonIntervalSymbol
+            )
         )
 
         VStack(spacing: LumenoteSpacing.section) {
@@ -199,7 +208,7 @@ struct IntervalView: View {
 
         return Button(action: action) {
             VStack(alignment: alignment, spacing: LumenoteSpacing.xxs) {
-                Text(title)
+                Text(title.l10n)
                     .font(LumenoteFont.caption2(.semibold))
                     .foregroundStyle(isActive ? palette.minor : .secondary)
                 Text(displayName)
@@ -211,7 +220,7 @@ struct IntervalView: View {
         }
         .buttonStyle(.plain)
         .frame(maxWidth: .infinity, alignment: frameAlignment)
-        .accessibilityLabel("\(title) \(displayName)")
+        .accessibilityLabel("\(title.l10n) \(displayName)")
         .accessibilityHint(accessibilityHint)
         .accessibilityAddTraits(isActive ? .isSelected : [])
     }
@@ -230,16 +239,21 @@ struct IntervalView: View {
         .accessibilityHidden(true)
     }
 
+    /// Korean name while the app is in Korean. Quality abbreviation, such as `M2`, in English.
+    private func intervalDetailName(korean: String, symbol: String) -> String {
+        LanguageSettings.shared.language == .english ? symbol : korean
+    }
+
     private func intervalStaffSection(
         title: String,
         directionIcon: String?,
         notes: [IntervalStaffNote],
         englishName: String,
-        koreanName: String
+        detailName: String
     ) -> some View {
         VStack(spacing: LumenoteSpacing.lg) {
             HStack(spacing: LumenoteSpacing.md) {
-                Text(title)
+                Text(title.l10n)
                     .font(LumenoteFont.caption(.semibold))
                 if let directionIcon {
                     Image(systemName: directionIcon)
@@ -264,14 +278,14 @@ struct IntervalView: View {
                     .font(LumenoteFont.rounded(size: 20, weight: .bold))
                     .foregroundStyle(palette.minor)
                     .multilineTextAlignment(.center)
-                Text(koreanName)
+                Text(detailName)
                     .font(LumenoteFont.callout(.medium))
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
             }
             .frame(maxWidth: .infinity)
             .accessibilityElement(children: .combine)
-            .accessibilityLabel("\(title), \(englishName), \(koreanName)")
+            .accessibilityLabel("\(title.l10n), \(englishName), \(detailName)")
         }
         .padding(LumenoteSpacing.xxl)
         .frame(maxWidth: .infinity)

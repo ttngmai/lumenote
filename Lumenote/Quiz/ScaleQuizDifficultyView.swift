@@ -212,7 +212,7 @@ struct ScaleQuizDifficultyView: View {
 
     private func resultRow(title: String, count: Int, color: Color) -> some View {
         HStack {
-            Text(title)
+            Text(title.l10n)
                 .font(LumenoteFont.body(.bold))
                 .foregroundStyle(.primary)
             Spacer()

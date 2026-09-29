@@ -16,7 +16,7 @@ struct LegendSwatch: View {
                     RoundedRectangle(cornerRadius: LumenoteRadius.legendSwatch, style: .continuous)
                         .stroke(Color.primary.opacity(0.2), lineWidth: LumenoteStroke.hairline)
                 )
-            Text(title)
+            Text(title.l10n)
                 .foregroundStyle(.secondary)
         }
     }

@@ -193,7 +193,7 @@ struct FretboardExplorerView: View {
             .overlay(Circle().strokeBorder(palette.cardBorder, lineWidth: LumenoteStroke.compact))
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(isOn ? "모든 음 숨기기" : "모든 음 표시")
+        .accessibilityLabel((isOn ? "모든 음 숨기기" : "모든 음 표시").l10n)
         .accessibilityValue(allNotesAccessibilityValue)
         .accessibilityHint("지판의 모든 음 표시를 전환하려면 두 번 탭하세요")
         .accessibilityAddTraits(isOn ? .isSelected : [])
@@ -201,12 +201,12 @@ struct FretboardExplorerView: View {
 
     private var allNotesAccessibilityValue: String {
         if model.areAllVisible {
-            return "모두 표시됨"
+            return "모두 표시됨".l10n
         }
         if model.visiblePitchClasses.isEmpty {
-            return "모두 숨김"
+            return "모두 숨김".l10n
         }
-        return "일부 표시됨"
+        return "일부 표시됨".l10n
     }
 
     private func noteToggleButton(_ pitchClass: Int, compact: Bool = false) -> some View {
@@ -241,7 +241,7 @@ struct FretboardExplorerView: View {
                 rootPitchClass: model.rootPitchClass
             )
         )
-        .accessibilityValue(isOn ? "표시됨" : "숨김")
+        .accessibilityValue((isOn ? "표시됨" : "숨김").l10n)
         .accessibilityHint("지판 표시를 전환하려면 두 번 탭하세요")
         .accessibilityAddTraits(isOn ? .isSelected : [])
     }
@@ -261,7 +261,7 @@ struct FretboardExplorerView: View {
                 .overlay(Circle().strokeBorder(palette.cardBorder, lineWidth: LumenoteStroke.compact))
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(accidental == .sharp ? "플랫 표기로 전환" : "샵 표기로 전환")
+        .accessibilityLabel((accidental == .sharp ? "플랫 표기로 전환" : "샵 표기로 전환").l10n)
     }
 
     private var showsRootPicker: Bool {
@@ -269,12 +269,12 @@ struct FretboardExplorerView: View {
     }
 
     private var fretboardAccessibilityLabel: String {
-        guard model.labelMode == .degree else { return "기타 지판" }
+        guard model.labelMode == .degree else { return "기타 지판".l10n }
         let rootName = Fretboard.displayName(
             pitchClass: model.rootPitchClass,
             accidental: accidental
         )
-        return "기타 지판, 도수 표시, 기준음 \(rootName)"
+        return L10n.s("기타 지판, 도수 표시, 기준음 \(rootName)")
     }
 
     private var labelModeToggle: some View {
@@ -286,7 +286,7 @@ struct FretboardExplorerView: View {
                 }
             }
         } label: {
-            Text(model.labelMode.title)
+            Text(model.labelMode.title.l10n)
                 .font(LumenoteFont.caption(.bold))
                 .foregroundStyle(.primary)
                 .contentTransition(.identity)
@@ -323,7 +323,7 @@ struct FretboardExplorerView: View {
         .accessibilityLabel("기준음 \(name)")
         .accessibilityHint("기준음을 변경하려면 두 번 탭하세요")
         .accessibilityAddTraits(isPickingRoot ? .isSelected : [])
-        .accessibilityValue(isPickingRoot ? "선택 열림" : "선택 닫힘")
+        .accessibilityValue((isPickingRoot ? "선택 열림" : "선택 닫힘").l10n)
     }
 
     private var rootPickerGrid: some View {

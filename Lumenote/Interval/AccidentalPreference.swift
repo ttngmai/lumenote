@@ -21,8 +21,8 @@ enum AccidentalPreference: String, CaseIterable, Identifiable {
 
     var accessibilityLabel: String {
         switch self {
-        case .sharp: return "샵 표기"
-        case .flat: return "플랫 표기"
+        case .sharp: return "샵 표기".l10n
+        case .flat: return "플랫 표기".l10n
         }
     }
 }

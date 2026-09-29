@@ -49,7 +49,7 @@ struct ChordGuideView: View {
 
     private func chordSection(title: String, kinds: [ChordKind]) -> some View {
         VStack(alignment: .leading, spacing: LumenoteSpacing.md) {
-            Text(title)
+            Text(title.l10n)
                 .font(LumenoteFont.caption(.semibold))
                 .foregroundStyle(.secondary)
                 .padding(.horizontal, LumenoteSpacing.xs)

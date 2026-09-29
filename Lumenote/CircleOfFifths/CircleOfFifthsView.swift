@@ -130,7 +130,7 @@ struct CircleOfFifthsView: View {
             }
             .buttonStyle(.plain)
             .accessibilityLabel("\(model.selectedTonicDisplayName) Key")
-            .accessibilityHint(isTonicExpanded ? "접기" : "펼치기")
+            .accessibilityHint((isTonicExpanded ? "접기" : "펼치기").l10n)
             .accessibilityAddTraits(isTonicExpanded ? .isSelected : [])
 
             if isTonicExpanded {
@@ -167,7 +167,7 @@ struct CircleOfFifthsView: View {
             }
             .buttonStyle(.plain)
             .accessibilityLabel("조표 붙는 순서")
-            .accessibilityHint(isAccidentalOrderExpanded ? "접기" : "펼치기")
+            .accessibilityHint((isAccidentalOrderExpanded ? "접기" : "펼치기").l10n)
             .accessibilityAddTraits(isAccidentalOrderExpanded ? .isSelected : [])
 
             if isAccidentalOrderExpanded {
@@ -191,7 +191,7 @@ struct CircleOfFifthsView: View {
 
     private func accidentalOrderRow(title: String, sequence: String) -> some View {
         VStack(alignment: .leading, spacing: LumenoteSpacing.xs) {
-            Text(title)
+            Text(title.l10n)
                 .font(LumenoteFont.caption(.bold))
                 .foregroundStyle(.secondary)
             Text(sequence)

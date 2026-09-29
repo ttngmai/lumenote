@@ -133,7 +133,7 @@ struct FretboardNoteQuizView: View {
                 model.nextQuestion()
             }
         } label: {
-            Text(showsResult ? "결과 보기" : "다음 문제")
+            Text((showsResult ? "결과 보기" : "다음 문제").l10n)
                 .font(LumenoteFont.body(.bold))
                 .foregroundStyle(.white)
                 .padding(.horizontal, compact ? LumenoteSpacing.xxxl : 0)
@@ -145,7 +145,7 @@ struct FretboardNoteQuizView: View {
                 )
         }
         .buttonStyle(.plain)
-        .accessibilityHint(showsResult ? "결과를 보려면 두 번 탭하세요" : "다음 문제로 넘어가려면 두 번 탭하세요")
+        .accessibilityHint((showsResult ? "결과를 보려면 두 번 탭하세요" : "다음 문제로 넘어가려면 두 번 탭하세요").l10n)
     }
 }
 

@@ -142,7 +142,7 @@ final class ScaleQuizModel {
 
         if answer == question.correctAnswer {
             return Feedback(
-                headline: "정답",
+                headline: "정답".l10n,
                 detail: correctDetail(for: question.kind, scaleName: scaleName, degrees: degrees, context: ctx)
             )
         }
@@ -227,7 +227,7 @@ final class ScaleQuizModel {
 
         return Question(
             kind: .completeScale,
-            promptTitle: "\(entry.displayName) 스케일을 완성하세요.",
+            promptTitle: L10n.s("\(entry.displayName) 스케일을 완성하세요."),
             scaleLabel: entry.displayName,
             promptTokens: tokens,
             staffNotes: [],
@@ -274,7 +274,7 @@ final class ScaleQuizModel {
 
         return Question(
             kind: .identifyScale,
-            promptTitle: "다음 스케일은 무엇일까요?",
+            promptTitle: "다음 스케일은 무엇일까요?".l10n,
             scaleLabel: entry.displayName,
             promptTokens: displays.map { .note($0) },
             staffNotes: staffNotes,
@@ -325,7 +325,7 @@ final class ScaleQuizModel {
 
         return Question(
             kind: .completePattern,
-            promptTitle: "\(kind.englishTitle) 스케일의 음정 패턴을 완성하세요.",
+            promptTitle: L10n.s("\(kind.englishTitle) 스케일의 음정 패턴을 완성하세요."),
             scaleLabel: "\(tonic) \(kind.englishTitle)",
             promptTokens: tokens,
             staffNotes: [],
@@ -364,7 +364,7 @@ final class ScaleQuizModel {
 
         return Question(
             kind: .identifyDegree,
-            promptTitle: "\(entry.displayName) 스케일의 \(degreeNumber)도 음은?",
+            promptTitle: L10n.s("\(entry.displayName) 스케일의 \(degreeNumber)도 음은?"),
             scaleLabel: entry.displayName,
             promptTokens: [],
             staffNotes: [],
@@ -403,7 +403,7 @@ final class ScaleQuizModel {
 
         return Question(
             kind: .excludedNote,
-            promptTitle: "\(entry.displayName) 스케일에 포함되지 않는 음은?",
+            promptTitle: L10n.s("\(entry.displayName) 스케일에 포함되지 않는 음은?"),
             scaleLabel: entry.displayName,
             promptTokens: [],
             staffNotes: [],
@@ -453,11 +453,14 @@ final class ScaleQuizModel {
             return scaleName
         }
         let note = degrees[degree - 1]
-        return "\(scaleName) 스케일의 \(degree)도 음은 \(note)입니다."
+        return L10n.s("\(scaleName) 스케일의 \(degree)도 음은 \(note)입니다.")
     }
 
     private func excludedNoteDetail(scaleName: String) -> String {
         let note = question.correctAnswer
+        if LanguageSettings.shared.language == .english {
+            return L10n.s("\(note) is not in the \(scaleName) scale.")
+        }
         return "\(note)\(topicParticle(for: note)) \(scaleName) 스케일에 포함되지 않습니다."
     }
 
@@ -897,7 +900,7 @@ final class ScaleQuizModel {
         let displays = spellings.map(ScaleModel.formatNoteName)
         return Question(
             kind: .completeScale,
-            promptTitle: "C Major 스케일을 완성하세요.",
+            promptTitle: "C Major 스케일을 완성하세요.".l10n,
             scaleLabel: "C Major",
             promptTokens: [
                 .note("C"), .note("D"), .blank, .note("F"),

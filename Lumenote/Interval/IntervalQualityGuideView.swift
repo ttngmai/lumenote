@@ -127,7 +127,7 @@ struct IntervalQualityGuideView: View {
                     .fill(palette.divider)
                     .frame(height: 1)
 
-                Text(degree.name)
+                Text(degree.name.l10n)
                     .font(LumenoteFont.headline(.bold))
                     .foregroundStyle(palette.fretboardQuizRoot)
                     .frame(maxWidth: .infinity)
@@ -142,7 +142,7 @@ struct IntervalQualityGuideView: View {
                 )
 
                 HStack(alignment: .top, spacing: LumenoteSpacing.xl) {
-                    spanStat(title: "자연 반음 구간", value: "\(degree.naturalHalfSteps)개")
+                    spanStat(title: "자연 반음 구간", value: L10n.s("\(degree.naturalHalfSteps)개"))
                     spanStat(title: "전체 반음 간격", value: "\(degree.semitones)")
                 }
                 .padding(.top, LumenoteSpacing.md)
@@ -180,7 +180,7 @@ struct IntervalQualityGuideView: View {
                         selectedDegreeName = row.name
                     }
                 } label: {
-                    Text(row.name)
+                    Text(row.name.l10n)
                         .font(LumenoteFont.caption(.semibold))
                         .minimumScaleFactor(0.7)
                         .lineLimit(1)
@@ -280,7 +280,7 @@ struct IntervalQualityGuideView: View {
             "\(Self.stepLabel(index)) \(value)"
         }
         let total = values.reduce(0, +)
-        return "반음 간격 계산 과정. \(terms.joined(separator: ", ")). 합계 \(total)반음."
+        return L10n.s("반음 간격 계산 과정. \(terms.joined(separator: ", ")). 합계 \(total)반음.")
     }
 
     private func explorerResult(for degree: DegreeSemitoneRow) -> some View {
@@ -291,7 +291,7 @@ struct IntervalQualityGuideView: View {
                 .font(LumenoteFont.rounded(size: 18, weight: .bold))
                 .foregroundStyle(palette.quizCorrect)
                 .accessibilityHidden(true)
-            Text("C에서 \(target)까지, 음이름을 세면 \(degreeNumber)도이고 전체 간격은 \(degree.semitones)반음이므로 \(degree.name)입니다.")
+            Text(L10n.s("C에서 \(target)까지, 음이름을 세면 \(degreeNumber)도이고 전체 간격은 \(degree.semitones)반음이므로 \(degree.name.l10n)입니다."))
                 .font(LumenoteFont.callout(.medium))
                 .foregroundStyle(.primary)
                 .fixedSize(horizontal: false, vertical: true)
@@ -311,7 +311,7 @@ struct IntervalQualityGuideView: View {
 
     private func spanStat(title: String, value: String) -> some View {
         VStack(spacing: LumenoteSpacing.sm) {
-            Text(title)
+            Text(title.l10n)
                 .font(LumenoteFont.caption(.medium))
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
@@ -491,13 +491,13 @@ struct IntervalQualityGuideView: View {
                 ),
             ])
 
-            Text("\(example.degree) · \(example.semitones)")
+            Text(example.degree.l10n + " · " + example.semitones.l10n)
                 .font(LumenoteFont.caption2(.medium))
                 .foregroundStyle(.secondary)
                 .minimumScaleFactor(0.7)
                 .lineLimit(1)
 
-            Text(example.quality)
+            Text(example.quality.l10n)
                 .font(LumenoteFont.caption2(.bold))
                 .foregroundStyle(example.foreground)
                 .minimumScaleFactor(0.7)
@@ -508,7 +508,7 @@ struct IntervalQualityGuideView: View {
         }
         .frame(maxWidth: .infinity)
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(example.spelling), \(example.degree), \(example.semitones), \(example.quality)")
+        .accessibilityLabel("\(example.spelling), \(example.degree.l10n), \(example.semitones.l10n), \(example.quality.l10n)")
     }
 
     private var namingRecap: some View {
@@ -547,10 +547,10 @@ struct IntervalQualityGuideView: View {
                 .frame(width: 22, height: 22)
                 .background(Circle().fill(palette.fretboardQuizRoot))
             VStack(alignment: .leading, spacing: LumenoteSpacing.xs) {
-                Text(title)
+                Text(title.l10n)
                     .font(LumenoteFont.subheadline(.bold))
                     .foregroundStyle(.primary)
-                Text(detail)
+                Text(detail.l10n)
                     .font(LumenoteFont.caption(.medium))
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
@@ -614,10 +614,10 @@ struct IntervalQualityGuideView: View {
 
     private func formulaTerm(caption: String, value: String) -> some View {
         VStack(spacing: LumenoteSpacing.xxs) {
-            Text(caption)
+            Text(caption.l10n)
                 .font(LumenoteFont.caption2(.medium))
                 .foregroundStyle(.secondary)
-            Text(value)
+            Text(value.l10n)
                 .font(LumenoteFont.subheadline(.bold))
                 .foregroundStyle(.primary)
                 .lineLimit(1)
@@ -746,7 +746,7 @@ struct IntervalQualityGuideView: View {
 
     private var degreeTable: some View {
         VStack(spacing: 0) {
-            degreeColumns(name: "음정", halves: "자연 반음 구간", semitones: "전체 반음 간격")
+            degreeColumns(name: "음정".l10n, halves: "자연 반음 구간".l10n, semitones: "전체 반음 간격".l10n)
                 .font(LumenoteFont.caption(.medium))
                 .foregroundStyle(.secondary)
                 .padding(.bottom, LumenoteSpacing.sm)
@@ -756,8 +756,8 @@ struct IntervalQualityGuideView: View {
                     .fill(palette.divider)
                     .frame(height: 1)
                 degreeColumns(
-                    name: row.name,
-                    halves: "\(row.naturalHalfSteps)개",
+                    name: row.name.l10n,
+                    halves: L10n.s("\(row.naturalHalfSteps)개"),
                     semitones: "\(row.semitones)"
                 )
                 .font(LumenoteFont.subheadline(.medium))
@@ -776,7 +776,7 @@ struct IntervalQualityGuideView: View {
                 .minimumScaleFactor(0.7)
                 .lineLimit(1)
             Text(semitones)
-                .frame(width: 64, alignment: .trailing)
+                .frame(width: 116, alignment: .trailing)
                 .minimumScaleFactor(0.7)
                 .lineLimit(1)
         }
@@ -926,7 +926,7 @@ struct IntervalQualityGuideView: View {
         foreground: Color
     ) -> some View {
         VStack(spacing: LumenoteSpacing.xxs) {
-            Text(title)
+            Text(title.l10n)
                 .font(LumenoteFont.caption(.bold))
                 .multilineTextAlignment(.center)
                 .minimumScaleFactor(0.8)
@@ -974,10 +974,10 @@ private enum GuidePage: Int, CaseIterable, Hashable {
 
     var title: String {
         switch self {
-        case .structure: "음정의 기본 구조"
-        case .explorer: "음정 구조 살펴보기"
-        case .alteration: "기본 음정에서 변형 음정으로"
-        case .naming: "음정 이름 규칙"
+        case .structure: "음정의 기본 구조".l10n
+        case .explorer: "음정 구조 살펴보기".l10n
+        case .alteration: "기본 음정에서 변형 음정으로".l10n
+        case .naming: "음정 이름 규칙".l10n
         }
     }
 }
@@ -1068,11 +1068,11 @@ private struct NaturalScaleDiagram: View {
 
     private var accessibilityLabelText: String {
         guard let spanEndIndex else {
-            return "C Major 스케일. 온음, 온음, 반음, 온음, 온음, 온음, 반음. E-F와 B-C는 자연 반음 구간."
+            return "C Major 스케일. 온음, 온음, 반음, 온음, 온음, 온음, 반음. E-F와 B-C는 자연 반음 구간.".l10n
         }
-        let steps = (0..<spanEndIndex).map { halfStepIndexes.contains($0) ? "반음" : "온음" }
-        let stepList = steps.isEmpty ? "같은 음" : steps.joined(separator: ", ")
-        return "C에서 \(notes[spanEndIndex])까지. \(stepList)."
+        let steps = (0..<spanEndIndex).map { halfStepIndexes.contains($0) ? "반음".l10n : "온음".l10n }
+        let stepList = steps.isEmpty ? "같은 음".l10n : steps.joined(separator: ", ")
+        return L10n.s("C에서 \(notes[spanEndIndex])까지. \(stepList).")
     }
 
     private func noteTile(_ name: String, isEndpoint: Bool) -> some View {
@@ -1101,7 +1101,7 @@ private struct NaturalScaleDiagram: View {
             .frame(height: markHeight)
             .frame(maxWidth: .infinity)
 
-            Text(isHalfStep ? "반음" : "온음")
+            Text((isHalfStep ? "반음" : "온음").l10n)
                 .font(LumenoteFont.caption2(.bold))
                 .foregroundStyle(color)
                 .minimumScaleFactor(0.5)

@@ -23,6 +23,6 @@ struct AppearanceToggleButton: View {
                 .overlay(Circle().strokeBorder(palette.cardBorder, lineWidth: LumenoteStroke.compact))
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(isDark ? "라이트 모드로 전환" : "다크 모드로 전환")
+        .accessibilityLabel((isDark ? "라이트 모드로 전환" : "다크 모드로 전환").l10n)
     }
 }

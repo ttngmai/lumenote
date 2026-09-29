@@ -133,7 +133,7 @@ struct DiatonicChordQuizView: View {
         model.question.promptTokens.map { token in
             switch token {
             case .roman(let name): return name
-            case .blank: return "빈칸"
+            case .blank: return "빈칸".l10n
             }
         }
         .joined(separator: " · ")
@@ -158,7 +158,7 @@ struct DiatonicChordQuizView: View {
             model.select(choice)
         } label: {
             HStack {
-                Text(choice)
+                Text(choice.l10n)
                     .font(LumenoteFont.body(.bold))
                     .foregroundStyle(.primary)
                 Spacer()
@@ -200,11 +200,11 @@ struct DiatonicChordQuizView: View {
         let isCorrect = model.isSelectionCorrect
 
         return VStack(alignment: .leading, spacing: LumenoteSpacing.sm) {
-            Text(feedback.headline)
+            Text(feedback.headline.l10n)
                 .font(LumenoteFont.body(.bold))
                 .foregroundStyle(isCorrect ? palette.quizCorrect : .primary)
             if !feedback.detail.isEmpty {
-                Text(feedback.detail)
+                Text(feedback.detail.l10n)
                     .font(LumenoteFont.callout(.medium))
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
@@ -247,7 +247,7 @@ struct DiatonicChordQuizView: View {
                 model.nextQuestion()
             }
         } label: {
-            Text(showsResult ? "결과 보기" : "다음 문제")
+            Text((showsResult ? "결과 보기" : "다음 문제").l10n)
                 .font(LumenoteFont.body(.bold))
                 .foregroundStyle(.white)
                 .frame(maxWidth: .infinity)
@@ -258,7 +258,7 @@ struct DiatonicChordQuizView: View {
                 )
         }
         .buttonStyle(.plain)
-        .accessibilityHint(showsResult ? "결과를 보려면 두 번 탭하세요" : "다음 문제로 넘어가려면 두 번 탭하세요")
+        .accessibilityHint((showsResult ? "결과를 보려면 두 번 탭하세요" : "다음 문제로 넘어가려면 두 번 탭하세요").l10n)
     }
 }
 

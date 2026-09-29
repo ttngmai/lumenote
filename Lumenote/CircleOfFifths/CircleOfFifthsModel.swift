@@ -228,11 +228,11 @@ final class CircleOfFifthsModel {
 
     private static func signatureCountDescription(_ index: Int) -> String {
         if index == 0 {
-            return "조표 없음"
+            return "조표 없음".l10n
         } else if index > 0 {
-            return "♯ \(index)개"
+            return L10n.s("♯ \(index)개")
         } else {
-            return "♭ \(abs(index))개"
+            return L10n.s("♭ \(abs(index))개")
         }
     }
 
@@ -738,7 +738,7 @@ final class CircleOfFifthsModel {
             switch self {
             case .lydian:
                 return ModeCharacterProfile(
-                    summary: "메이저 + 증4도",
+                    summary: "메이저 + 증4도".l10n,
                     formula: Self.formula([
                         (1, "1", false), (2, "2", false), (3, "3", false),
                         (4, "♯4", true), (5, "5", false), (6, "6", false), (7, "7", false)
@@ -748,7 +748,7 @@ final class CircleOfFifthsModel {
                 )
             case .ionian:
                 return ModeCharacterProfile(
-                    summary: "일반적인 메이저",
+                    summary: "일반적인 메이저".l10n,
                     formula: Self.formula([
                         (1, "1", false), (2, "2", false), (3, "3", false),
                         (4, "4", false), (5, "5", false), (6, "6", false), (7, "7", false)
@@ -758,7 +758,7 @@ final class CircleOfFifthsModel {
                 )
             case .mixolydian:
                 return ModeCharacterProfile(
-                    summary: "메이저 + 단7도",
+                    summary: "메이저 + 단7도".l10n,
                     formula: Self.formula([
                         (1, "1", false), (2, "2", false), (3, "3", false),
                         (4, "4", false), (5, "5", false), (6, "6", false), (7, "♭7", true)
@@ -768,7 +768,7 @@ final class CircleOfFifthsModel {
                 )
             case .dorian:
                 return ModeCharacterProfile(
-                    summary: "마이너 + 장6도",
+                    summary: "마이너 + 장6도".l10n,
                     formula: Self.formula([
                         (1, "1", false), (2, "2", false), (3, "♭3", true),
                         (4, "4", false), (5, "5", false), (6, "6", true), (7, "♭7", true)
@@ -778,7 +778,7 @@ final class CircleOfFifthsModel {
                 )
             case .aeolian:
                 return ModeCharacterProfile(
-                    summary: "일반적인 내추럴 마이너",
+                    summary: "일반적인 내추럴 마이너".l10n,
                     formula: Self.formula([
                         (1, "1", false), (2, "2", false), (3, "♭3", false),
                         (4, "4", false), (5, "5", false), (6, "♭6", false), (7, "♭7", false)
@@ -788,7 +788,7 @@ final class CircleOfFifthsModel {
                 )
             case .phrygian:
                 return ModeCharacterProfile(
-                    summary: "마이너 + 단2도",
+                    summary: "마이너 + 단2도".l10n,
                     formula: Self.formula([
                         (1, "1", false), (2, "♭2", true), (3, "♭3", true),
                         (4, "4", false), (5, "5", false), (6, "♭6", true), (7, "♭7", true)
@@ -798,7 +798,7 @@ final class CircleOfFifthsModel {
                 )
             case .locrian:
                 return ModeCharacterProfile(
-                    summary: "마이너 + 감5도",
+                    summary: "마이너 + 감5도".l10n,
                     formula: Self.formula([
                         (1, "1", false), (2, "♭2", true), (3, "♭3", true),
                         (4, "4", false), (5, "♭5", true), (6, "♭6", true), (7, "♭7", true)

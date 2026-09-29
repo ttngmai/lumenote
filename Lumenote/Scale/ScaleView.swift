@@ -209,7 +209,7 @@ struct ScaleView: View {
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(isActive ? "순서 이동 닫기" : "순서 이동")
+        .accessibilityLabel((isActive ? "순서 이동 닫기" : "순서 이동").l10n)
         .accessibilityHint("위, 아래 이동 버튼을 표시합니다")
         .accessibilityAddTraits(isActive ? .isSelected : [])
     }
@@ -232,7 +232,7 @@ struct ScaleView: View {
         } label: {
             HStack(spacing: LumenoteSpacing.xs) {
                 Image(systemName: symbol)
-                Text(title)
+                Text(title.l10n)
             }
             .font(LumenoteFont.caption(.semibold))
             .foregroundStyle(enabled ? palette.minor : Color.secondary.opacity(0.4))
@@ -249,7 +249,7 @@ struct ScaleView: View {
         }
         .buttonStyle(.plain)
         .disabled(!enabled)
-        .accessibilityLabel(title + " 이동")
+        .accessibilityLabel((direction < 0 ? "위로 이동" : "아래로 이동").l10n)
     }
 
     private func removeCardButton(_ cardID: ScaleCard.ID) -> some View {
@@ -275,7 +275,7 @@ struct ScaleView: View {
     ) -> some View {
         Button(action: action) {
             VStack(alignment: .leading, spacing: LumenoteSpacing.xxs) {
-                Text(title)
+                Text(title.l10n)
                     .font(LumenoteFont.caption2(.semibold))
                     .foregroundStyle(isActive ? palette.minor : .secondary)
                 Text(value)
@@ -418,7 +418,7 @@ struct ScaleView: View {
 
     private func pickerStripHeader(title: String, dismiss: @escaping () -> Void) -> some View {
         HStack {
-            Text(title)
+            Text(title.l10n)
                 .font(LumenoteFont.caption(.semibold))
                 .foregroundStyle(palette.minor)
             Spacer()

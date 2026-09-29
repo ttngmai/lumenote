@@ -11,15 +11,19 @@ enum FeatureDomain: String, CaseIterable, Hashable, Identifiable {
 
     var title: String {
         switch self {
-        case .harmony: "화성학"
-        case .guitar: "기타"
+        case .harmony:
+            L10n.string("화성학")
+        case .guitar:
+            L10n.string("기타")
         }
     }
 
     var subtitle: String {
         switch self {
-        case .harmony: "음정 · 스케일 · 조표 · 코드 · 다이아토닉"
-        case .guitar: "지판과 주법"
+        case .harmony:
+            L10n.string("음정 · 스케일 · 조표 · 코드 · 다이아토닉")
+        case .guitar:
+            L10n.string("지판과 주법")
         }
     }
 
@@ -40,15 +44,19 @@ enum FeatureMode: String, CaseIterable, Hashable, Identifiable {
 
     var title: String {
         switch self {
-        case .learn: "학습"
-        case .quiz: "퀴즈"
+        case .learn:
+            L10n.string("학습")
+        case .quiz:
+            L10n.string("퀴즈")
         }
     }
 
     var subtitle: String {
         switch self {
-        case .learn: "개념과 구성을 살펴보세요"
-        case .quiz: "문제를 풀어 보세요"
+        case .learn:
+            L10n.string("개념과 구성을 살펴보세요")
+        case .quiz:
+            L10n.string("문제를 풀어 보세요")
         }
     }
 
@@ -99,32 +107,32 @@ enum FeatureCatalog {
             [
                 FeatureItem(
                     destination: .interval,
-                    title: "음정",
-                    subtitle: "두 음 사이의 거리",
+                    title: L10n.string("음정"),
+                    subtitle: L10n.string("두 음 사이의 거리"),
                     icon: .system("ruler")
                 ),
                 FeatureItem(
                     destination: .scale,
-                    title: "스케일",
-                    subtitle: "일정한 음정 규칙에 따라 배열된 음들의 체계",
+                    title: L10n.string("스케일"),
+                    subtitle: L10n.string("일정한 음정 규칙에 따라 배열된 음들의 체계"),
                     icon: .system("music.quarternote.3")
                 ),
                 FeatureItem(
                     destination: .circleOfFifths,
-                    title: "5도권",
-                    subtitle: "키 · 조표 · 관계조",
+                    title: L10n.string("5도권"),
+                    subtitle: L10n.string("키 · 조표 · 관계조"),
                     icon: .system("circle.circle")
                 ),
                 FeatureItem(
                     destination: .chord,
-                    title: "코드",
-                    subtitle: "여러 음이 동시에 울리는 화음",
+                    title: L10n.string("코드"),
+                    subtitle: L10n.string("여러 음이 동시에 울리는 화음"),
                     icon: .system("music.note.list")
                 ),
                 FeatureItem(
                     destination: .diatonicChord,
-                    title: "다이아토닉 코드",
-                    subtitle: "스케일의 구성음으로 만들어지는 코드",
+                    title: L10n.string("다이아토닉 코드"),
+                    subtitle: L10n.string("스케일의 구성음으로 만들어지는 코드"),
                     icon: .system("square.stack.3d.up")
                 ),
             ]
@@ -132,32 +140,32 @@ enum FeatureCatalog {
             [
                 FeatureItem(
                     destination: .intervalQuiz,
-                    title: "음정 퀴즈",
-                    subtitle: "두 음의 음정을 맞춰 보세요",
+                    title: L10n.string("음정 퀴즈"),
+                    subtitle: L10n.string("두 음의 음정을 맞춰 보세요"),
                     icon: .system("ruler")
                 ),
                 FeatureItem(
                     destination: .scaleQuiz,
-                    title: "스케일 퀴즈",
-                    subtitle: "구성음 · 패턴 · 도수를 맞춰 보세요",
+                    title: L10n.string("스케일 퀴즈"),
+                    subtitle: L10n.string("구성음 · 패턴 · 도수를 맞춰 보세요"),
                     icon: .system("music.quarternote.3")
                 ),
                 FeatureItem(
                     destination: .keySignatureQuiz,
-                    title: "키 · 조표 퀴즈",
-                    subtitle: "키와 조표를 맞춰 보세요",
+                    title: L10n.string("키 · 조표 퀴즈"),
+                    subtitle: L10n.string("키와 조표를 맞춰 보세요"),
                     icon: .glyph("♯")
                 ),
                 FeatureItem(
                     destination: .chordQuiz,
-                    title: "코드 퀴즈",
-                    subtitle: "구성음 · 공식 · 도수를 맞춰 보세요",
+                    title: L10n.string("코드 퀴즈"),
+                    subtitle: L10n.string("구성음 · 공식 · 도수를 맞춰 보세요"),
                     icon: .system("music.note.list")
                 ),
                 FeatureItem(
                     destination: .diatonicChordQuiz,
-                    title: "다이아토닉 코드 퀴즈",
-                    subtitle: "규칙 · 품질 · 코드를 맞혀 보세요",
+                    title: L10n.string("다이아토닉 코드 퀴즈"),
+                    subtitle: L10n.string("규칙 · 품질 · 코드를 맞혀 보세요"),
                     icon: .system("square.stack.3d.up")
                 ),
             ]
@@ -165,8 +173,8 @@ enum FeatureCatalog {
             [
                 FeatureItem(
                     destination: .fretboardExplorer,
-                    title: "지판 보기",
-                    subtitle: "음이름과 도수로 지판 위치를 살펴보세요",
+                    title: L10n.string("지판 보기"),
+                    subtitle: L10n.string("음이름과 도수로 지판 위치를 살펴보세요"),
                     icon: .system("guitars")
                 ),
             ]
@@ -174,14 +182,14 @@ enum FeatureCatalog {
             [
                 FeatureItem(
                     destination: .fretboardNoteNames,
-                    title: "지판 퀴즈 (음이름)",
-                    subtitle: "지판에서 음의 위치를 찾아 보세요",
+                    title: L10n.string("지판 퀴즈 (음이름)"),
+                    subtitle: L10n.string("지판에서 음의 위치를 찾아 보세요"),
                     icon: .system("guitars")
                 ),
                 FeatureItem(
                     destination: .fretboardDegrees,
-                    title: "지판 퀴즈 (도수)",
-                    subtitle: "1도를 기준으로 도수의 위치를 찾아 보세요",
+                    title: L10n.string("지판 퀴즈 (도수)"),
+                    subtitle: L10n.string("1도를 기준으로 도수의 위치를 찾아 보세요"),
                     icon: .system("guitars")
                 ),
             ]

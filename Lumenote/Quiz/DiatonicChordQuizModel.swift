@@ -164,7 +164,7 @@ final class DiatonicChordQuizModel {
         let ctx = question.explanationContext
 
         if answer == question.correctAnswer {
-            return Feedback(headline: "정답", detail: explanation(for: ctx))
+            return Feedback(headline: "정답".l10n, detail: explanation(for: ctx))
         }
 
         return Feedback(
@@ -240,12 +240,12 @@ final class DiatonicChordQuizModel {
         let tokens: [PromptToken] = DiatonicDegree.allCases.map { degree in
             degree == blank ? .blank : .roman(romans[degree.rawValue])
         }
-        let scalePhrase = "\(kind.englishTitle) 스케일"
+        let scalePhrase = L10n.s("\(kind.englishTitle) 스케일")
         let phrase = constructedChordPhrase(voicing)
 
         return Question(
             kind: .completeRomanPattern,
-            promptTitle: "\(scalePhrase)의 다이아토닉 \(phrase) 규칙을 완성하세요.",
+            promptTitle: L10n.s("\(scalePhrase)의 다이아토닉 \(phrase) 규칙을 완성하세요."),
             promptHighlights: [kind.englishTitle, voicing.title],
             promptTokens: tokens,
             choices: choices,
@@ -281,7 +281,7 @@ final class DiatonicChordQuizModel {
         let phrase = constructedChordPhrase(entry.voicing)
         return Question(
             kind: .identifyQuality,
-            promptTitle: "\(entry.kind.englishTitle) 스케일에서 \(ordinal) 음을 근음으로 하는 \(phrase)의 품질은?",
+            promptTitle: L10n.s("\(entry.kind.englishTitle) 스케일에서 \(ordinal) 음을 근음으로 하는 \(phrase)의 품질은?"),
             promptHighlights: [entry.kind.englishTitle, ordinal, entry.voicing.title],
             promptTokens: [],
             choices: choices,
@@ -303,11 +303,11 @@ final class DiatonicChordQuizModel {
             return nil
         }
 
-        let scalePhrase = "\(entry.scaleDisplayName) 스케일"
+        let scalePhrase = L10n.s("\(entry.scaleDisplayName) 스케일")
         let phrase = constructedChordPhrase(entry.voicing)
         return Question(
             kind: .identifyNonDiatonic,
-            promptTitle: "다음 중, \(scalePhrase)의 다이아토닉 \(phrase)가 아닌 것은?",
+            promptTitle: L10n.s("다음 중, \(scalePhrase)의 다이아토닉 \(phrase)가 아닌 것은?"),
             promptHighlights: [entry.scaleDisplayName, entry.voicing.title],
             promptTokens: [],
             choices: choices,
@@ -342,7 +342,7 @@ final class DiatonicChordQuizModel {
     private func romanPatternExplanation(context: ExplanationContext) -> String {
         let phrase = constructedChordPhrase(context.voicing)
         let list = context.diatonicNames.joined(separator: " · ")
-        return "\(context.kind.englishTitle) 스케일의 다이아토닉 \(phrase) 규칙 : \(list)"
+        return L10n.s("\(context.kind.englishTitle) 스케일의 다이아토닉 \(phrase) 규칙 : \(list)")
     }
 
     private func qualityExplanation(context: ExplanationContext) -> String {
@@ -352,15 +352,17 @@ final class DiatonicChordQuizModel {
             DiatonicChordModel.roman(kind: context.kind, voicing: context.voicing, degree: $0)
         }
         .joined(separator: " · ")
-        return """
-        \(context.kind.englishTitle) 스케일에서 \(ordinal) 음을 근음으로 하는 \(phrase)는 \(context.qualityTitle)(\(context.roman))입니다.
-        \(context.kind.englishTitle) 스케일의 다이아토닉 \(phrase) 규칙 : \(romans)
-        """
+        return L10n.s(
+            """
+            \(context.kind.englishTitle) 스케일에서 \(ordinal) 음을 근음으로 하는 \(phrase)는 \(context.qualityTitle)(\(context.roman))입니다.
+            \(context.kind.englishTitle) 스케일의 다이아토닉 \(phrase) 규칙 : \(romans)
+            """
+        )
     }
 
     private func nonDiatonicExplanation(context: ExplanationContext) -> String {
         let phrase = constructedChordPhrase(context.voicing)
-        let scale = "\(scaleLabel(tonic: context.tonicSpelling, kind: context.kind)) 스케일"
+        let scale = L10n.s("\(scaleLabel(tonic: context.tonicSpelling, kind: context.kind)) 스케일")
         let names = context.diatonicNames.joined(separator: " · ")
         let romans = DiatonicDegree.allCases.map {
             DiatonicChordModel.roman(
@@ -370,10 +372,12 @@ final class DiatonicChordQuizModel {
             )
         }
         .joined(separator: " · ")
-        return """
-        \(scale)의 다이아토닉 \(phrase) : \(names) (\(romans))
-        \(context.compactName)는 \(scale)의 다이아토닉 코드가 아닙니다.
-        """
+        return L10n.s(
+            """
+            \(scale)의 다이아토닉 \(phrase) : \(names) (\(romans))
+            \(context.compactName)는 \(scale)의 다이아토닉 코드가 아닙니다.
+            """
+        )
     }
 
     // MARK: - Distractors & catalog
@@ -569,11 +573,18 @@ final class DiatonicChordQuizModel {
     }
 
     private func constructedChordPhrase(_ voicing: DiatonicVoicing) -> String {
-        "\(voicing.title) 코드"
+        L10n.s("\(voicing.title) 코드")
     }
 
     private func degreeOrdinal(_ degree: DiatonicDegree) -> String {
-        "\(degree.rawValue + 1)도"
+        let number = degree.rawValue + 1
+        guard LanguageSettings.shared.language == .english else { return "\(number)도" }
+        switch number {
+        case 1: return "1st"
+        case 2: return "2nd"
+        case 3: return "3rd"
+        default: return "\(number)th"
+        }
     }
 
     private struct CatalogEntry: Equatable {
@@ -631,7 +642,7 @@ final class DiatonicChordQuizModel {
         let romans = ["I", "ii", "iii", "IV", "V", "vi", "vii°"]
         return Question(
             kind: .completeRomanPattern,
-            promptTitle: "Major 스케일의 다이아토닉 Triad 코드 규칙을 완성하세요.",
+            promptTitle: "Major 스케일의 다이아토닉 Triad 코드 규칙을 완성하세요.".l10n,
             promptHighlights: ["Major", "Triad"],
             promptTokens: [
                 .roman("I"), .roman("ii"), .blank, .roman("IV"),
