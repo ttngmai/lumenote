@@ -7,6 +7,12 @@ enum FretboardNoteQuizDifficulty: String, CaseIterable, Hashable, Identifiable {
     case normal
     case hard
 
+    static let storageKey = "fretboardNoteQuizDifficulty"
+    static let questionCountStorageKey = "fretboardNoteQuizQuestionCount"
+    static let fretRangeModeStorageKey = "fretboardNoteQuizFretRangeMode"
+    static let fretWindowStartStorageKey = "fretboardNoteQuizFretWindowStart"
+    static let answerModeStorageKey = "fretboardNoteQuizAnswerMode"
+
     var id: String { rawValue }
 
     var title: String {

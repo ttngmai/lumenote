@@ -8,8 +8,8 @@ struct DiatonicChordQuizDifficultyView: View {
     @Environment(\.appPalette) private var palette
     @Environment(\.dismiss) private var dismiss
 
-    @State private var selectedDifficulty: DiatonicChordQuizDifficulty = .easy
-    @State private var questionCount = 10
+    @AppStorage(DiatonicChordQuizDifficulty.storageKey) private var selectedDifficulty: DiatonicChordQuizDifficulty = .easy
+    @AppStorage(DiatonicChordQuizDifficulty.questionCountStorageKey) private var questionCount = 10
     @State private var model: DiatonicChordQuizModel?
 
     private let questionCounts = [10, 20, 30, 40, 50]

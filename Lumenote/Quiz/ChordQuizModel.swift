@@ -8,6 +8,9 @@ enum ChordQuizDifficulty: String, CaseIterable, Hashable, Identifiable {
     case normal
     case hard
 
+    static let storageKey = "chordQuizDifficulty"
+    static let questionCountStorageKey = "chordQuizQuestionCount"
+
     var id: String { rawValue }
 
     var title: String {

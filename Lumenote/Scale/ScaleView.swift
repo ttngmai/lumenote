@@ -5,7 +5,7 @@ import SwiftUI
 struct ScaleView: View {
     @Environment(\.appPalette) private var palette
 
-    @State private var cards: [ScaleCard] = [ScaleCard()]
+    @State private var cards: [ScaleCard]
     @State private var activePicker: ActivePicker?
     @State private var tonicStripScrollPosition: String?
     @State private var kindStripScrollPosition: String?
@@ -20,6 +20,10 @@ struct ScaleView: View {
 
         let cardID: ScaleCard.ID
         let field: Field
+    }
+
+    init() {
+        _cards = State(initialValue: ScaleSelectionStore.loadCards())
     }
 
     private let noteChipWidth: CGFloat = 64
@@ -84,6 +88,9 @@ struct ScaleView: View {
         }
         .background(background)
         .lumenoteCompactHeader(title: "스케일", showsBackButton: true)
+        .onChange(of: cards) { _, updated in
+            ScaleSelectionStore.save(updated)
+        }
     }
 
     /// Nearly-invisible hit target; `Color.clear` alone can miss taps in ScrollView.

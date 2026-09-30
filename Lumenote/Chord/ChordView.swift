@@ -5,7 +5,7 @@ import SwiftUI
 struct ChordView: View {
     @Environment(\.appPalette) private var palette
 
-    @State private var cards: [ChordCard] = [ChordCard()]
+    @State private var cards: [ChordCard]
     @State private var activePicker: ActivePicker?
     @State private var rootStripScrollPosition: String?
     @State private var triadStripScrollPosition: String?
@@ -22,6 +22,10 @@ struct ChordView: View {
 
         let cardID: ChordCard.ID
         let field: Field
+    }
+
+    init() {
+        _cards = State(initialValue: ChordSelectionStore.loadCards())
     }
 
     private let noteChipWidth: CGFloat = 64
@@ -101,6 +105,9 @@ struct ChordView: View {
         }
         .sheet(isPresented: $showsGuide) {
             ChordGuideView()
+        }
+        .onChange(of: cards) { _, updated in
+            ChordSelectionStore.save(updated)
         }
     }
 

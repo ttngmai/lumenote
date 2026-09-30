@@ -8,8 +8,8 @@ struct KeySignatureQuizDifficultyView: View {
     @Environment(\.appPalette) private var palette
     @Environment(\.dismiss) private var dismiss
 
-    @State private var selectedDifficulty: KeySignatureQuizDifficulty = .easy
-    @State private var questionCount = 10
+    @AppStorage(KeySignatureQuizDifficulty.storageKey) private var selectedDifficulty: KeySignatureQuizDifficulty = .easy
+    @AppStorage(KeySignatureQuizDifficulty.questionCountStorageKey) private var questionCount = 10
     @State private var model: KeySignatureQuizModel?
 
     private let questionCounts = [10, 20, 30, 40, 50]

@@ -215,3 +215,12 @@ struct FretboardQuizOptionSections: View {
         .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 }
+
+extension Fretboard {
+    static func quizFretWindowBinding(start: Binding<Int>) -> Binding<ClosedRange<Int>> {
+        Binding(
+            get: { storedQuizFretWindow(start: start.wrappedValue) },
+            set: { start.wrappedValue = $0.lowerBound }
+        )
+    }
+}

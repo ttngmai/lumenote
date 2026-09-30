@@ -5,7 +5,7 @@ import SwiftUI
 struct DiatonicChordView: View {
     @Environment(\.appPalette) private var palette
 
-    @State private var cards: [DiatonicChordCard] = [DiatonicChordCard()]
+    @State private var cards: [DiatonicChordCard]
     @State private var activePicker: ActivePicker?
     @State private var tonicStripScrollPosition: String?
     @State private var kindStripScrollPosition: String?
@@ -21,6 +21,10 @@ struct DiatonicChordView: View {
 
         let cardID: DiatonicChordCard.ID
         let field: Field
+    }
+
+    init() {
+        _cards = State(initialValue: DiatonicChordSelectionStore.loadCards())
     }
 
     private let noteChipWidth: CGFloat = 64
@@ -101,6 +105,9 @@ struct DiatonicChordView: View {
         }
         .sheet(isPresented: $showsGuide) {
             DiatonicChordGuideView()
+        }
+        .onChange(of: cards) { _, updated in
+            DiatonicChordSelectionStore.save(updated)
         }
     }
 
