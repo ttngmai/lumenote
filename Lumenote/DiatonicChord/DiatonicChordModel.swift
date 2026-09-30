@@ -443,7 +443,7 @@ struct DiatonicChordCard: Identifiable, Equatable {
 
     /// Same tonic and voicing, next scale kind. Used when the user adds another card.
     func addingNextKind() -> DiatonicChordCard {
-        let kinds = ScaleKind.allCases
+        let kinds = ScaleKind.basicCases
         let index = kinds.firstIndex(of: kind) ?? 0
         let next = kinds[(index + 1) % kinds.count]
         return DiatonicChordCard(tonicSpelling: tonicSpelling, kind: next, voicing: voicing)

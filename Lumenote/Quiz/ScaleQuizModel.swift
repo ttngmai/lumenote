@@ -387,7 +387,7 @@ final class ScaleQuizModel {
         }
 
         let choicePool = Array(
-            Set(ScaleKind.allCases.flatMap { kind in
+            Set(ScaleKind.basicCases.flatMap { kind in
                 kind.semitoneSteps.map { ScaleStepInterval(semitones: $0).koreanLabel }
             })
         )
@@ -585,7 +585,7 @@ final class ScaleQuizModel {
     }
 
     private func weightedEntry(from pool: [CatalogEntry], weights: [ScaleKind: Int]) -> CatalogEntry? {
-        let buckets = ScaleKind.allCases.compactMap { kind -> (weight: Int, entries: [CatalogEntry])? in
+        let buckets = ScaleKind.basicCases.compactMap { kind -> (weight: Int, entries: [CatalogEntry])? in
             let matches = pool.filter { $0.kind == kind }
             let weight = weights[kind] ?? 0
             guard !matches.isEmpty, weight > 0 else { return nil }
@@ -621,7 +621,7 @@ final class ScaleQuizModel {
         case .easy:
             return [.major, .naturalMinor].randomElement()
         case .normal, .hard:
-            return ScaleKind.allCases.randomElement()
+            return ScaleKind.basicCases.randomElement()
         }
     }
 
@@ -658,6 +658,8 @@ final class ScaleQuizModel {
             [6]
         case .melodicMinor:
             [5, 6]
+        case .majorPentatonic, .minorPentatonic, .majorBlues, .minorBlues:
+            []
         }
     }
 
@@ -670,6 +672,8 @@ final class ScaleQuizModel {
             [5, 6]
         case .melodicMinor:
             [4, 5, 6]
+        case .majorPentatonic, .minorPentatonic, .majorBlues, .minorBlues:
+            []
         }
     }
 
@@ -738,7 +742,7 @@ final class ScaleQuizModel {
 
     private func siblingOutsiders(tonic: String, kind: ScaleKind, scaleDisplays: Set<String>) -> [String] {
         var result: [String] = []
-        for other in ScaleKind.allCases where other != kind {
+        for other in ScaleKind.basicCases where other != kind {
             let spelled = spellings(tonic: tonic, kind: other)
             guard spelled.count == 8 else { continue }
             guard spelled.allSatisfy({ !$0.contains("##") && !$0.hasSuffix("bb") }) else { continue }
@@ -846,7 +850,7 @@ final class ScaleQuizModel {
         degreeIndex: Int,
         correctDisplay: String
     ) -> [String] {
-        ScaleKind.allCases.compactMap { other in
+        ScaleKind.basicCases.compactMap { other in
             guard other != kind else { return nil }
             let spellings = spellings(tonic: tonic, kind: other)
             guard spellings.count == 8, spellings.indices.contains(degreeIndex) else { return nil }
@@ -927,7 +931,7 @@ final class ScaleQuizModel {
         let probe = ScaleModel()
         var entries: [CatalogEntry] = []
         for tonic in quizTonics {
-            for kind in ScaleKind.allCases {
+            for kind in ScaleKind.basicCases {
                 probe.tonicSpelling = tonic
                 probe.kind = kind
                 let spellings = probe.degreeSpellings

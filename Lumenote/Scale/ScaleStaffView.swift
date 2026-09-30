@@ -280,7 +280,7 @@ private struct ScaleStepMark: View {
             let bottom = size.height * 0.88
 
             switch kind {
-            case .whole, .augmentedSecond:
+            case .whole, .augmentedSecond, .minorThird:
                 // Square bracket opening upward toward the notes: └──┘
                 path.move(to: CGPoint(x: insetX, y: top))
                 path.addLine(to: CGPoint(x: insetX, y: bottom))

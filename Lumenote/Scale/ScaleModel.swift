@@ -26,7 +26,7 @@ final class ScaleModel {
         Self.selectableNotes
     }
 
-    /// Eight ascending degrees (tonic through octave), spelled for the chosen tonic and kind.
+    /// Ascending degrees from the tonic through the octave, spelled for the chosen tonic and kind.
     var degreeSpellings: [String] {
         Self.spellings(tonic: tonicSpelling, kind: kind)
     }
@@ -36,9 +36,9 @@ final class ScaleModel {
         orderedSpellings.map { ($0, formatNoteName($0)) }
     }
 
-    /// Eight ascending degrees (tonic through octave) for an arbitrary tonic and kind.
+    /// Ascending degrees from the tonic through the octave for an arbitrary tonic and kind.
     static func spellings(tonic: String, kind: ScaleKind) -> [String] {
-        spellScale(tonic: tonic, steps: kind.semitoneSteps)
+        spellScale(tonic: tonic, tones: kind.formula)
     }
 
     var degreeDisplayNames: [String] {
@@ -50,9 +50,9 @@ final class ScaleModel {
         kind.degreeLabels
     }
 
-    /// Step labels between consecutive degrees (7 intervals for an octave scale).
+    /// Step labels between consecutive degrees.
     var stepIntervals: [ScaleStepInterval] {
-        kind.semitoneSteps.map(ScaleStepInterval.init(semitones:))
+        kind.stepIntervals
     }
 
     /// Tonic through octave on a treble staff starting in the C4 octave.
@@ -61,9 +61,12 @@ final class ScaleModel {
     }
 
     /// Tonic through octave on a treble staff starting in the C4 octave.
+    /// Staff position follows the scale-degree letter, so skipped degrees leave a gap
+    /// and chromatic pairs (♭3–3, ♭5–5) share a line.
     static func staffNotes(tonic: String, kind: ScaleKind) -> [IntervalStaffNote] {
-        let spellings = spellings(tonic: tonic, kind: kind)
-        guard let tonicLetter = letterIndex(of: tonic) else { return [] }
+        let tones = kind.formula
+        let spellings = spellScale(tonic: tonic, tones: tones)
+        guard let tonicLetter = letterIndex(of: tonic), spellings.count == tones.count else { return [] }
 
         // Fixed letter → staff mapping in the C4 octave: C = −2, D = −1, E = 0, …, B = 4.
         let startStep = tonicLetter - 2
@@ -71,8 +74,11 @@ final class ScaleModel {
             IntervalStaffNote(
                 id: index,
                 spelling: spelling,
-                staffStep: startStep + index,
-                accidentalSymbol: accidentalSymbol(for: spelling)
+                staffStep: startStep + tones[index].letterOffset,
+                accidentalSymbol: accidentalSymbol(
+                    for: spelling,
+                    cancelingNatural: showsCancelingNatural(at: index, spellings: spellings)
+                )
             )
         }
     }
@@ -108,26 +114,29 @@ final class ScaleModel {
 
     // MARK: - Spelling
 
-    /// Builds eight note spellings by walking consecutive letters and matching each target pitch class.
-    private static func spellScale(tonic: String, steps: [Int]) -> [String] {
+    /// Spells each formula tone on its scale-degree letter, matching the target pitch class.
+    private static func spellScale(tonic: String, tones: [ScaleFormulaTone]) -> [String] {
         guard let tonicLetter = letterIndex(of: tonic) else { return [] }
         let tonicPC = pitchClass(for: tonic)
 
-        var spellings: [String] = []
-        var cumulative = 0
-        for degree in 0...7 {
-            if degree > 0 {
-                cumulative += steps[degree - 1]
-            }
-            let letterIdx = (tonicLetter + degree) % 7
-            let expectedPC = (tonicPC + cumulative) % 12
+        return tones.map { tone in
+            let letterIdx = (tonicLetter + tone.letterOffset) % 7
+            let expectedPC = (tonicPC + tone.semitonesFromTonic) % 12
             let naturalPC = naturalPitchClasses[letterIdx]
             var offset = expectedPC - naturalPC
             if offset > 6 { offset -= 12 }
             if offset < -6 { offset += 12 }
-            spellings.append(spelling(letter: letters[letterIdx], accidentalOffset: offset))
+            return spelling(letter: letters[letterIdx], accidentalOffset: offset)
         }
-        return spellings
+    }
+
+    /// A natural sign cancels an accidental on the previous note when both share a letter (♭3 then 3).
+    private static func showsCancelingNatural(at index: Int, spellings: [String]) -> Bool {
+        guard index > 0 else { return false }
+        let current = spellings[index]
+        let previous = spellings[index - 1]
+        guard current.first == previous.first else { return false }
+        return accidentalSymbol(for: current) == nil && accidentalSymbol(for: previous) != nil
     }
 
     private static func spelling(letter: Character, accidentalOffset: Int) -> String {
@@ -151,11 +160,12 @@ final class ScaleModel {
         return letterIndices[first]
     }
 
-    private static func accidentalSymbol(for spelling: String) -> String? {
+    private static func accidentalSymbol(for spelling: String, cancelingNatural: Bool = false) -> String? {
         if spelling.hasSuffix("##") { return "𝄪" }
         if spelling.hasSuffix("#") { return "♯" }
         if spelling.hasSuffix("bb") { return "𝄫" }
         if spelling.hasSuffix("b") { return "♭" }
+        if cancelingNatural { return "♮" }
         return nil
     }
 
@@ -205,13 +215,53 @@ final class ScaleModel {
 
 // MARK: - Scale kind
 
+enum ScaleCategory: String, CaseIterable, Identifiable {
+    case basic
+    case pentatonic
+    case blues
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .basic: "기본"
+        case .pentatonic: "펜타토닉"
+        case .blues: "블루스"
+        }
+    }
+
+    var kinds: [ScaleKind] {
+        ScaleKind.allCases.filter { $0.category == self }
+    }
+}
+
 enum ScaleKind: String, CaseIterable, Identifiable {
     case major
     case naturalMinor
     case harmonicMinor
     case melodicMinor
+    case majorPentatonic
+    case minorPentatonic
+    case majorBlues
+    case minorBlues
 
     var id: String { rawValue }
+
+    var category: ScaleCategory {
+        switch self {
+        case .major, .naturalMinor, .harmonicMinor, .melodicMinor:
+            return .basic
+        case .majorPentatonic, .minorPentatonic:
+            return .pentatonic
+        case .majorBlues, .minorBlues:
+            return .blues
+        }
+    }
+
+    /// The four heptatonic scales used by diatonic chords, quizzes, and learning.
+    static var basicCases: [ScaleKind] {
+        ScaleCategory.basic.kinds
+    }
 
     var englishTitle: String {
         switch self {
@@ -219,40 +269,89 @@ enum ScaleKind: String, CaseIterable, Identifiable {
         case .naturalMinor: return "Natural Minor"
         case .harmonicMinor: return "Harmonic Minor"
         case .melodicMinor: return "Melodic Minor"
+        case .majorPentatonic: return "Major Pentatonic"
+        case .minorPentatonic: return "Minor Pentatonic"
+        case .majorBlues: return "Major Blues"
+        case .minorBlues: return "Minor Blues"
         }
     }
 
-    /// Scale-degree formula for the eight staff notes (tonic through octave).
+    /// Scale-degree formula from the tonic through the octave.
     /// Accidentals are relative to the major scale, written like chord tones ("♭3").
     /// The octave is labeled "8(1)".
     var degreeLabels: [String] {
-        let degrees: [String]
-        switch self {
-        case .major:
-            degrees = ["1", "2", "3", "4", "5", "6", "7"]
-        case .naturalMinor:
-            degrees = ["1", "2", "♭3", "4", "5", "♭6", "♭7"]
-        case .harmonicMinor:
-            degrees = ["1", "2", "♭3", "4", "5", "♭6", "7"]
-        case .melodicMinor:
-            degrees = ["1", "2", "♭3", "4", "5", "6", "7"]
-        }
-        return degrees + ["8(1)"]
+        formula.map(\.label)
     }
 
     /// Semitone distances between consecutive degrees (tonic → octave).
     /// Melodic minor uses the ascending form (raised 6th and 7th).
     var semitoneSteps: [Int] {
+        let pitches = formula.map(\.semitonesFromTonic)
+        return zip(pitches, pitches.dropFirst()).map { $1 - $0 }
+    }
+
+    /// Step labels that distinguish a minor 3rd skip from the harmonic-minor augmented 2nd.
+    var stepIntervals: [ScaleStepInterval] {
+        zip(formula, formula.dropFirst()).map { ScaleStepInterval.between($0, $1) }
+    }
+
+    /// Degree numbers and alterations relative to the major scale, including the octave.
+    fileprivate var formula: [ScaleFormulaTone] {
         switch self {
         case .major:
-            return [2, 2, 1, 2, 2, 2, 1]
+            return Self.tones([(1, 0), (2, 0), (3, 0), (4, 0), (5, 0), (6, 0), (7, 0)])
         case .naturalMinor:
-            return [2, 1, 2, 2, 1, 2, 2]
+            return Self.tones([(1, 0), (2, 0), (3, -1), (4, 0), (5, 0), (6, -1), (7, -1)])
         case .harmonicMinor:
-            return [2, 1, 2, 2, 1, 3, 1]
+            return Self.tones([(1, 0), (2, 0), (3, -1), (4, 0), (5, 0), (6, -1), (7, 0)])
         case .melodicMinor:
-            return [2, 1, 2, 2, 2, 2, 1]
+            return Self.tones([(1, 0), (2, 0), (3, -1), (4, 0), (5, 0), (6, 0), (7, 0)])
+        case .majorPentatonic:
+            return Self.tones([(1, 0), (2, 0), (3, 0), (5, 0), (6, 0)])
+        case .minorPentatonic:
+            return Self.tones([(1, 0), (3, -1), (4, 0), (5, 0), (7, -1)])
+        case .majorBlues:
+            return Self.tones([(1, 0), (2, 0), (3, -1), (3, 0), (5, 0), (6, 0)])
+        case .minorBlues:
+            return Self.tones([(1, 0), (3, -1), (4, 0), (5, -1), (5, 0), (7, -1)])
         }
+    }
+
+    private static func tones(_ specs: [(Int, Int)]) -> [ScaleFormulaTone] {
+        specs.map { ScaleFormulaTone(degree: $0.0, alteration: $0.1) }
+            + [ScaleFormulaTone(degree: 8, alteration: 0)]
+    }
+}
+
+/// One scale degree: its number (1...7, or 8 for the octave) and alteration from major.
+fileprivate struct ScaleFormulaTone: Equatable {
+    let degree: Int
+    let alteration: Int
+
+    var label: String {
+        if degree == 8 { return "8(1)" }
+        let prefix: String
+        switch alteration {
+        case -2: prefix = "𝄫"
+        case -1: prefix = "♭"
+        case 1: prefix = "♯"
+        case 2: prefix = "𝄪"
+        default: prefix = ""
+        }
+        return prefix + String(degree)
+    }
+
+    /// Semitones above the tonic. The octave is 12.
+    var semitonesFromTonic: Int {
+        let majorSemitones = [0, 2, 4, 5, 7, 9, 11]
+        let index = (degree == 8 ? 1 : degree) - 1
+        let base = majorSemitones[index] + alteration
+        return degree == 8 ? base + 12 : base
+    }
+
+    /// Letter steps above the tonic. The octave is one letter past B's cycle (+7).
+    var letterOffset: Int {
+        degree == 8 ? 7 : degree - 1
     }
 }
 
@@ -261,6 +360,7 @@ enum ScaleStepInterval: Equatable {
     case half
     case whole
     case augmentedSecond
+    case minorThird
 
     init(semitones: Int) {
         switch semitones {
@@ -270,12 +370,33 @@ enum ScaleStepInterval: Equatable {
         }
     }
 
+    /// Names the step from letter span as well as size, so a pentatonic skip is a minor 3rd
+    /// and the harmonic-minor ♭6–7 step stays an augmented 2nd.
+    fileprivate static func between(_ left: ScaleFormulaTone, _ right: ScaleFormulaTone) -> ScaleStepInterval {
+        let semitones = right.semitonesFromTonic - left.semitonesFromTonic
+        let letterSpan = right.letterOffset - left.letterOffset
+        switch (letterSpan, semitones) {
+        case (0, 1), (1, 1):
+            return .half
+        case (1, 2):
+            return .whole
+        case (1, 3):
+            return .augmentedSecond
+        case (2, 3):
+            return .minorThird
+        default:
+            return ScaleStepInterval(semitones: semitones)
+        }
+    }
+
     var koreanLabel: String {
         switch self {
         case .half: return "반음".l10n
         case .whole: return "온음".l10n
         case .augmentedSecond:
             return LanguageSettings.shared.language == .english ? "A2" : "증2도"
+        case .minorThird:
+            return LanguageSettings.shared.language == .english ? "m3" : "단3도"
         }
     }
 
@@ -311,16 +432,16 @@ struct ScaleCard: Identifiable, Equatable {
     }
 
     var stepIntervals: [ScaleStepInterval] {
-        kind.semitoneSteps.map(ScaleStepInterval.init(semitones:))
+        kind.stepIntervals
     }
 
     var staffNotes: [IntervalStaffNote] {
         ScaleModel.staffNotes(tonic: tonicSpelling, kind: kind)
     }
 
-    /// Same tonic, next scale kind. Used when the user adds another card.
+    /// Same tonic, next scale kind in the same category. Used when the user adds another card.
     func addingNextKind() -> ScaleCard {
-        let kinds = ScaleKind.allCases
+        let kinds = kind.category.kinds
         let index = kinds.firstIndex(of: kind) ?? 0
         let next = kinds[(index + 1) % kinds.count]
         return ScaleCard(tonicSpelling: tonicSpelling, kind: next)

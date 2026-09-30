@@ -275,7 +275,7 @@ enum LearningSkillCatalog {
         case .interval:
             intervalKeys
         case .scale:
-            ScaleKind.allCases.flatMap { kind in
+            ScaleKind.basicCases.flatMap { kind in
                 LearningSkillToken.Scale.all.map { LearningSkillKey.scale(kind: kind, token: $0) }
             }
         case .chord:
@@ -298,7 +298,7 @@ enum LearningSkillCatalog {
 
     private static func diatonicKeys() -> [String] {
         var keys: [String] = []
-        for kind in ScaleKind.allCases {
+        for kind in ScaleKind.basicCases {
             for voicing in DiatonicVoicing.allCases {
                 for degree in DiatonicDegree.allCases {
                     keys.append(
