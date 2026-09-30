@@ -951,6 +951,16 @@
         }
       }
     },
+    "C를 근음으로 하는 Triad와 7th 코드의 이름, 구성음, 표기입니다." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Names, chord tones, and symbols for triads and 7th chords with C as the root."
+          }
+        }
+      }
+    },
     "C를 기준으로 음정을 선택하면 자연 반음 구간, 전체 반음 간격, 음정 이름을 확인할 수 있습니다." : {
       "localizations" : {
         "en" : {
@@ -1804,16 +1814,6 @@
         }
       }
     },
-    "근음을 C로 둔 Triad와 7th 코드의 이름, 구성음, 표기입니다. 근음이 바뀌면 같은 간격으로 구성음과 기호가 옮겨집니다." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Names, notes, and symbols for triads and 7th chords with C as the root. When the root changes, the notes and symbols move by the same intervals."
-          }
-        }
-      }
-    },
     "근음을 변경하려면 두 번 탭하세요" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -1821,6 +1821,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Double-tap to change the root"
+          }
+        }
+      }
+    },
+    "근음이 바뀌어도 코드의 구성음 사이의 음정 관계는 동일하게 유지됩니다." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The interval relationships between the chord tones stay the same even when the root changes."
           }
         }
       }
