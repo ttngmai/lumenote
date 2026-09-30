@@ -56,6 +56,16 @@
         }
       }
     },
+    "%@ %lld" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ %2$lld"
+          }
+        }
+      }
+    },
     "%@ %lld개" : {
       "localizations" : {
         "en" : {
@@ -432,6 +442,9 @@
           }
         }
       }
+    },
+    "→" : {
+
     },
     "+" : {
 
@@ -1240,6 +1253,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Role of Each Chord"
+          }
+        }
+      }
+    },
+    "각 항목의 최근 10회 풀이 기록을 기준으로 학습 상태를 판단합니다." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Learning status is decided from each item's last 10 answers."
           }
         }
       }
@@ -2111,6 +2135,17 @@
         }
       }
     },
+    "다이아토닉 규칙" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diatonic pattern"
+          }
+        }
+      }
+    },
     "다이아토닉 추가" : {
       "localizations" : {
         "en" : {
@@ -2880,6 +2915,104 @@
         }
       }
     },
+    "복습" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Review"
+          }
+        }
+      }
+    },
+    "복습 %lld개" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld to review"
+          }
+        }
+      }
+    },
+    "복습 대상" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Items to review"
+          }
+        }
+      }
+    },
+    "복습 대상 %lld개" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld items to review"
+          }
+        }
+      }
+    },
+    "복습 시작" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start review"
+          }
+        }
+      }
+    },
+    "복습 풀이 결과" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Review results"
+          }
+        }
+      }
+    },
+    "복습할 항목이 없습니다" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nothing to review"
+          }
+        }
+      }
+    },
+    "불안정" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unsteady"
+          }
+        }
+      }
+    },
+    "불안정 %lld · 복습 %lld" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unsteady %1$lld · Review %2$lld"
+          }
+        }
+      }
+    },
     "비교적 안정 · 연결 · I과 유사한 성격" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -2887,6 +3020,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Fairly stable · connective · similar to I"
+          }
+        }
+      }
+    },
+    "비구성음" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non-member"
+          }
+        }
+      }
+    },
+    "비다이아토닉" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non-diatonic"
           }
         }
       }
@@ -3173,6 +3328,17 @@
         }
       }
     },
+    "스케일 이름" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scale name"
+          }
+        }
+      }
+    },
     "스케일 추가" : {
       "localizations" : {
         "en" : {
@@ -3332,6 +3498,28 @@
         }
       }
     },
+    "아직 기록이 없습니다" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No records yet"
+          }
+        }
+      }
+    },
+    "아직 안 봄" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not seen"
+          }
+        }
+      }
+    },
     "아직 해당되는 메뉴가 없습니다" : {
       "localizations" : {
         "en" : {
@@ -3487,6 +3675,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Incorrect"
+          }
+        }
+      }
+    },
+    "오답 관리" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mistake review"
           }
         }
       }
@@ -3719,6 +3918,17 @@
         }
       }
     },
+    "음정 패턴" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Interval pattern"
+          }
+        }
+      }
+    },
     "음정 품질 규칙 다이어그램" : {
       "localizations" : {
         "en" : {
@@ -3746,6 +3956,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "An interval's name comes from two things."
+          }
+        }
+      }
+    },
+    "이 주제의 오답" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mistakes in this topic"
           }
         }
       }
@@ -3809,6 +4030,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Theory"
+          }
+        }
+      }
+    },
+    "이어서 복습" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Continue review"
           }
         }
       }
@@ -4084,6 +4316,17 @@
         }
       }
     },
+    "조표 고르기" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pick the signature"
+          }
+        }
+      }
+    },
     "조표 붙는 순서" : {
       "localizations" : {
         "en" : {
@@ -4226,6 +4469,17 @@
         }
       }
     },
+    "지판 도수" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fretboard degrees"
+          }
+        }
+      }
+    },
     "지판 보기" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -4233,6 +4487,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Fretboard"
+          }
+        }
+      }
+    },
+    "지판 음이름" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fretboard note names"
           }
         }
       }
@@ -4301,6 +4566,28 @@
         }
       }
     },
+    "최근 10회 풀이 중 정답 기록이 있지만, 마지막 풀이에서 틀린 항목입니다." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Items with a correct answer in the last 10 tries whose latest answer is wrong."
+          }
+        }
+      }
+    },
+    "최근 3회 연속으로 정답을 맞힌 항목입니다." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Items answered correctly three times in a row."
+          }
+        }
+      }
+    },
     "칸을 탭하면 그 음이 1도가 됩니다. 원을 드래그하면 시계 방향은 5도 상행 (4도 하행), 반시계 방향은 4도 상행 (5도 하행)입니다." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -4323,12 +4610,34 @@
         }
       }
     },
+    "코드 공식" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chord formula"
+          }
+        }
+      }
+    },
     "코드 구성" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Chord Tones"
+          }
+        }
+      }
+    },
+    "코드 이름" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chord name"
           }
         }
       }
@@ -4380,6 +4689,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Chord Quiz"
+          }
+        }
+      }
+    },
+    "코드 품질" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chord quality"
           }
         }
       }
@@ -4446,6 +4766,17 @@
         }
       }
     },
+    "키 · 조표" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Key · Signature"
+          }
+        }
+      }
+    },
     "키 · 조표 · 관계조" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -4464,6 +4795,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Key Signature Quiz"
+          }
+        }
+      }
+    },
+    "키 고르기" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pick the key"
           }
         }
       }
@@ -4545,6 +4887,17 @@
         }
       }
     },
+    "틀린 문제를 다시 풀고, 학습 상태를 확인하세요" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Review the questions you missed and check your progress."
+          }
+        }
+      }
+    },
     "펼치기" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -4573,6 +4926,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Shown"
+          }
+        }
+      }
+    },
+    "풀이 기록이 있지만 아직 연속 3회 정답을 달성하지 못했고, 불안정 상태에도 해당하지 않는 항목입니다." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Items with answers that have not reached three corrects in a row and are not Unsteady."
           }
         }
       }
@@ -4716,6 +5080,72 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Learn"
+          }
+        }
+      }
+    },
+    "학습 기록" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Study record"
+          }
+        }
+      }
+    },
+    "학습 기록으로 돌아가기" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Back to study record"
+          }
+        }
+      }
+    },
+    "학습 상태" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Learning status"
+          }
+        }
+      }
+    },
+    "학습 상태 기준" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "How learning status is decided"
+          }
+        }
+      }
+    },
+    "학습 중" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Learning"
+          }
+        }
+      }
+    },
+    "한 번도 풀지 않은 항목입니다." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Items you have not tried yet."
           }
         }
       }

@@ -35,6 +35,15 @@ final class ChordQuizModel {
         case completeFormula
         /// Ask for the note at a given chord degree.
         case identifyTone
+
+        var skillToken: String {
+            switch self {
+            case .completeChord: LearningSkillToken.Chord.completeChord
+            case .identifyChord: LearningSkillToken.Chord.identifyChord
+            case .completeFormula: LearningSkillToken.Chord.completeFormula
+            case .identifyTone: LearningSkillToken.Chord.identifyTone
+            }
+        }
     }
 
     enum PromptToken: Equatable {
@@ -70,7 +79,12 @@ final class ChordQuizModel {
 
     let difficulty: ChordQuizDifficulty
     /// Number of questions in this session: 10, 20, 30, 40, or 50.
+    /// Review sessions use the number of due skills, from 1 through 10.
     let questionLimit: Int
+    private let recorder: (any LearningRecording)?
+    private let focusSkillKeys: Set<String>
+    /// Set only while a review question is being built for one chord kind.
+    private var reviewKind: ChordKind?
     private let explorer = ChordModel()
     private let catalog: [CatalogEntry]
     private var previousQuestionID: String?
@@ -118,9 +132,18 @@ final class ChordQuizModel {
         difficulty == .easy ? 2 : 4
     }
 
-    init(difficulty: ChordQuizDifficulty, questionLimit: Int) {
+    init(
+        difficulty: ChordQuizDifficulty,
+        questionLimit: Int,
+        recorder: (any LearningRecording)? = nil,
+        focusSkillKeys: Set<String> = []
+    ) {
         self.difficulty = difficulty
-        self.questionLimit = Self.normalizedQuestionCount(questionLimit)
+        self.recorder = recorder
+        self.focusSkillKeys = focusSkillKeys
+        self.questionLimit = focusSkillKeys.isEmpty
+            ? Self.normalizedQuestionCount(questionLimit)
+            : min(10, max(1, questionLimit))
         catalog = Self.buildCatalog(for: difficulty)
         question = Self.placeholderQuestion
         question = makeQuestion()
@@ -135,6 +158,16 @@ final class ChordQuizModel {
             correctCount += 1
         }
         outcomes.append(correct)
+        recorder?.record(
+            LearningAttemptInput(
+                topic: .chord,
+                skillKey: learningSkillKey(for: question),
+                correct: correct,
+                expected: question.correctAnswer,
+                chosen: answer,
+                difficulty: difficulty.rawValue
+            )
+        )
     }
 
     func nextQuestion() {
@@ -204,6 +237,9 @@ final class ChordQuizModel {
     // MARK: - Generation
 
     private func makeQuestion() -> Question {
+        if !focusSkillKeys.isEmpty, let focused = makeFocusedQuestion() {
+            return focused
+        }
         for _ in 0..<80 {
             let candidate: Question?
             switch weightedKind() {
@@ -222,6 +258,39 @@ final class ChordQuizModel {
             }
         }
         return fallbackQuestion
+    }
+
+    private func makeFocusedQuestion() -> Question? {
+        for _ in 0..<40 {
+            guard let raw = focusSkillKeys.randomElement(),
+                  let parsed = LearningSkillKey.parseChord(raw)
+            else { continue }
+            reviewKind = parsed.kind
+            let candidate: Question?
+            switch parsed.token {
+            case LearningSkillToken.Chord.completeChord:
+                candidate = makeCompleteChordQuestion()
+            case LearningSkillToken.Chord.identifyChord:
+                candidate = makeIdentifyChordQuestion()
+            case LearningSkillToken.Chord.completeFormula:
+                candidate = makeCompleteFormulaQuestion()
+            case LearningSkillToken.Chord.identifyTone:
+                candidate = makeIdentifyToneQuestion()
+            default:
+                candidate = nil
+            }
+            reviewKind = nil
+            if let candidate {
+                previousQuestionID = questionID(for: candidate)
+                return candidate
+            }
+        }
+        reviewKind = nil
+        return nil
+    }
+
+    private func learningSkillKey(for question: Question) -> String {
+        LearningSkillKey.chord(kind: question.explanationContext.kind, token: question.kind.skillToken)
     }
 
     /// Easy drills tones and formulas. Hard shifts toward reading and calculating.
@@ -264,7 +333,7 @@ final class ChordQuizModel {
         guard let entry = pickEntry() else { return nil }
         let blankIndex = Int.random(in: 1..<entry.toneSpellings.count)
         let questionID = "complete-\(entry.id)-\(blankIndex)"
-        if questionID == previousQuestionID { return nil }
+        if focusSkillKeys.isEmpty, questionID == previousQuestionID { return nil }
 
         let displays = entry.toneSpellings.map(ScaleModel.formatNoteName)
         let correct = displays[blankIndex]
@@ -305,7 +374,7 @@ final class ChordQuizModel {
     private func makeIdentifyChordQuestion() -> Question? {
         guard let entry = pickEntry() else { return nil }
         let questionID = "identify-\(entry.id)"
-        if questionID == previousQuestionID { return nil }
+        if focusSkillKeys.isEmpty, questionID == previousQuestionID { return nil }
 
         let distractorKinds = kindDistractors(for: entry.kind)
         let needed = identifyChoiceCount(for: entry.kind) - 1
@@ -341,7 +410,7 @@ final class ChordQuizModel {
         guard let kind = kinds.randomElement() else { return nil }
         let blankIndex = Int.random(in: 1..<kind.tones.count)
         let questionID = "formula-\(kind.rawValue)-\(blankIndex)"
-        if questionID == previousQuestionID { return nil }
+        if focusSkillKeys.isEmpty, questionID == previousQuestionID { return nil }
 
         let labels = kind.tones.map(\.degreeLabel)
         let correct = labels[blankIndex]
@@ -379,7 +448,7 @@ final class ChordQuizModel {
         let toneIndex = pickToneIndex(for: entry.kind)
         let degree = degreeNumber(at: toneIndex)
         let questionID = "tone-\(entry.id)-\(degree)"
-        if questionID == previousQuestionID { return nil }
+        if focusSkillKeys.isEmpty, questionID == previousQuestionID { return nil }
 
         let noteDisplay = ScaleModel.formatNoteName(entry.toneSpellings[toneIndex])
         let distractors = noteDistractors(
@@ -841,9 +910,10 @@ final class ChordQuizModel {
 
     /// Roots are drawn evenly. C♯ and D♭ stay separate spellings on Hard.
     private func pickEntry() -> CatalogEntry? {
-        let roots = Set(catalog.map(\.root))
+        let pool = catalog.filter { reviewKind == nil || $0.kind == reviewKind }
+        let roots = Set(pool.map(\.root))
         guard let root = roots.randomElement() else { return nil }
-        return catalog.filter { $0.root == root }.randomElement()
+        return pool.filter { $0.root == root }.randomElement()
     }
 
     private func configureExplorer(_ entry: CatalogEntry) {

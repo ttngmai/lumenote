@@ -31,6 +31,7 @@ final class IntervalQuizModel {
         let staffNotes: [IntervalStaffNote]
         let choices: [String]
         let correctAnswer: String
+        let skillKey: String
     }
 
     private struct Prompt {
@@ -38,7 +39,12 @@ final class IntervalQuizModel {
         let target: String
         let name: String
         let degree: Int
+        let qualityOffset: Int
         let weight: IntervalWeight
+
+        var skillKey: String {
+            LearningSkillKey.interval(degree: degree, qualityOffset: qualityOffset)
+        }
     }
 
     /// Coarse interval family used for both filtering and draw weights.
@@ -53,7 +59,10 @@ final class IntervalQuizModel {
 
     let difficulty: IntervalQuizDifficulty
     /// Number of questions in this session: 10, 20, 30, 40, or 50.
+    /// Review sessions use the number of due skills, from 1 through 10.
     let questionLimit: Int
+    private let recorder: (any LearningRecording)?
+    private let focusSkillKeys: Set<String>
     private let explorer = IntervalModel()
     private let catalog: [Prompt]
     private var previousPair: (root: String, target: String)?
@@ -78,16 +87,26 @@ final class IntervalQuizModel {
         hasAnswered && answeredCount >= questionLimit
     }
 
-    init(difficulty: IntervalQuizDifficulty, questionLimit: Int) {
+    init(
+        difficulty: IntervalQuizDifficulty,
+        questionLimit: Int,
+        recorder: (any LearningRecording)? = nil,
+        focusSkillKeys: Set<String> = []
+    ) {
         self.difficulty = difficulty
-        self.questionLimit = Self.normalizedQuestionCount(questionLimit)
+        self.recorder = recorder
+        self.focusSkillKeys = focusSkillKeys
+        self.questionLimit = focusSkillKeys.isEmpty
+            ? Self.normalizedQuestionCount(questionLimit)
+            : min(10, max(1, questionLimit))
         catalog = Self.makeCatalog(for: difficulty)
         question = Question(
             rootDisplayName: "C",
             targetDisplayName: "E",
             staffNotes: [],
             choices: [],
-            correctAnswer: "장3도"
+            correctAnswer: "장3도",
+            skillKey: LearningSkillKey.interval(degree: 3, qualityOffset: 0)
         )
         question = makeQuestion()
     }
@@ -101,6 +120,16 @@ final class IntervalQuizModel {
             correctCount += 1
         }
         outcomes.append(correct)
+        recorder?.record(
+            LearningAttemptInput(
+                topic: .interval,
+                skillKey: question.skillKey,
+                correct: correct,
+                expected: question.correctAnswer,
+                chosen: answer,
+                difficulty: difficulty.rawValue
+            )
+        )
     }
 
     func nextQuestion() {
@@ -134,7 +163,8 @@ final class IntervalQuizModel {
                 targetDisplayName: explorer.targetDisplayName,
                 staffNotes: explorer.ascendingStaffNotes,
                 choices: choices,
-                correctAnswer: prompt.name
+                correctAnswer: prompt.name,
+                skillKey: prompt.skillKey
             )
         }
 
@@ -143,10 +173,11 @@ final class IntervalQuizModel {
 
     /// Draw an interval family by the difficulty's weights, then a spelling pair that produces it.
     private func pickPrompt() -> Prompt? {
-        let avoidingRepeat = catalog.filter { prompt in
+        let pool = focusPool
+        let avoidingRepeat = pool.filter { prompt in
             previousPair?.root != prompt.root || previousPair?.target != prompt.target
         }
-        let source = avoidingRepeat.isEmpty ? catalog : avoidingRepeat
+        let source = avoidingRepeat.isEmpty ? pool : avoidingRepeat
         var buckets = Self.distribution(for: difficulty)
 
         while !buckets.isEmpty {
@@ -171,6 +202,12 @@ final class IntervalQuizModel {
         }
 
         return source.randomElement()
+    }
+
+    private var focusPool: [Prompt] {
+        guard !focusSkillKeys.isEmpty else { return catalog }
+        let matched = catalog.filter { focusSkillKeys.contains($0.skillKey) }
+        return matched.isEmpty ? catalog : matched
     }
 
     private func makeChoices(correct: Prompt) -> [String]? {
@@ -211,15 +248,15 @@ final class IntervalQuizModel {
         explorer.rootSpelling = "C"
         explorer.targetSpelling = "E"
         previousPair = ("C", "E")
-        let choices = makeChoices(
-            correct: Prompt(root: "C", target: "E", name: "장3도", degree: 3, weight: .major)
-        ) ?? ["장3도", "단3도", "완전4도", "완전5도"]
+        let prompt = Prompt(root: "C", target: "E", name: "장3도", degree: 3, qualityOffset: 0, weight: .major)
+        let choices = makeChoices(correct: prompt) ?? ["장3도", "단3도", "완전4도", "완전5도"]
         return Question(
             rootDisplayName: explorer.rootDisplayName,
             targetDisplayName: explorer.targetDisplayName,
             staffNotes: explorer.ascendingStaffNotes,
             choices: choices.shuffled(),
-            correctAnswer: "장3도"
+            correctAnswer: "장3도",
+            skillKey: prompt.skillKey
         )
     }
 
@@ -244,6 +281,7 @@ final class IntervalQuizModel {
                         target: target,
                         name: resolution.koreanName,
                         degree: resolution.degree,
+                        qualityOffset: resolution.qualityOffset,
                         weight: weight
                     )
                 )
@@ -251,6 +289,17 @@ final class IntervalQuizModel {
         }
 
         return prompts
+    }
+
+    static func learningSkillKeys() -> [String] {
+        var seen = Set<String>()
+        var keys: [String] = []
+        for prompt in makeCatalog(for: .hard) {
+            if seen.insert(prompt.skillKey).inserted {
+                keys.append(prompt.skillKey)
+            }
+        }
+        return keys
     }
 
     private static func spellings(for difficulty: IntervalQuizDifficulty, explorer: IntervalModel) -> [String] {

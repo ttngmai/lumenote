@@ -7,6 +7,7 @@ import SwiftUI
 struct FretboardDegreeQuizDifficultyView: View {
     @Environment(\.appPalette) private var palette
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.learningLog) private var learningLog
 
     @AppStorage(FretboardDegreeQuizDifficulty.storageKey)
     private var selectedDifficulty: FretboardDegreeQuizDifficulty = .easy
@@ -188,6 +189,8 @@ struct FretboardDegreeQuizDifficultyView: View {
                     self.model = nil
                 }
 
+                LearningTopicShortcut(topic: .fretboardDegree)
+
                 Button {
                     dismiss()
                 } label: {
@@ -220,7 +223,8 @@ struct FretboardDegreeQuizDifficultyView: View {
             questionLimit: questionLimit,
             fretRangeMode: fretRangeMode,
             fretWindow: fretWindow,
-            answerMode: answerMode
+            answerMode: answerMode,
+            recorder: learningLog
         )
     }
 

@@ -65,6 +65,14 @@ final class DiatonicChordQuizModel {
         case identifyQuality
         /// Pick the chord that does not belong to the key's diatonic set.
         case identifyNonDiatonic
+
+        var skillToken: String {
+            switch self {
+            case .completeRomanPattern: LearningSkillToken.Diatonic.completeRomanPattern
+            case .identifyQuality: LearningSkillToken.Diatonic.identifyQuality
+            case .identifyNonDiatonic: LearningSkillToken.Diatonic.identifyNonDiatonic
+            }
+        }
     }
 
     enum PromptToken: Equatable {
@@ -102,7 +110,13 @@ final class DiatonicChordQuizModel {
 
     let difficulty: DiatonicChordQuizDifficulty
     /// Number of questions in this session: 10, 20, 30, 40, or 50.
+    /// Review sessions use the number of due skills, from 1 through 10.
     let questionLimit: Int
+    private let recorder: (any LearningRecording)?
+    private let focusSkillKeys: Set<String>
+    private var reviewKind: ScaleKind?
+    private var reviewVoicing: DiatonicVoicing?
+    private var reviewDegree: DiatonicDegree?
     private let catalog: [CatalogEntry]
     private var previousQuestionID: String?
     /// Scale, voicing, and degree shared by the last roman-pattern or quality question.
@@ -128,9 +142,18 @@ final class DiatonicChordQuizModel {
         hasAnswered && answeredCount >= questionLimit
     }
 
-    init(difficulty: DiatonicChordQuizDifficulty, questionLimit: Int) {
+    init(
+        difficulty: DiatonicChordQuizDifficulty,
+        questionLimit: Int,
+        recorder: (any LearningRecording)? = nil,
+        focusSkillKeys: Set<String> = []
+    ) {
         self.difficulty = difficulty
-        self.questionLimit = Self.normalizedQuestionCount(questionLimit)
+        self.recorder = recorder
+        self.focusSkillKeys = focusSkillKeys
+        self.questionLimit = focusSkillKeys.isEmpty
+            ? Self.normalizedQuestionCount(questionLimit)
+            : min(10, max(1, questionLimit))
         catalog = Self.buildCatalog()
         question = Self.placeholderQuestion
         question = makeQuestion()
@@ -145,6 +168,16 @@ final class DiatonicChordQuizModel {
             correctCount += 1
         }
         outcomes.append(correct)
+        recorder?.record(
+            LearningAttemptInput(
+                topic: .diatonicChord,
+                skillKey: learningSkillKey(for: question),
+                correct: correct,
+                expected: question.correctAnswer,
+                chosen: answer,
+                difficulty: difficulty.rawValue
+            )
+        )
     }
 
     func nextQuestion() {
@@ -179,6 +212,9 @@ final class DiatonicChordQuizModel {
     // MARK: - Generation
 
     private func makeQuestion() -> Question {
+        if !focusSkillKeys.isEmpty, let focused = makeFocusedQuestion() {
+            return focused
+        }
         for _ in 0..<80 {
             let candidate: Question?
             switch weightedKind() {
@@ -199,6 +235,52 @@ final class DiatonicChordQuizModel {
         return fallback
     }
 
+    private func makeFocusedQuestion() -> Question? {
+        for _ in 0..<40 {
+            guard let raw = focusSkillKeys.randomElement(),
+                  let parsed = LearningSkillKey.parseDiatonic(raw)
+            else { continue }
+            reviewKind = parsed.kind
+            reviewVoicing = parsed.voicing
+            reviewDegree = parsed.degree
+            let candidate: Question?
+            switch parsed.token {
+            case LearningSkillToken.Diatonic.completeRomanPattern:
+                candidate = makeCompleteRomanPatternQuestion()
+            case LearningSkillToken.Diatonic.identifyQuality:
+                candidate = makeIdentifyQualityQuestion()
+            case LearningSkillToken.Diatonic.identifyNonDiatonic:
+                candidate = makeIdentifyNonDiatonicQuestion()
+            default:
+                candidate = nil
+            }
+            clearReviewFocus()
+            if let candidate {
+                remember(candidate)
+                return candidate
+            }
+        }
+        clearReviewFocus()
+        return nil
+    }
+
+    private func clearReviewFocus() {
+        reviewKind = nil
+        reviewVoicing = nil
+        reviewDegree = nil
+    }
+
+    private func learningSkillKey(for question: Question) -> String {
+        let context = question.explanationContext
+        let degree = question.kind == .identifyNonDiatonic ? nil : context.degree
+        return LearningSkillKey.diatonic(
+            kind: context.kind,
+            degree: degree,
+            voicing: context.voicing,
+            token: question.kind.skillToken
+        )
+    }
+
     private func weightedKind() -> QuestionKind {
         let weights = difficulty.questionWeights
         let buckets: [(QuestionKind, Int)] = [
@@ -216,15 +298,15 @@ final class DiatonicChordQuizModel {
     }
 
     private func makeCompleteRomanPatternQuestion() -> Question? {
-        guard let kind = difficulty.allowedKinds.randomElement(),
-              let voicing = difficulty.allowedVoicings.randomElement(),
-              let blank = DiatonicDegree.allCases.randomElement()
+        guard let kind = reviewKind ?? difficulty.allowedKinds.randomElement(),
+              let voicing = reviewVoicing ?? difficulty.allowedVoicings.randomElement(),
+              let blank = reviewDegree ?? DiatonicDegree.allCases.randomElement()
         else { return nil }
 
         let ruleKey = ruleKey(kind: kind, voicing: voicing, degree: blank)
-        if ruleKey == previousRuleKey { return nil }
+        if focusSkillKeys.isEmpty, ruleKey == previousRuleKey { return nil }
         let questionID = "roman-pattern-\(ruleKey)"
-        if questionID == previousQuestionID { return nil }
+        if focusSkillKeys.isEmpty, questionID == previousQuestionID { return nil }
 
         let romans = DiatonicDegree.allCases.map {
             DiatonicChordModel.roman(kind: kind, voicing: voicing, degree: $0)
@@ -270,9 +352,9 @@ final class DiatonicChordQuizModel {
     private func makeIdentifyQualityQuestion() -> Question? {
         guard let (entry, chord) = pickChord() else { return nil }
         let ruleKey = ruleKey(kind: entry.kind, voicing: entry.voicing, degree: chord.degree)
-        if ruleKey == previousRuleKey { return nil }
+        if focusSkillKeys.isEmpty, ruleKey == previousRuleKey { return nil }
         let questionID = "quality-\(ruleKey)"
-        if questionID == previousQuestionID { return nil }
+        if focusSkillKeys.isEmpty, questionID == previousQuestionID { return nil }
 
         let correct = chord.quality.englishTitle
         guard let choices = uniqueChoices(
@@ -294,13 +376,17 @@ final class DiatonicChordQuizModel {
     }
 
     private func makeIdentifyNonDiatonicQuestion() -> Question? {
-        guard let entry = type3Catalog.randomElement() else { return nil }
+        let pool = type3Catalog.filter { entry in
+            (reviewKind == nil || entry.kind == reviewKind)
+                && (reviewVoicing == nil || entry.voicing == reviewVoicing)
+        }
+        guard let entry = pool.randomElement() else { return nil }
         let diatonic = entry.chords.map(\.compactName)
         guard diatonic.count == DiatonicDegree.allCases.count else { return nil }
         guard let outsider = nonDiatonicChordName(for: entry) else { return nil }
 
         let questionID = "non-diatonic-\(entry.id)-\(outsider)"
-        if questionID == previousQuestionID { return nil }
+        if focusSkillKeys.isEmpty, questionID == previousQuestionID { return nil }
 
         guard let choices = uniqueChoices(correct: outsider, distractors: diatonic) else {
             return nil
@@ -397,9 +483,13 @@ final class DiatonicChordQuizModel {
     }
 
     private func pickChord() -> (CatalogEntry, DiatonicChordEntry)? {
-        guard let entry = ruleCatalog.randomElement(),
-              let chord = entry.chords.randomElement()
-        else { return nil }
+        let pool = ruleCatalog.filter { entry in
+            (reviewKind == nil || entry.kind == reviewKind)
+                && (reviewVoicing == nil || entry.voicing == reviewVoicing)
+        }
+        guard let entry = pool.randomElement() else { return nil }
+        let chords = entry.chords.filter { reviewDegree == nil || $0.degree == reviewDegree }
+        guard let chord = chords.randomElement() else { return nil }
         return (entry, chord)
     }
 
