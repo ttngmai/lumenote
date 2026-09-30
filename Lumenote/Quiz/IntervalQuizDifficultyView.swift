@@ -39,16 +39,11 @@ struct IntervalQuizDifficultyView: View {
                     .foregroundStyle(.primary)
                     .frame(maxWidth: .infinity, alignment: .leading)
 
-                VStack(spacing: LumenoteSpacing.md) {
-                    ForEach(IntervalQuizDifficulty.allCases) { difficulty in
-                        Button {
-                            selectedDifficulty = difficulty
-                        } label: {
-                            difficultyRow(difficulty, isSelected: selectedDifficulty == difficulty)
-                        }
-                        .buttonStyle(.plain)
-                    }
-                }
+                QuizDifficultyChoices(
+                    options: Array(IntervalQuizDifficulty.allCases),
+                    title: \.title,
+                    selection: selectedDifficulty
+                ) { selectedDifficulty = $0 }
 
                 questionCountRow
 
@@ -59,27 +54,6 @@ struct IntervalQuizDifficultyView: View {
             .frame(maxWidth: .infinity)
         }
         .scrollIndicators(.hidden)
-    }
-
-    private func difficultyRow(_ difficulty: IntervalQuizDifficulty, isSelected: Bool) -> some View {
-        HStack(spacing: LumenoteSpacing.lg) {
-            Text(difficulty.title)
-                .font(LumenoteFont.body(.bold))
-                .foregroundStyle(.primary)
-                .frame(maxWidth: .infinity, alignment: .leading)
-
-            if isSelected {
-                Image(systemName: "checkmark")
-                    .font(LumenoteFont.callout(.bold))
-                    .foregroundStyle(palette.quizCorrect)
-            }
-        }
-        .padding(LumenoteSpacing.xxl)
-        .lumenoteCard(isActive: isSelected)
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel(difficulty.title)
-        .accessibilityAddTraits(isSelected ? .isSelected : [])
-        .accessibilityHint("난이도를 선택하려면 두 번 탭하세요")
     }
 
     private var questionCountRow: some View {
@@ -186,6 +160,10 @@ struct IntervalQuizDifficultyView: View {
                 }
                 .buttonStyle(.plain)
                 .accessibilityHint("같은 난이도와 문제 수로 다시 풀려면 두 번 탭하세요")
+
+                QuizReturnToSetupButton {
+                    self.model = nil
+                }
 
                 Button {
                     dismiss()

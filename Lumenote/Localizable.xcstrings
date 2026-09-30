@@ -4406,6 +4406,26 @@
         }
       }
     },
+    "퀴즈 설정 화면으로" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Back to Quiz Settings"
+          }
+        }
+      }
+    },
+    "퀴즈 설정 화면으로 돌아가려면 두 번 탭하세요" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Double-tap to return to the quiz settings"
+          }
+        }
+      }
+    },
     "퀴즈 풀이 결과" : {
       "localizations" : {
         "en" : {
