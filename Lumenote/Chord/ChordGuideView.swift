@@ -11,13 +11,20 @@ struct ChordGuideView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: LumenoteSpacing.section) {
-                    summaryCard
+                    summary
                     chordSection(title: "Triad", kinds: ChordKind.triads)
                     chordSection(title: "7th", kinds: ChordKind.sevenths)
                 }
+                .padding(LumenoteSpacing.xxl)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(palette.cardBackground)
+                .clipShape(RoundedRectangle(cornerRadius: LumenoteRadius.card, style: .continuous))
+                .overlay(
+                    RoundedRectangle(cornerRadius: LumenoteRadius.card, style: .continuous)
+                        .strokeBorder(palette.divider, lineWidth: LumenoteStroke.compact)
+                )
                 .padding(.horizontal, LumenoteSpacing.popupInset)
                 .padding(.vertical, LumenoteSpacing.xxxl)
-                .frame(maxWidth: .infinity)
             }
             .background(sheetBackground)
             .navigationTitle("코드 정리")
@@ -32,19 +39,15 @@ struct ChordGuideView: View {
         .lumenotePalette()
     }
 
-    private var summaryCard: some View {
-        Text("근음을 C로 둔 Triad와 7th 코드의 이름, 구성음, 표기입니다. 근음이 바뀌면 같은 간격으로 구성음과 기호가 옮겨집니다.")
-            .font(LumenoteFont.callout(.medium))
-            .foregroundStyle(.primary)
-            .fixedSize(horizontal: false, vertical: true)
-            .padding(LumenoteSpacing.xxl)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(palette.cardBackground)
-            .clipShape(RoundedRectangle(cornerRadius: LumenoteRadius.card, style: .continuous))
-            .overlay(
-                RoundedRectangle(cornerRadius: LumenoteRadius.card, style: .continuous)
-                    .strokeBorder(palette.divider, lineWidth: LumenoteStroke.compact)
-            )
+    private var summary: some View {
+        VStack(alignment: .leading, spacing: LumenoteSpacing.md) {
+            Text("C를 근음으로 하는 Triad와 7th 코드의 이름, 구성음, 표기입니다.")
+                .fixedSize(horizontal: false, vertical: true)
+            Text("근음이 바뀌어도 코드의 구성음 사이의 음정 관계는 동일하게 유지됩니다.")
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .font(LumenoteFont.callout(.medium))
+        .foregroundStyle(.primary)
     }
 
     private func chordSection(title: String, kinds: [ChordKind]) -> some View {
@@ -52,7 +55,7 @@ struct ChordGuideView: View {
             Text(title.l10n)
                 .font(LumenoteFont.caption(.semibold))
                 .foregroundStyle(.secondary)
-                .padding(.horizontal, LumenoteSpacing.xs)
+                .accessibilityAddTraits(.isHeader)
 
             VStack(spacing: 0) {
                 tableHeader
@@ -66,10 +69,9 @@ struct ChordGuideView: View {
                     chordRow(kind)
                 }
             }
-            .background(palette.cardBackground)
-            .clipShape(RoundedRectangle(cornerRadius: LumenoteRadius.card, style: .continuous))
+            .clipShape(RoundedRectangle(cornerRadius: LumenoteRadius.softRow, style: .continuous))
             .overlay(
-                RoundedRectangle(cornerRadius: LumenoteRadius.card, style: .continuous)
+                RoundedRectangle(cornerRadius: LumenoteRadius.softRow, style: .continuous)
                     .strokeBorder(palette.divider, lineWidth: LumenoteStroke.compact)
             )
         }
