@@ -482,7 +482,7 @@ struct DiatonicChordView: View {
 
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: LumenoteSpacing.md) {
-                    ForEach(ScaleKind.allCases) { kind in
+                    ForEach(ScaleKind.basicCases) { kind in
                         let selected = activeCard?.kind == kind
                         Button {
                             setActiveKind(kind)

@@ -1846,6 +1846,17 @@
         }
       }
     },
+    "기본" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Basic"
+          }
+        }
+      }
+    },
     "기본 음정에서 변형 음정으로" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -3060,6 +3071,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Unsteady %1$lld · Review %2$lld"
+          }
+        }
+      }
+    },
+    "블루스" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Blues"
           }
         }
       }
@@ -4955,6 +4977,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Review the questions you missed and check your progress."
+          }
+        }
+      }
+    },
+    "펜타토닉" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pentatonic"
           }
         }
       }

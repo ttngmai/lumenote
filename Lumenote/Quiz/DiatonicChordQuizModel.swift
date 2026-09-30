@@ -24,7 +24,7 @@ enum DiatonicChordQuizDifficulty: String, CaseIterable, Hashable, Identifiable {
     var allowedKinds: [ScaleKind] {
         switch self {
         case .easy: [.major, .naturalMinor]
-        case .normal, .hard: ScaleKind.allCases
+        case .normal, .hard: ScaleKind.basicCases
         }
     }
 
@@ -626,6 +626,8 @@ final class DiatonicChordQuizModel {
             let scale = ScaleModel.spellings(tonic: tonic, kind: .naturalMinor)
             guard scale.count >= 3 else { return nil }
             return Self.majorSignatureCount[scale[2]]
+        case .majorPentatonic, .minorPentatonic, .majorBlues, .minorBlues:
+            return nil
         }
     }
 
@@ -702,7 +704,7 @@ final class DiatonicChordQuizModel {
     private static func buildCatalog() -> [CatalogEntry] {
         var entries: [CatalogEntry] = []
         for tonic in quizTonics {
-            for kind in ScaleKind.allCases {
+            for kind in ScaleKind.basicCases {
                 for voicing in DiatonicVoicing.allCases {
                     let chords = DiatonicChordModel.chords(tonic: tonic, kind: kind, voicing: voicing)
                     guard chords.count == DiatonicDegree.allCases.count else { continue }

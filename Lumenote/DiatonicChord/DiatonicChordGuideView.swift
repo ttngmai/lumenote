@@ -716,7 +716,7 @@ private struct DiatonicRomanChart: View {
                 .frame(width: degreeColumnWidth, height: 1)
                 .accessibilityHidden(true)
 
-            ForEach(ScaleKind.allCases) { kind in
+            ForEach(ScaleKind.basicCases) { kind in
                 Text(kind.englishTitle)
                     .multilineTextAlignment(.center)
                     .lineLimit(2)
@@ -740,7 +740,7 @@ private struct DiatonicRomanChart: View {
                 .foregroundStyle(.secondary)
                 .frame(width: degreeColumnWidth)
 
-            ForEach(ScaleKind.allCases) { kind in
+            ForEach(ScaleKind.basicCases) { kind in
                 Text(DiatonicChordModel.roman(kind: kind, voicing: voicing, degree: degree))
                     .font(LumenoteFont.caption(.bold))
                     .foregroundStyle(.primary)
@@ -761,7 +761,7 @@ private struct DiatonicRomanChart: View {
     }
 
     private func rowLabel(_ degree: DiatonicDegree) -> String {
-        let chords = ScaleKind.allCases.map { kind in
+        let chords = ScaleKind.basicCases.map { kind in
             "\(kind.englishTitle) \(DiatonicChordModel.roman(kind: kind, voicing: voicing, degree: degree))"
         }.joined(separator: ", ")
         return "\(degree.rawValue + 1), \(chords)"

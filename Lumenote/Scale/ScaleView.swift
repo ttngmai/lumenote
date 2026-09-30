@@ -9,6 +9,7 @@ struct ScaleView: View {
     @State private var activePicker: ActivePicker?
     @State private var tonicStripScrollPosition: String?
     @State private var kindStripScrollPosition: String?
+    @State private var selectedScaleCategory: ScaleCategory = .basic
     @State private var scrollTarget: ScaleCard.ID?
     @State private var reorderingCardID: ScaleCard.ID?
 
@@ -377,9 +378,42 @@ struct ScaleView: View {
                 activePicker = nil
             }
 
+            HStack(spacing: LumenoteSpacing.md) {
+                ForEach(ScaleCategory.allCases) { category in
+                    let selected = selectedScaleCategory == category
+                    Button {
+                        selectScaleCategory(category)
+                    } label: {
+                        Text(category.title.l10n)
+                            .font(.system(size: 16, weight: selected ? .bold : .semibold))
+                            .foregroundStyle(selected ? palette.emphasisStroke : .primary)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.7)
+                            .frame(maxWidth: .infinity, minHeight: 40)
+                            .background(
+                                RoundedRectangle(cornerRadius: LumenoteRadius.chip, style: .continuous)
+                                    .fill(selected ? palette.highlight : Color.clear)
+                            )
+                            .overlay(
+                                RoundedRectangle(cornerRadius: LumenoteRadius.chip, style: .continuous)
+                                    .strokeBorder(
+                                        selected ? palette.cardBorderActive : palette.divider,
+                                        lineWidth: selected ? LumenoteStroke.compact : LumenoteStroke.hairline
+                                    )
+                            )
+                            .contentShape(RoundedRectangle(cornerRadius: LumenoteRadius.chip, style: .continuous))
+                    }
+                    .buttonStyle(.plain)
+                    .contentShape(RoundedRectangle(cornerRadius: LumenoteRadius.chip, style: .continuous))
+                    .accessibilityLabel(category.title.l10n)
+                    .accessibilityAddTraits(selected ? .isSelected : [])
+                }
+            }
+            .padding(.horizontal, LumenoteSpacing.popupInset)
+
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: LumenoteSpacing.md) {
-                    ForEach(ScaleKind.allCases) { kind in
+                    ForEach(selectedScaleCategory.kinds) { kind in
                         let selected = activeCard?.kind == kind
                         Button {
                             setActiveKind(kind)
@@ -402,8 +436,10 @@ struct ScaleView: View {
                                             lineWidth: selected ? LumenoteStroke.compact : LumenoteStroke.hairline
                                         )
                                 )
+                                .contentShape(RoundedRectangle(cornerRadius: LumenoteRadius.chip, style: .continuous))
                         }
                         .buttonStyle(.plain)
+                        .contentShape(RoundedRectangle(cornerRadius: LumenoteRadius.chip, style: .continuous))
                         .id(kind.id)
                         .accessibilityLabel(kind.englishTitle)
                         .accessibilityAddTraits(selected ? .isSelected : [])
@@ -412,11 +448,12 @@ struct ScaleView: View {
                 .padding(.horizontal, LumenoteSpacing.popupInset)
                 .padding(.bottom, LumenoteSpacing.sm)
             }
+            .id(selectedScaleCategory)
             .scrollPosition(id: $kindStripScrollPosition, anchor: .center)
         }
         .pickerStripChrome()
         .onAppear {
-            kindStripScrollPosition = activeCard?.kind.id
+            syncKindCategory()
         }
     }
 
@@ -464,7 +501,29 @@ struct ScaleView: View {
         case .tonic:
             tonicStripScrollPosition = card.tonicSpelling
         case .kind:
-            kindStripScrollPosition = card.kind.id
+            syncKindCategory(for: card)
+        }
+    }
+
+    private func syncKindCategory() {
+        guard let card = activeCard else {
+            selectedScaleCategory = .basic
+            return
+        }
+        syncKindCategory(for: card)
+    }
+
+    private func syncKindCategory(for card: ScaleCard) {
+        selectedScaleCategory = card.kind.category
+        kindStripScrollPosition = card.kind.id
+    }
+
+    private func selectScaleCategory(_ category: ScaleCategory) {
+        selectedScaleCategory = category
+        if activeCard?.kind.category == category {
+            kindStripScrollPosition = activeCard?.kind.id
+        } else {
+            kindStripScrollPosition = category.kinds.first?.id
         }
     }
 
