@@ -2,7 +2,7 @@
 
 import SwiftUI
 
-/// Paged guide: how C major diatonic chords are stacked, then what each degree does.
+/// Paged guide: how diatonic chords are stacked, a roman-numeral chart, then what each degree does.
 struct DiatonicChordGuideView: View {
     @Environment(\.appPalette) private var palette
     @Environment(\.dismiss) private var dismiss
@@ -23,6 +23,7 @@ struct DiatonicChordGuideView: View {
             VStack(spacing: 0) {
                 TabView(selection: $page) {
                     principlePage.tag(GuidePage.principle)
+                    summaryPage.tag(GuidePage.summary)
                     functionPage.tag(GuidePage.function)
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
@@ -222,6 +223,31 @@ struct DiatonicChordGuideView: View {
         return min(13, max(8.5, fitted))
     }
 
+    // MARK: - Summary
+
+    private var summaryPage: some View {
+        pageCard {
+            VStack(alignment: .leading, spacing: LumenoteSpacing.md) {
+                Text("각 스케일에서 만들어지는 다이아토닉 코드를 로마 숫자로 정리했습니다.")
+                    .fixedSize(horizontal: false, vertical: true)
+                Text("스케일에 따라 코드의 구성이 어떻게 달라지는지 비교해 보세요.")
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .font(LumenoteFont.callout(.medium))
+            .foregroundStyle(.primary)
+
+            DiatonicRomanChart(voicing: .triad)
+            DiatonicRomanChart(voicing: .seventh)
+
+            Text("Melodic Minor는 상행형을 기준으로 정리했습니다.")
+                .font(LumenoteFont.caption(.medium))
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel("다이아토닉 코드 정리".l10n)
+    }
+
     // MARK: - Function
 
     private var functionPage: some View {
@@ -238,7 +264,13 @@ struct DiatonicChordGuideView: View {
 
             harmonicFunctionGuide
 
-            sectionTitle("각 코드의 역할")
+            VStack(alignment: .leading, spacing: LumenoteSpacing.sm) {
+                sectionTitle("각 코드의 역할")
+                Text("Major 스케일의 다이아토닉 코드를 기준으로 각 코드의 화성적 역할을 살펴봅니다.")
+                    .font(LumenoteFont.caption(.medium))
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
 
             HStack(spacing: LumenoteSpacing.sm) {
                 ForEach(DiatonicDegree.allCases) { degree in
@@ -636,13 +668,103 @@ private struct HarmonicReturnArrow: View {
 
 private enum GuidePage: Int, CaseIterable, Hashable {
     case principle
+    case summary
     case function
 
     var title: String {
         switch self {
         case .principle: "만들어지는 원리".l10n
+        case .summary: "다이아토닉 코드 정리".l10n
         case .function: "다이아토닉 코드의 기능".l10n
         }
+    }
+}
+
+/// Scale-by-scale roman numerals for one voicing. Degrees run down the rows.
+private struct DiatonicRomanChart: View {
+    @Environment(\.appPalette) private var palette
+
+    let voicing: DiatonicVoicing
+
+    private let degreeColumnWidth: CGFloat = 28
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: LumenoteSpacing.md) {
+            Text(voicing.title.l10n)
+                .font(LumenoteFont.caption(.semibold))
+                .foregroundStyle(.secondary)
+                .accessibilityAddTraits(.isHeader)
+
+            VStack(spacing: 0) {
+                headerRow
+                ForEach(DiatonicDegree.allCases) { degree in
+                    degreeRow(degree)
+                }
+            }
+            .clipShape(RoundedRectangle(cornerRadius: LumenoteRadius.softRow, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: LumenoteRadius.softRow, style: .continuous)
+                    .strokeBorder(palette.divider, lineWidth: LumenoteStroke.compact)
+            )
+        }
+        .accessibilityElement(children: .contain)
+    }
+
+    private var headerRow: some View {
+        HStack(alignment: .center, spacing: 0) {
+            Color.clear
+                .frame(width: degreeColumnWidth, height: 1)
+                .accessibilityHidden(true)
+
+            ForEach(ScaleKind.allCases) { kind in
+                Text(kind.englishTitle)
+                    .multilineTextAlignment(.center)
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.7)
+                    .frame(maxWidth: .infinity)
+            }
+        }
+        .font(LumenoteFont.caption2(.bold))
+        .foregroundStyle(.secondary)
+        .padding(.horizontal, LumenoteSpacing.xs)
+        .padding(.vertical, LumenoteSpacing.sm)
+        .frame(minHeight: 44)
+        .background(palette.highlightSoft)
+        .accessibilityHidden(true)
+    }
+
+    private func degreeRow(_ degree: DiatonicDegree) -> some View {
+        HStack(spacing: 0) {
+            Text("\(degree.rawValue + 1)")
+                .font(LumenoteFont.caption2(.bold))
+                .foregroundStyle(.secondary)
+                .frame(width: degreeColumnWidth)
+
+            ForEach(ScaleKind.allCases) { kind in
+                Text(DiatonicChordModel.roman(kind: kind, voicing: voicing, degree: degree))
+                    .font(LumenoteFont.caption(.bold))
+                    .foregroundStyle(.primary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.6)
+                    .frame(maxWidth: .infinity)
+            }
+        }
+        .padding(.horizontal, LumenoteSpacing.xs)
+        .padding(.vertical, LumenoteSpacing.md)
+        .overlay(alignment: .top) {
+            Rectangle()
+                .fill(palette.divider)
+                .frame(height: LumenoteStroke.hairline)
+        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(rowLabel(degree))
+    }
+
+    private func rowLabel(_ degree: DiatonicDegree) -> String {
+        let chords = ScaleKind.allCases.map { kind in
+            "\(kind.englishTitle) \(DiatonicChordModel.roman(kind: kind, voicing: voicing, degree: degree))"
+        }.joined(separator: ", ")
+        return "\(degree.rawValue + 1), \(chords)"
     }
 }
 

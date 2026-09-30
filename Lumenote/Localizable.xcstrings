@@ -1137,6 +1137,16 @@
         }
       }
     },
+    "Major 스케일의 다이아토닉 코드를 기준으로 각 코드의 화성적 역할을 살펴봅니다." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The harmonic role of each chord is shown using the major scale's diatonic chords."
+          }
+        }
+      }
+    },
     "Major(장)" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -1144,6 +1154,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Major"
+          }
+        }
+      }
+    },
+    "Melodic Minor는 상행형을 기준으로 정리했습니다." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Melodic minor is summarized from its ascending form."
           }
         }
       }
@@ -1209,6 +1229,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "It can go to V to raise the tension, or return to I."
+          }
+        }
+      }
+    },
+    "각 스케일에서 만들어지는 다이아토닉 코드를 로마 숫자로 정리했습니다." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The diatonic chords built from each scale, written in Roman numerals."
           }
         }
       }
@@ -2183,6 +2213,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Opens the diatonic chord theory page"
+          }
+        }
+      }
+    },
+    "다이아토닉 코드 정리" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diatonic Chord Summary"
           }
         }
       }
@@ -3376,6 +3417,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Scale Quiz"
+          }
+        }
+      }
+    },
+    "스케일에 따라 코드의 구성이 어떻게 달라지는지 비교해 보세요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compare how the chords change from one scale to another."
           }
         }
       }
