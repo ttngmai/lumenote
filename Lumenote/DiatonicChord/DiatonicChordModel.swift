@@ -155,10 +155,10 @@ final class DiatonicChordModel {
     ]
 
     private static let seventhRomans: [ScaleKind: [String]] = [
-        .major: ["IM7", "ii7", "iii7", "IVM7", "V7", "vi7", "vii7♭5"],
-        .naturalMinor: ["i7", "ii7♭5", "♭IIIM7", "iv7", "v7", "♭VIM7", "♭VII7"],
-        .harmonicMinor: ["iM7", "ii7♭5", "♭III+M7", "iv7", "V7", "♭VIM7", "vii°7"],
-        .melodicMinor: ["iM7", "ii7", "♭III+M7", "IV7", "V7", "vi7♭5", "vii7♭5"],
+        .major: ["IM7", "ii7", "iii7", "IVM7", "V7", "vi7", "viiø7"],
+        .naturalMinor: ["i7", "iiø7", "♭IIIM7", "iv7", "v7", "♭VIM7", "♭VII7"],
+        .harmonicMinor: ["iM7", "iiø7", "♭III+M7", "iv7", "V7", "♭VIM7", "vii°7"],
+        .melodicMinor: ["iM7", "ii7", "♭III+M7", "IV7", "V7", "viø7", "viiø7"],
     ]
 
     static let roles: [DiatonicDegreeRole] = [
