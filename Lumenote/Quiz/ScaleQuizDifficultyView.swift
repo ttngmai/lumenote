@@ -8,8 +8,8 @@ struct ScaleQuizDifficultyView: View {
     @Environment(\.appPalette) private var palette
     @Environment(\.dismiss) private var dismiss
 
-    @State private var selectedDifficulty: ScaleQuizDifficulty = .easy
-    @State private var questionCount = 10
+    @AppStorage(ScaleQuizDifficulty.storageKey) private var selectedDifficulty: ScaleQuizDifficulty = .easy
+    @AppStorage(ScaleQuizDifficulty.questionCountStorageKey) private var questionCount = 10
     @State private var model: ScaleQuizModel?
 
     private let questionCounts = [10, 20, 30, 40, 50]

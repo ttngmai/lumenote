@@ -78,6 +78,11 @@ enum Fretboard {
         return quizFretWindowChoices.first ?? 0...(quizWindowLength - 1)
     }
 
+    /// Restores a saved 5-fret window from its first fret.
+    static func storedQuizFretWindow(start: Int) -> ClosedRange<Int> {
+        clampedQuizFretWindow(start...(start + quizWindowLength - 1))
+    }
+
     static func quizWindowTitle(_ window: ClosedRange<Int>) -> String {
         L10n.s("\(window.lowerBound)-\(window.upperBound)프렛")
     }

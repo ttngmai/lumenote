@@ -8,8 +8,8 @@ struct ChordQuizDifficultyView: View {
     @Environment(\.appPalette) private var palette
     @Environment(\.dismiss) private var dismiss
 
-    @State private var selectedDifficulty: ChordQuizDifficulty = .easy
-    @State private var questionCount = 10
+    @AppStorage(ChordQuizDifficulty.storageKey) private var selectedDifficulty: ChordQuizDifficulty = .easy
+    @AppStorage(ChordQuizDifficulty.questionCountStorageKey) private var questionCount = 10
     @State private var model: ChordQuizModel?
 
     private let questionCounts = [10, 20, 30, 40, 50]

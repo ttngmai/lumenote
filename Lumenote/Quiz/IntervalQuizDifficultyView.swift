@@ -8,8 +8,8 @@ struct IntervalQuizDifficultyView: View {
     @Environment(\.appPalette) private var palette
     @Environment(\.dismiss) private var dismiss
 
-    @State private var selectedDifficulty: IntervalQuizDifficulty = .easy
-    @State private var questionCount = 10
+    @AppStorage(IntervalQuizDifficulty.storageKey) private var selectedDifficulty: IntervalQuizDifficulty = .easy
+    @AppStorage(IntervalQuizDifficulty.questionCountStorageKey) private var questionCount = 10
     @State private var model: IntervalQuizModel?
 
     private let questionCounts = [10, 20, 30, 40, 50]

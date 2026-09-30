@@ -8,11 +8,16 @@ struct FretboardNoteQuizDifficultyView: View {
     @Environment(\.appPalette) private var palette
     @Environment(\.dismiss) private var dismiss
 
-    @State private var selectedDifficulty: FretboardNoteQuizDifficulty = .normal
-    @State private var fretRangeMode: FretboardQuizFretRangeMode = .eachQuestion
-    @State private var fretWindow = Fretboard.clampedQuizFretWindow(0...(Fretboard.quizWindowLength - 1))
-    @State private var answerMode: FretboardQuizAnswerMode = .findOne
-    @State private var questionCount = 10
+    @AppStorage(FretboardNoteQuizDifficulty.storageKey)
+    private var selectedDifficulty: FretboardNoteQuizDifficulty = .normal
+    @AppStorage(FretboardNoteQuizDifficulty.fretRangeModeStorageKey)
+    private var fretRangeMode: FretboardQuizFretRangeMode = .eachQuestion
+    @AppStorage(FretboardNoteQuizDifficulty.fretWindowStartStorageKey)
+    private var fretWindowStart = 0
+    @AppStorage(FretboardNoteQuizDifficulty.answerModeStorageKey)
+    private var answerMode: FretboardQuizAnswerMode = .findOne
+    @AppStorage(FretboardNoteQuizDifficulty.questionCountStorageKey)
+    private var questionCount = 10
     @State private var model: FretboardNoteQuizModel?
 
     private let questionCounts = [10, 20, 30, 40, 50]
@@ -50,7 +55,7 @@ struct FretboardNoteQuizDifficultyView: View {
 
                 FretboardQuizOptionSections(
                     fretRangeMode: $fretRangeMode,
-                    fretWindow: $fretWindow,
+                    fretWindow: Fretboard.quizFretWindowBinding(start: $fretWindowStart),
                     answerMode: $answerMode
                 )
 
@@ -123,7 +128,7 @@ struct FretboardNoteQuizDifficultyView: View {
                 difficulty: selectedDifficulty,
                 questionLimit: questionCount,
                 fretRangeMode: fretRangeMode,
-                fretWindow: fretWindow,
+                fretWindow: Fretboard.storedQuizFretWindow(start: fretWindowStart),
                 answerMode: answerMode
             )
         } label: {

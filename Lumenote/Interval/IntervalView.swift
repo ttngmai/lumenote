@@ -5,7 +5,7 @@ import SwiftUI
 struct IntervalView: View {
     @Environment(\.appPalette) private var palette
 
-    @State private var model = IntervalModel()
+    @State private var model: IntervalModel
     @State private var activePicker: NotePickerTarget?
     @State private var stripScrollPosition: String?
     @State private var showsQualityGuide = false
@@ -20,6 +20,14 @@ struct IntervalView: View {
             case .target: return "목표음".l10n
             }
         }
+    }
+
+    init() {
+        let selection = IntervalSelectionStore.load()
+        let model = IntervalModel()
+        model.rootSpelling = selection.rootSpelling
+        model.targetSpelling = selection.targetSpelling
+        _model = State(initialValue: model)
     }
 
     /// Side-by-side staff cards when the viewport is wide enough (e.g. iPad portrait)
@@ -92,6 +100,19 @@ struct IntervalView: View {
         .sheet(isPresented: $showsQualityGuide) {
             IntervalQualityGuideView()
         }
+        .onChange(of: model.rootSpelling) { _, _ in
+            persistSelection()
+        }
+        .onChange(of: model.targetSpelling) { _, _ in
+            persistSelection()
+        }
+    }
+
+    private func persistSelection() {
+        IntervalSelectionStore.save(
+            rootSpelling: model.rootSpelling,
+            targetSpelling: model.targetSpelling
+        )
     }
 
     /// Nearly-invisible hit target; `Color.clear` alone can miss taps in ScrollView.

@@ -6,10 +6,18 @@ struct CircleOfFifthsView: View {
     @Environment(\.appPalette) private var palette
     @Environment(\.verticalSizeClass) private var verticalSizeClass
 
-    @State private var model = CircleOfFifthsModel()
+    @State private var model: CircleOfFifthsModel
     @State private var isTonicExpanded = false
     @State private var isAccidentalOrderExpanded = false
     @State private var showsGuide = false
+
+    init() {
+        let selection = CircleOfFifthsSelectionStore.load()
+        let model = CircleOfFifthsModel()
+        model.selectedTonic = selection.tonic
+        model.selectedMode = selection.mode
+        _model = State(initialValue: model)
+    }
 
     var body: some View {
         GeometryReader { geo in
@@ -60,6 +68,16 @@ struct CircleOfFifthsView: View {
         .sheet(isPresented: $showsGuide) {
             CircleOfFifthsGuideView()
         }
+        .onChange(of: model.selectedTonic) { _, _ in
+            persistSelection()
+        }
+        .onChange(of: model.selectedMode) { _, _ in
+            persistSelection()
+        }
+    }
+
+    private func persistSelection() {
+        CircleOfFifthsSelectionStore.save(tonic: model.selectedTonic, mode: model.selectedMode)
     }
 
     private var background: some View {

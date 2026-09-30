@@ -8,6 +8,9 @@ enum ScaleQuizDifficulty: String, CaseIterable, Hashable, Identifiable {
     case normal
     case hard
 
+    static let storageKey = "scaleQuizDifficulty"
+    static let questionCountStorageKey = "scaleQuizQuestionCount"
+
     var id: String { rawValue }
 
     var title: String {
