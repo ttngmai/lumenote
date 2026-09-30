@@ -49,6 +49,8 @@ final class FretboardNoteQuizModel {
     /// Window used for the whole session when `fretRangeMode` is `.fixed`.
     let fretWindow: ClosedRange<Int>
     let answerMode: FretboardQuizAnswerMode
+    private let recorder: (any LearningRecording)?
+    private let focusSkillKeys: Set<String>
 
     private(set) var question: Question
     private(set) var selectedPositions: Set<Fretboard.Position> = []
@@ -93,13 +95,19 @@ final class FretboardNoteQuizModel {
         questionLimit: Int,
         fretRangeMode: FretboardQuizFretRangeMode = .eachQuestion,
         fretWindow: ClosedRange<Int> = 0...(Fretboard.quizWindowLength - 1),
-        answerMode: FretboardQuizAnswerMode = .findOne
+        answerMode: FretboardQuizAnswerMode = .findOne,
+        recorder: (any LearningRecording)? = nil,
+        focusSkillKeys: Set<String> = []
     ) {
         self.difficulty = difficulty
-        self.questionLimit = Self.normalizedQuestionCount(questionLimit)
+        self.questionLimit = focusSkillKeys.isEmpty
+            ? Self.normalizedQuestionCount(questionLimit)
+            : min(10, max(1, questionLimit))
         self.fretRangeMode = fretRangeMode
         self.fretWindow = Fretboard.clampedQuizFretWindow(fretWindow)
         self.answerMode = answerMode
+        self.recorder = recorder
+        self.focusSkillKeys = focusSkillKeys
         question = Question(
             targetPitchClass: 0,
             accidental: .sharp,
@@ -144,7 +152,14 @@ final class FretboardNoteQuizModel {
     }
 
     private func makeQuestion(avoiding previous: Int?) -> Question {
-        let pool = difficulty.pitchClasses
+        var pool = difficulty.pitchClasses
+        if !focusSkillKeys.isEmpty {
+            let allowed = Set(focusSkillKeys.compactMap(Int.init))
+            let focused = pool.filter { allowed.contains($0) }
+            if !focused.isEmpty {
+                pool = focused
+            }
+        }
         let candidates = pool.filter { $0 != previous }
         let pitchClass = (candidates.isEmpty ? pool : candidates).randomElement() ?? pool[0]
         let window = window(containing: pitchClass)
@@ -175,6 +190,25 @@ final class FretboardNoteQuizModel {
             correctCount += 1
         }
         outcomes.append(isCorrect)
+        let chosen = selectedPositions
+            .map { position in
+                Fretboard.displayName(
+                    pitchClass: Fretboard.pitchClass(at: position),
+                    accidental: question.accidental
+                )
+            }
+            .sorted()
+            .joined(separator: ", ")
+        recorder?.record(
+            LearningAttemptInput(
+                topic: .fretboardNote,
+                skillKey: LearningSkillKey.fretboardNote(pitchClass: question.targetPitchClass),
+                correct: isCorrect,
+                expected: displayName,
+                chosen: chosen,
+                difficulty: difficulty.rawValue
+            )
+        )
     }
 
     /// Black keys pick sharp or flat at random; naturals keep sharp spellings for markers.

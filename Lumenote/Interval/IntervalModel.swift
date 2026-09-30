@@ -362,6 +362,10 @@ final class IntervalModel {
         return wrapped
     }
 
+    static func localizedQuizName(degree: Int, qualityOffset: Int) -> String {
+        (koreanName(intervalNumber: degree, offset: qualityOffset) ?? "\(degree)").l10n
+    }
+
     private static func koreanName(intervalNumber: Int, offset: Int) -> String? {
         if perfectIntervalNumbers.contains(intervalNumber) {
             switch offset {

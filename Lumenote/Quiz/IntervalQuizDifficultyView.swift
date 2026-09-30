@@ -7,6 +7,7 @@ import SwiftUI
 struct IntervalQuizDifficultyView: View {
     @Environment(\.appPalette) private var palette
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.learningLog) private var learningLog
 
     @AppStorage(IntervalQuizDifficulty.storageKey) private var selectedDifficulty: IntervalQuizDifficulty = .easy
     @AppStorage(IntervalQuizDifficulty.questionCountStorageKey) private var questionCount = 10
@@ -110,7 +111,11 @@ struct IntervalQuizDifficultyView: View {
 
     private var startButton: some View {
         Button {
-            model = IntervalQuizModel(difficulty: selectedDifficulty, questionLimit: questionCount)
+            model = IntervalQuizModel(
+                difficulty: selectedDifficulty,
+                questionLimit: questionCount,
+                recorder: learningLog
+            )
         } label: {
             Text("시작")
                 .font(LumenoteFont.body(.bold))
@@ -145,7 +150,8 @@ struct IntervalQuizDifficultyView: View {
                 Button {
                     self.model = IntervalQuizModel(
                         difficulty: model.difficulty,
-                        questionLimit: model.questionLimit
+                        questionLimit: model.questionLimit,
+                        recorder: learningLog
                     )
                 } label: {
                     Text("같은 설정으로 다시 풀기")
@@ -164,6 +170,8 @@ struct IntervalQuizDifficultyView: View {
                 QuizReturnToSetupButton {
                     self.model = nil
                 }
+
+                LearningTopicShortcut(topic: .interval)
 
                 Button {
                     dismiss()

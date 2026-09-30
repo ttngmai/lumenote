@@ -81,7 +81,11 @@ final class KeySignatureQuizModel {
 
     let difficulty: KeySignatureQuizDifficulty
     /// Number of questions in this session: 10, 20, 30, 40, or 50.
+    /// Review sessions use the number of due skills, from 1 through 10.
     let questionLimit: Int
+    private let recorder: (any LearningRecording)?
+    private let focusSkillKeys: Set<String>
+    private var reviewSignatureIndex: Int?
 
     private let signatureLookup = CircleOfFifthsModel()
     private let catalog: [QuizKey]
@@ -107,9 +111,18 @@ final class KeySignatureQuizModel {
         hasAnswered && answeredCount >= questionLimit
     }
 
-    init(difficulty: KeySignatureQuizDifficulty, questionLimit: Int) {
+    init(
+        difficulty: KeySignatureQuizDifficulty,
+        questionLimit: Int,
+        recorder: (any LearningRecording)? = nil,
+        focusSkillKeys: Set<String> = []
+    ) {
         self.difficulty = difficulty
-        self.questionLimit = Self.normalizedQuestionCount(questionLimit)
+        self.recorder = recorder
+        self.focusSkillKeys = focusSkillKeys
+        self.questionLimit = focusSkillKeys.isEmpty
+            ? Self.normalizedQuestionCount(questionLimit)
+            : min(10, max(1, questionLimit))
         catalog = Self.buildCatalog(maxAccidentals: difficulty.maxAccidentals)
         question = Self.placeholderQuestion
         question = makeQuestion()
@@ -124,6 +137,16 @@ final class KeySignatureQuizModel {
             correctCount += 1
         }
         outcomes.append(correct)
+        recorder?.record(
+            LearningAttemptInput(
+                topic: .keySignature,
+                skillKey: learningSkillKey(for: question),
+                correct: correct,
+                expected: choiceTitle(question.correctChoiceID),
+                chosen: choiceTitle(choiceID),
+                difficulty: difficulty.rawValue
+            )
+        )
     }
 
     func nextQuestion() {
@@ -145,6 +168,9 @@ final class KeySignatureQuizModel {
     // MARK: - Generation
 
     private func makeQuestion() -> Question {
+        if !focusSkillKeys.isEmpty, let focused = makeFocusedQuestion() {
+            return focused
+        }
         for _ in 0..<80 {
             let candidate = Bool.random() ? makePickStaffQuestion() : makePickKeyQuestion()
             if let question = candidate ?? makePickStaffQuestion() ?? makePickKeyQuestion() {
@@ -157,10 +183,52 @@ final class KeySignatureQuizModel {
         return fallback
     }
 
+    private func makeFocusedQuestion() -> Question? {
+        for _ in 0..<40 {
+            guard let raw = focusSkillKeys.randomElement(),
+                  let parsed = LearningSkillKey.parseKeySignature(raw)
+            else { continue }
+            reviewSignatureIndex = parsed.signatureIndex
+            let candidate: Question?
+            switch parsed.token {
+            case LearningSkillToken.KeySignature.pickStaff:
+                candidate = makePickStaffQuestion()
+            case LearningSkillToken.KeySignature.pickKey:
+                candidate = makePickKeyQuestion()
+            default:
+                candidate = nil
+            }
+            reviewSignatureIndex = nil
+            if let candidate {
+                previousQuestionID = candidate.promptKey.id + "-\(candidate.kind)"
+                return candidate
+            }
+        }
+        reviewSignatureIndex = nil
+        return nil
+    }
+
+    private func learningSkillKey(for question: Question) -> String {
+        let token = question.kind == .pickStaff
+            ? LearningSkillToken.KeySignature.pickStaff
+            : LearningSkillToken.KeySignature.pickKey
+        return LearningSkillKey.keySignature(token: token, signatureIndex: question.promptKey.signatureIndex)
+    }
+
+    private func choiceTitle(_ choiceID: String) -> String {
+        if let key = question.keyChoices.first(where: { $0.id == choiceID }) {
+            return key.displayName
+        }
+        if let match = catalog.first(where: { $0.id == choiceID }) {
+            return match.displayName
+        }
+        return question.promptKey.displayName
+    }
+
     private func makePickStaffQuestion() -> Question? {
         guard let target = pickTarget() else { return nil }
         let questionID = target.id + "-pickStaff"
-        if questionID == previousQuestionID { return nil }
+        if focusSkillKeys.isEmpty, questionID == previousQuestionID { return nil }
 
         let indices = distractorIndices(for: target)
         guard indices.count == 3 else { return nil }
@@ -200,7 +268,7 @@ final class KeySignatureQuizModel {
     private func makePickKeyQuestion() -> Question? {
         guard let target = pickTarget() else { return nil }
         let questionID = target.id + "-pickKey"
-        if questionID == previousQuestionID { return nil }
+        if focusSkillKeys.isEmpty, questionID == previousQuestionID { return nil }
 
         let indices = distractorIndices(for: target)
         guard indices.count == 3 else { return nil }
@@ -226,6 +294,9 @@ final class KeySignatureQuizModel {
 
     /// Draw an accidental-count bucket by the difficulty's weights, then a key in that bucket.
     private func pickTarget() -> QuizKey? {
+        if let reviewSignatureIndex {
+            return catalog.filter { $0.signatureIndex == reviewSignatureIndex }.randomElement()
+        }
         var buckets = Self.distribution(for: difficulty)
 
         while !buckets.isEmpty {
@@ -391,6 +462,21 @@ final class KeySignatureQuizModel {
                 return key
             }
         }
+    }
+
+    static func learningSkillKeys() -> [String] {
+        let catalog = buildCatalog(maxAccidentals: 7)
+        var seen = Set<String>()
+        var keys: [String] = []
+        for key in catalog {
+            for token in LearningSkillToken.KeySignature.all {
+                let skill = LearningSkillKey.keySignature(token: token, signatureIndex: key.signatureIndex)
+                if seen.insert(skill).inserted {
+                    keys.append(skill)
+                }
+            }
+        }
+        return keys
     }
 
     /// Initial draw rates by absolute accidental count. Empty buckets are skipped.

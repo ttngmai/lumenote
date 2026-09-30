@@ -64,6 +64,8 @@ final class FretboardDegreeQuizModel {
     /// Window used for the whole session when `fretRangeMode` is `.fixed`.
     let fretWindow: ClosedRange<Int>
     let answerMode: FretboardQuizAnswerMode
+    private let recorder: (any LearningRecording)?
+    private let focusSkillKeys: Set<String>
 
     private(set) var question: Question
     private(set) var selectedPositions: Set<Fretboard.Position> = []
@@ -118,13 +120,19 @@ final class FretboardDegreeQuizModel {
         questionLimit: Int,
         fretRangeMode: FretboardQuizFretRangeMode = .eachQuestion,
         fretWindow: ClosedRange<Int> = 0...(Fretboard.quizWindowLength - 1),
-        answerMode: FretboardQuizAnswerMode = .findOne
+        answerMode: FretboardQuizAnswerMode = .findOne,
+        recorder: (any LearningRecording)? = nil,
+        focusSkillKeys: Set<String> = []
     ) {
         self.difficulty = difficulty
-        self.questionLimit = Self.normalizedQuestionCount(questionLimit)
+        self.questionLimit = focusSkillKeys.isEmpty
+            ? Self.normalizedQuestionCount(questionLimit)
+            : min(10, max(1, questionLimit))
         self.fretRangeMode = fretRangeMode
         self.fretWindow = Fretboard.clampedQuizFretWindow(fretWindow)
         self.answerMode = answerMode
+        self.recorder = recorder
+        self.focusSkillKeys = focusSkillKeys
         question = Question(
             rootPosition: Fretboard.Position(stringIndex: 0, fret: 0),
             rootPitchClass: 0,
@@ -196,7 +204,9 @@ final class FretboardDegreeQuizModel {
                 window: window,
                 avoiding: previousInterval
             )
-            guard let intervalSemitones = intervals.randomElement() else { continue }
+            let allowed = Set(focusSkillKeys.compactMap(Int.init))
+            let focused = focusSkillKeys.isEmpty ? intervals : intervals.filter { allowed.contains($0) }
+            guard let intervalSemitones = focused.randomElement() else { continue }
             let targetPitchClass = Fretboard.normalizedPitchClass(rootPitchClass + intervalSemitones)
             return Question(
                 rootPosition: rootPosition,
@@ -226,6 +236,26 @@ final class FretboardDegreeQuizModel {
             correctCount += 1
         }
         outcomes.append(isCorrect)
+        let chosen = selectedPositions
+            .map { position in
+                Fretboard.degreeLabel(
+                    pitchClass: Fretboard.pitchClass(at: position),
+                    rootPitchClass: question.rootPitchClass,
+                    accidental: question.accidental
+                )
+            }
+            .sorted()
+            .joined(separator: ", ")
+        recorder?.record(
+            LearningAttemptInput(
+                topic: .fretboardDegree,
+                skillKey: LearningSkillKey.fretboardDegree(semitones: question.intervalSemitones),
+                correct: isCorrect,
+                expected: displayName,
+                chosen: chosen,
+                difficulty: difficulty.rawValue
+            )
+        )
     }
 
     private func availableIntervals(

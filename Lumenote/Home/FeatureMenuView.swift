@@ -9,6 +9,16 @@ struct FeatureMenuView: View {
     var body: some View {
         List {
             Section {
+                NavigationLink(value: LearningRoute.hub) {
+                    FeatureMenuRow(
+                        title: "오답 관리".l10n,
+                        subtitle: "틀린 문제를 다시 풀고, 학습 상태를 확인하세요".l10n,
+                        systemImage: "chart.bar"
+                    )
+                }
+            }
+
+            Section {
                 ForEach(FeatureDomain.allCases) { domain in
                     NavigationLink(value: domain) {
                         FeatureMenuRow(
@@ -54,6 +64,18 @@ struct FeatureMenuView: View {
         }
         .navigationDestination(for: FeatureDestination.self) { destination in
             featureScreen(for: destination)
+        }
+        .navigationDestination(for: LearningRoute.self) { route in
+            switch route {
+            case .hub:
+                LearningHubView()
+            case .domain(let domain):
+                LearningDomainView(domain: domain)
+            case .topic(let topic):
+                LearningTopicView(topic: topic)
+            case .review(let topic, let skillKeys):
+                LearningReviewSessionView(topic: topic, skillKeys: skillKeys)
+            }
         }
     }
 

@@ -7,6 +7,7 @@ import SwiftUI
 struct KeySignatureQuizDifficultyView: View {
     @Environment(\.appPalette) private var palette
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.learningLog) private var learningLog
 
     @AppStorage(KeySignatureQuizDifficulty.storageKey) private var selectedDifficulty: KeySignatureQuizDifficulty = .easy
     @AppStorage(KeySignatureQuizDifficulty.questionCountStorageKey) private var questionCount = 10
@@ -110,7 +111,11 @@ struct KeySignatureQuizDifficultyView: View {
 
     private var startButton: some View {
         Button {
-            model = KeySignatureQuizModel(difficulty: selectedDifficulty, questionLimit: questionCount)
+            model = KeySignatureQuizModel(
+                difficulty: selectedDifficulty,
+                questionLimit: questionCount,
+                recorder: learningLog
+            )
         } label: {
             Text("시작")
                 .font(LumenoteFont.body(.bold))
@@ -145,7 +150,8 @@ struct KeySignatureQuizDifficultyView: View {
                 Button {
                     self.model = KeySignatureQuizModel(
                         difficulty: model.difficulty,
-                        questionLimit: model.questionLimit
+                        questionLimit: model.questionLimit,
+                        recorder: learningLog
                     )
                 } label: {
                     Text("같은 설정으로 다시 풀기")
@@ -164,6 +170,8 @@ struct KeySignatureQuizDifficultyView: View {
                 QuizReturnToSetupButton {
                     self.model = nil
                 }
+
+                LearningTopicShortcut(topic: .keySignature)
 
                 Button {
                     dismiss()

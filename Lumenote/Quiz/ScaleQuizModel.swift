@@ -37,6 +37,16 @@ final class ScaleQuizModel {
         case identifyDegree
         /// Ask which note is not a member of the scale.
         case excludedNote
+
+        var skillToken: String {
+            switch self {
+            case .completeScale: LearningSkillToken.Scale.completeScale
+            case .identifyScale: LearningSkillToken.Scale.identifyScale
+            case .completePattern: LearningSkillToken.Scale.completePattern
+            case .identifyDegree: LearningSkillToken.Scale.identifyDegree
+            case .excludedNote: LearningSkillToken.Scale.excludedNote
+            }
+        }
     }
 
     enum PromptToken: Equatable {
@@ -78,7 +88,12 @@ final class ScaleQuizModel {
 
     let difficulty: ScaleQuizDifficulty
     /// Number of questions in this session: 10, 20, 30, 40, or 50.
+    /// Review sessions use the number of due skills, from 1 through 10.
     let questionLimit: Int
+    private let recorder: (any LearningRecording)?
+    private let focusSkillKeys: Set<String>
+    /// Set only while a review question is being built for one scale kind.
+    private var reviewKind: ScaleKind?
     private let explorer = ScaleModel()
     private let catalog: [CatalogEntry]
     private var previousQuestionID: String?
@@ -103,9 +118,18 @@ final class ScaleQuizModel {
         hasAnswered && answeredCount >= questionLimit
     }
 
-    init(difficulty: ScaleQuizDifficulty, questionLimit: Int) {
+    init(
+        difficulty: ScaleQuizDifficulty,
+        questionLimit: Int,
+        recorder: (any LearningRecording)? = nil,
+        focusSkillKeys: Set<String> = []
+    ) {
         self.difficulty = difficulty
-        self.questionLimit = Self.normalizedQuestionCount(questionLimit)
+        self.recorder = recorder
+        self.focusSkillKeys = focusSkillKeys
+        self.questionLimit = focusSkillKeys.isEmpty
+            ? Self.normalizedQuestionCount(questionLimit)
+            : min(10, max(1, questionLimit))
         catalog = Self.buildCatalog()
         question = Self.placeholderQuestion
         question = makeQuestion()
@@ -120,6 +144,16 @@ final class ScaleQuizModel {
             correctCount += 1
         }
         outcomes.append(correct)
+        recorder?.record(
+            LearningAttemptInput(
+                topic: .scale,
+                skillKey: learningSkillKey(for: question),
+                correct: correct,
+                expected: question.correctAnswer,
+                chosen: answer,
+                difficulty: difficulty.rawValue
+            )
+        )
     }
 
     func nextQuestion() {
@@ -179,6 +213,9 @@ final class ScaleQuizModel {
     // MARK: - Generation
 
     private func makeQuestion() -> Question {
+        if !focusSkillKeys.isEmpty, let focused = makeFocusedQuestion() {
+            return focused
+        }
         for _ in 0..<80 {
             let candidate: Question?
             // Weight complete-scale highest — it mirrors the learning screen most closely.
@@ -202,11 +239,46 @@ final class ScaleQuizModel {
         return fallbackQuestion
     }
 
+    private func makeFocusedQuestion() -> Question? {
+        for _ in 0..<40 {
+            guard let raw = focusSkillKeys.randomElement(),
+                  let parsed = LearningSkillKey.parseScale(raw)
+            else { continue }
+            reviewKind = parsed.kind
+            let candidate: Question?
+            switch parsed.token {
+            case LearningSkillToken.Scale.completeScale:
+                candidate = makeCompleteScaleQuestion()
+            case LearningSkillToken.Scale.identifyScale:
+                candidate = makeIdentifyScaleQuestion()
+            case LearningSkillToken.Scale.completePattern:
+                candidate = makeCompletePatternQuestion()
+            case LearningSkillToken.Scale.identifyDegree:
+                candidate = makeIdentifyDegreeQuestion()
+            case LearningSkillToken.Scale.excludedNote:
+                candidate = makeExcludedNoteQuestion()
+            default:
+                candidate = nil
+            }
+            reviewKind = nil
+            if let candidate {
+                previousQuestionID = questionID(for: candidate)
+                return candidate
+            }
+        }
+        reviewKind = nil
+        return nil
+    }
+
+    private func learningSkillKey(for question: Question) -> String {
+        LearningSkillKey.scale(kind: question.explanationContext.kind, token: question.kind.skillToken)
+    }
+
     private func makeCompleteScaleQuestion() -> Question? {
         guard let entry = pickEntry() else { return nil }
         let blankIndex = noteBlankIndex(for: entry.kind)
         let questionID = "complete-\(entry.id)-\(blankIndex)"
-        if questionID == previousQuestionID { return nil }
+        if focusSkillKeys.isEmpty, questionID == previousQuestionID { return nil }
 
         let displays = entry.degreeSpellings.map(ScaleModel.formatNoteName)
         let correct = displays[blankIndex]
@@ -252,7 +324,7 @@ final class ScaleQuizModel {
     private func makeIdentifyScaleQuestion() -> Question? {
         guard let entry = pickEntry() else { return nil }
         let questionID = "identify-\(entry.id)"
-        if questionID == previousQuestionID { return nil }
+        if focusSkillKeys.isEmpty, questionID == previousQuestionID { return nil }
 
         let sameTonic = catalog.filter { $0.tonic == entry.tonic && $0.kind != entry.kind }
         var distractors = sameTonic.map(\.displayName)
@@ -300,7 +372,7 @@ final class ScaleQuizModel {
         guard let kind = pickPatternKind() else { return nil }
         let blankIndex = patternBlankIndex(for: kind)
         let questionID = "pattern-\(kind.rawValue)-\(blankIndex)"
-        if questionID == previousQuestionID { return nil }
+        if focusSkillKeys.isEmpty, questionID == previousQuestionID { return nil }
 
         let steps = kind.semitoneSteps.map(ScaleStepInterval.init(semitones:))
         let correct = steps[blankIndex].koreanLabel
@@ -352,7 +424,7 @@ final class ScaleQuizModel {
         let degreeIndex = noteBlankIndex(for: entry.kind) // 2도…7도
         let degreeNumber = degreeIndex + 1
         let questionID = "degree-\(entry.id)-\(degreeNumber)"
-        if questionID == previousQuestionID { return nil }
+        if focusSkillKeys.isEmpty, questionID == previousQuestionID { return nil }
 
         let displays = entry.degreeSpellings.map(ScaleModel.formatNoteName)
         let correct = displays[degreeIndex]
@@ -390,7 +462,7 @@ final class ScaleQuizModel {
         guard let entry = pickEntry() else { return nil }
         guard let correctSpelling = excludedSpelling(for: entry) else { return nil }
         let questionID = "exclude-\(entry.id)-\(correctSpelling)"
-        if questionID == previousQuestionID { return nil }
+        if focusSkillKeys.isEmpty, questionID == previousQuestionID { return nil }
 
         let correct = ScaleModel.formatNoteName(correctSpelling)
         var distractors: [String] = []
@@ -498,6 +570,9 @@ final class ScaleQuizModel {
     private func pickEntry() -> CatalogEntry? {
         let pool = catalog.filter { allowedTonics.contains($0.tonic) }
         guard !pool.isEmpty else { return nil }
+        if let reviewKind {
+            return pool.filter { $0.kind == reviewKind }.randomElement()
+        }
         switch difficulty {
         case .easy:
             return weightedEntry(
@@ -541,11 +616,12 @@ final class ScaleQuizModel {
     }
 
     private func pickPatternKind() -> ScaleKind? {
+        if let reviewKind { return reviewKind }
         switch difficulty {
         case .easy:
-            [.major, .naturalMinor].randomElement()
+            return [.major, .naturalMinor].randomElement()
         case .normal, .hard:
-            ScaleKind.allCases.randomElement()
+            return ScaleKind.allCases.randomElement()
         }
     }
 
