@@ -77,7 +77,7 @@ struct IntervalQuizView: View {
     }
 
     private var choices: some View {
-        VStack(spacing: LumenoteSpacing.md) {
+        QuizChoiceLayout {
             ForEach(model.question.choices, id: \.self) { choice in
                 choiceButton(choice)
             }

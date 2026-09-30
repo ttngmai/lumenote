@@ -113,7 +113,7 @@ struct KeySignatureQuizView: View {
                 }
             }
         case .pickKey:
-            VStack(spacing: LumenoteSpacing.md) {
+            QuizChoiceLayout {
                 ForEach(model.question.keyChoices, id: \.id) { choice in
                     keyChoiceButton(choice)
                 }
