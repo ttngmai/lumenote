@@ -224,9 +224,9 @@ enum ScaleCategory: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .basic: "기본"
-        case .pentatonic: "펜타토닉"
-        case .blues: "블루스"
+        case .basic: "Heptatonic"
+        case .pentatonic: "Pentatonic"
+        case .blues: "Blues"
         }
     }
 

@@ -12,6 +12,8 @@ struct ScaleView: View {
     @State private var selectedScaleCategory: ScaleCategory = .basic
     @State private var scrollTarget: ScaleCard.ID?
     @State private var reorderingCardID: ScaleCard.ID?
+    @State private var showsGuide = false
+    @State private var applyTonicToAllCards = ScaleSelectionStore.loadApplyTonicToAll()
 
     private struct ActivePicker: Equatable {
         enum Field: Equatable {
@@ -88,9 +90,28 @@ struct ScaleView: View {
             .animation(.easeOut(duration: 0.22), value: activePicker)
         }
         .background(background)
-        .lumenoteCompactHeader(title: "스케일", showsBackButton: true)
+        .lumenoteCompactHeader(title: "스케일", showsBackButton: true) {
+            Button {
+                showsGuide = true
+            } label: {
+                Image(systemName: "info")
+                    .font(LumenoteFont.rounded(size: 15, weight: .bold))
+                    .foregroundStyle(.primary)
+                    .frame(width: 34, height: 34)
+                    .background(Circle().fill(palette.cardBackground))
+                    .overlay(Circle().strokeBorder(palette.cardBorder, lineWidth: LumenoteStroke.compact))
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("스케일 안내")
+        }
+        .sheet(isPresented: $showsGuide) {
+            ScaleGuideView()
+        }
         .onChange(of: cards) { _, updated in
             ScaleSelectionStore.save(updated)
+        }
+        .onChange(of: applyTonicToAllCards) { _, isOn in
+            ScaleSelectionStore.saveApplyTonicToAll(isOn)
         }
     }
 
@@ -330,6 +351,20 @@ struct ScaleView: View {
                 activePicker = nil
             }
 
+            Toggle(isOn: $applyTonicToAllCards) {
+                VStack(alignment: .leading, spacing: LumenoteSpacing.xxs) {
+                    Text("모든 카드에 적용".l10n)
+                        .font(LumenoteFont.callout(.semibold))
+                        .foregroundStyle(.primary)
+                    Text("으뜸음을 변경하면 모든 카드에 적용합니다.".l10n)
+                        .font(LumenoteFont.caption(.medium))
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+            .tint(palette.minor)
+            .padding(.horizontal, LumenoteSpacing.popupInset)
+
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: LumenoteSpacing.md) {
                     ForEach(ScaleModel.selectableNotes, id: \.spelling) { option in
@@ -528,11 +563,18 @@ struct ScaleView: View {
     }
 
     private func setActiveTonic(_ spelling: String) {
-        guard let cardID = activePicker?.cardID,
-              let index = cards.firstIndex(where: { $0.id == cardID })
+        guard ScaleModel.isKnownSpelling(spelling),
+              let cardID = activePicker?.cardID,
+              cards.contains(where: { $0.id == cardID })
         else { return }
-        cards[index].setTonic(spelling)
-        tonicStripScrollPosition = cards[index].tonicSpelling
+        if applyTonicToAllCards {
+            for index in cards.indices {
+                cards[index].setTonic(spelling)
+            }
+        } else if let index = cards.firstIndex(where: { $0.id == cardID }) {
+            cards[index].setTonic(spelling)
+        }
+        tonicStripScrollPosition = spelling
     }
 
     private func setActiveKind(_ kind: ScaleKind) {
