@@ -171,6 +171,18 @@ enum ScaleSelectionStore {
         let limited = Array(cards.prefix(ScaleCard.maximumCount))
         return limited.isEmpty ? fallback : Payload(cards: limited)
     }
+
+    private static let applyTonicToAllKey = "scaleApplyTonicToAllCards"
+
+    /// When true, the tonic picker writes the chosen tonic onto every scale card.
+    static func loadApplyTonicToAll(defaults: UserDefaults = .standard) -> Bool {
+        guard defaults.object(forKey: applyTonicToAllKey) != nil else { return true }
+        return defaults.bool(forKey: applyTonicToAllKey)
+    }
+
+    static func saveApplyTonicToAll(_ isOn: Bool, defaults: UserDefaults = .standard) {
+        defaults.set(isOn, forKey: applyTonicToAllKey)
+    }
 }
 
 enum CircleOfFifthsSelectionStore {

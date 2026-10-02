@@ -266,6 +266,32 @@ struct ScaleStaffView: View {
     }
 }
 
+/// Whole-step and half-step brackets in a single row, without the staff.
+struct ScaleStepPatternRow: View {
+    let intervals: [ScaleStepInterval]
+    let color: Color
+
+    var body: some View {
+        HStack(alignment: .top, spacing: LumenoteSpacing.xs) {
+            ForEach(Array(intervals.enumerated()), id: \.offset) { _, interval in
+                VStack(spacing: LumenoteSpacing.xxs) {
+                    ScaleStepMark(kind: interval, color: color)
+                        .frame(height: 16)
+                        .padding(.horizontal, LumenoteSpacing.sm)
+                    Text(interval.koreanLabel)
+                        .font(.system(size: 12, weight: .semibold, design: .rounded))
+                        .foregroundStyle(color)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.5)
+                }
+                .frame(maxWidth: .infinity)
+            }
+        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(intervals.map(\.accessibilityLabel).joined(separator: ", "))
+    }
+}
+
 /// Bracket / caret mark matching the textbook whole-step and half-step glyphs.
 private struct ScaleStepMark: View {
     let kind: ScaleStepInterval
