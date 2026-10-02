@@ -2202,17 +2202,6 @@
         }
       }
     },
-    "관계조 예시" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Relative Key Examples"
-          }
-        }
-      }
-    },
     "관계조의 특징" : {
       "extractionState" : "stale",
       "localizations" : {
