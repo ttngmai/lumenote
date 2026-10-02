@@ -22,10 +22,10 @@ struct FretboardExplorerView: View {
 
     var body: some View {
         ScrollView {
-            VStack(spacing: isCompactHeight ? LumenoteSpacing.md : LumenoteSpacing.section) {
-                displayControlsCard
+            VStack(spacing: isCompactHeight ? LumenoteSpacing.sm : LumenoteSpacing.section) {
+                displayControls
                 fretboardCard
-                noteToggleCard
+                noteToggles
             }
             .padding(
                 .horizontal,
@@ -42,7 +42,7 @@ struct FretboardExplorerView: View {
         .lumenoteCompactHeader(title: "지판 보기", showsBackButton: true)
     }
 
-    private var displayControlsCard: some View {
+    private var displayControls: some View {
         HStack(spacing: LumenoteSpacing.sm) {
             accidentalToggle
             labelModeToggle
@@ -51,14 +51,7 @@ struct FretboardExplorerView: View {
             }
             Spacer(minLength: 0)
         }
-        .padding(isCompactHeight ? LumenoteSpacing.sm : LumenoteSpacing.xl)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(palette.cardBackground)
-        .clipShape(RoundedRectangle(cornerRadius: LumenoteRadius.card, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: LumenoteRadius.card, style: .continuous)
-                .strokeBorder(palette.divider, lineWidth: LumenoteStroke.compact)
-        )
     }
 
     private var fretboardCard: some View {
@@ -104,7 +97,7 @@ struct FretboardExplorerView: View {
         .frame(height: FretboardDiagramView.preferredHeight)
     }
 
-    private var noteToggleCard: some View {
+    private var noteToggles: some View {
         Group {
             if isCompactHeight {
                 compactNoteRow
@@ -122,14 +115,7 @@ struct FretboardExplorerView: View {
                 }
             }
         }
-        .padding(isCompactHeight ? LumenoteSpacing.sm : LumenoteSpacing.xxl)
-        .frame(maxWidth: .infinity)
-        .background(palette.cardBackground)
-        .clipShape(RoundedRectangle(cornerRadius: LumenoteRadius.card, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: LumenoteRadius.card, style: .continuous)
-                .strokeBorder(palette.divider, lineWidth: LumenoteStroke.compact)
-        )
+        .frame(maxWidth: .infinity, alignment: .leading)
         .transaction { $0.animation = nil }
     }
 
