@@ -13,6 +13,7 @@ struct ChordView: View {
     @State private var scrollTarget: ChordCard.ID?
     @State private var reorderingCardID: ChordCard.ID?
     @State private var showsGuide = false
+    @State private var applyRootToAllCards = ChordSelectionStore.loadApplyRootToAll()
 
     private struct ActivePicker: Equatable {
         enum Field: Equatable {
@@ -108,6 +109,9 @@ struct ChordView: View {
         }
         .onChange(of: cards) { _, updated in
             ChordSelectionStore.save(updated)
+        }
+        .onChange(of: applyRootToAllCards) { _, isOn in
+            ChordSelectionStore.saveApplyRootToAll(isOn)
         }
     }
 
@@ -394,6 +398,20 @@ struct ChordView: View {
                 activePicker = nil
             }
 
+            Toggle(isOn: $applyRootToAllCards) {
+                VStack(alignment: .leading, spacing: LumenoteSpacing.xxs) {
+                    Text("모든 카드에 적용".l10n)
+                        .font(LumenoteFont.callout(.semibold))
+                        .foregroundStyle(.primary)
+                    Text("근음을 변경하면 모든 카드에 적용합니다.".l10n)
+                        .font(LumenoteFont.caption(.medium))
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+            .tint(palette.minor)
+            .padding(.horizontal, LumenoteSpacing.popupInset)
+
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: LumenoteSpacing.md) {
                     ForEach(ChordModel.selectableNotes, id: \.spelling) { option in
@@ -549,11 +567,18 @@ struct ChordView: View {
     }
 
     private func setActiveRoot(_ spelling: String) {
-        guard let cardID = activePicker?.cardID,
-              let index = cards.firstIndex(where: { $0.id == cardID })
+        guard ScaleModel.isKnownSpelling(spelling),
+              let cardID = activePicker?.cardID,
+              cards.contains(where: { $0.id == cardID })
         else { return }
-        cards[index].setRoot(spelling)
-        rootStripScrollPosition = cards[index].rootSpelling
+        if applyRootToAllCards {
+            for index in cards.indices {
+                cards[index].setRoot(spelling)
+            }
+        } else if let index = cards.firstIndex(where: { $0.id == cardID }) {
+            cards[index].setRoot(spelling)
+        }
+        rootStripScrollPosition = spelling
     }
 
     private func setActiveKind(_ kind: ChordKind) {
