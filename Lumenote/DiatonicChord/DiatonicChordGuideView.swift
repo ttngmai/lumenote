@@ -296,10 +296,6 @@ struct DiatonicChordGuideView: View {
                 }
             }
 
-            Rectangle()
-                .fill(palette.divider)
-                .frame(height: LumenoteStroke.hairline)
-
             sectionTitle("대표적인 화성 진행")
 
             VStack(spacing: LumenoteSpacing.sm) {
