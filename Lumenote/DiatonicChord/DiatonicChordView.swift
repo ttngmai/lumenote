@@ -12,6 +12,7 @@ struct DiatonicChordView: View {
     @State private var scrollTarget: DiatonicChordCard.ID?
     @State private var reorderingCardID: DiatonicChordCard.ID?
     @State private var showsGuide = false
+    @State private var applyTonicToAllCards = DiatonicChordSelectionStore.loadApplyTonicToAll()
 
     private struct ActivePicker: Equatable {
         enum Field: Equatable {
@@ -108,6 +109,9 @@ struct DiatonicChordView: View {
         }
         .onChange(of: cards) { _, updated in
             DiatonicChordSelectionStore.save(updated)
+        }
+        .onChange(of: applyTonicToAllCards) { _, isOn in
+            DiatonicChordSelectionStore.saveApplyTonicToAll(isOn)
         }
     }
 
@@ -432,6 +436,20 @@ struct DiatonicChordView: View {
                 activePicker = nil
             }
 
+            Toggle(isOn: $applyTonicToAllCards) {
+                VStack(alignment: .leading, spacing: LumenoteSpacing.xxs) {
+                    Text("모든 카드에 적용".l10n)
+                        .font(LumenoteFont.callout(.semibold))
+                        .foregroundStyle(.primary)
+                    Text("으뜸음을 변경하면 모든 카드에 적용합니다.".l10n)
+                        .font(LumenoteFont.caption(.medium))
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+            .tint(palette.minor)
+            .padding(.horizontal, LumenoteSpacing.popupInset)
+
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: LumenoteSpacing.md) {
                     ForEach(ScaleModel.selectableNotes, id: \.spelling) { option in
@@ -571,11 +589,19 @@ struct DiatonicChordView: View {
     }
 
     private func setActiveTonic(_ spelling: String) {
-        guard let cardID = activePicker?.cardID,
-              let index = cards.firstIndex(where: { $0.id == cardID })
+        guard ScaleModel.isKnownSpelling(spelling),
+              let cardID = activePicker?.cardID,
+              cards.contains(where: { $0.id == cardID })
         else { return }
-        cards[index].setTonic(spelling)
-        tonicStripScrollPosition = cards[index].tonicSpelling
+        let applyToAll = applyTonicToAllCards
+        // Assign once. Writing each card through @State drops earlier updates in this view.
+        cards = cards.map { card in
+            guard applyToAll || card.id == cardID else { return card }
+            var updated = card
+            updated.setTonic(spelling)
+            return updated
+        }
+        tonicStripScrollPosition = spelling
     }
 
     private func setActiveKind(_ kind: ScaleKind) {

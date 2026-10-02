@@ -356,4 +356,16 @@ enum DiatonicChordSelectionStore {
         let limited = Array(cards.prefix(DiatonicChordCard.maximumCount))
         return limited.isEmpty ? fallback : Payload(cards: limited)
     }
+
+    private static let applyTonicToAllKey = "diatonicChordApplyTonicToAllCards"
+
+    /// When true, the tonic picker writes the chosen tonic onto every diatonic chord card.
+    static func loadApplyTonicToAll(defaults: UserDefaults = .standard) -> Bool {
+        guard defaults.object(forKey: applyTonicToAllKey) != nil else { return true }
+        return defaults.bool(forKey: applyTonicToAllKey)
+    }
+
+    static func saveApplyTonicToAll(_ isOn: Bool, defaults: UserDefaults = .standard) {
+        defaults.set(isOn, forKey: applyTonicToAllKey)
+    }
 }
