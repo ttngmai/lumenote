@@ -143,13 +143,7 @@ struct CircleOfFifthsGuideView: View {
                 .accessibilityElement(children: .ignore)
                 .accessibilityLabel("C 장조와 관계단조 A 단조가 같은 칸에 있습니다.")
 
-            overviewSection(title: "관계조 예시") {
-                VStack(alignment: .leading, spacing: LumenoteSpacing.lg) {
-                    relationRow(major: "C 장조", minor: "A 단조", signature: "조표 없음")
-                    relationRow(major: "G 장조", minor: "E 단조", signature: "♯ 1개 (F♯)")
-                    relationRow(major: "F 장조", minor: "D 단조", signature: "♭ 1개 (B♭)")
-                }
-            }
+            relationExampleCard()
         }
     }
 
@@ -293,6 +287,22 @@ struct CircleOfFifthsGuideView: View {
 
     // MARK: - Blocks
 
+    private func relationExampleCard() -> some View {
+        VStack(alignment: .leading, spacing: LumenoteSpacing.md) {
+            Text("예시".l10n)
+                .font(LumenoteFont.caption(.semibold))
+                .foregroundStyle(.secondary)
+            VStack(alignment: .leading, spacing: LumenoteSpacing.lg) {
+                relationRow(major: "C 장조", minor: "A 단조", signature: "조표 없음")
+                relationRow(major: "G 장조", minor: "E 단조", signature: "♯ 1개 (F♯)")
+                relationRow(major: "F 장조", minor: "D 단조", signature: "♭ 1개 (B♭)")
+            }
+        }
+        .padding(LumenoteSpacing.xl)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .lumenoteCard()
+    }
+
     private func relationRow(major: String, minor: String, signature: String) -> some View {
         VStack(alignment: .leading, spacing: LumenoteSpacing.xxs) {
             HStack(spacing: 0) {
@@ -308,7 +318,7 @@ struct CircleOfFifthsGuideView: View {
             }
             Text(signature.l10n)
                 .font(LumenoteFont.caption(.medium))
-                .foregroundStyle(.secondary)
+                .foregroundStyle(.primary)
         }
         .accessibilityElement(children: .combine)
     }
