@@ -356,27 +356,17 @@ struct IntervalQualityGuideView: View {
                 .foregroundStyle(.primary)
                 .fixedSize(horizontal: false, vertical: true)
 
-                Text("예시 · 장3도")
-                    .font(LumenoteFont.subheadline(.bold))
-                    .foregroundStyle(.primary)
+                alterationExampleCard(
+                    title: "예시1) 장3도",
+                    examples: thirdExamples,
+                    caption: "세 음정은 모두 3도입니다. 장3도(4반음)를 기준으로 간격이 1반음 좁아지면 단3도, 1반음 넓어지면 증3도가 됩니다."
+                )
 
-                alterationStaffRow(thirdExamples)
-
-                Text("세 음정은 모두 3도입니다. 장3도(4반음)를 기준으로 간격이 1반음 좁아지면 단3도, 1반음 넓어지면 증3도가 됩니다.")
-                    .font(LumenoteFont.caption(.medium))
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
-
-                Text("다른 도수의 예시 · 완전5도")
-                    .font(LumenoteFont.subheadline(.bold))
-                    .foregroundStyle(.primary)
-
-                alterationStaffRow(fifthExamples)
-
-                Text("세 음정은 모두 5도입니다. 완전5도(7반음)를 기준으로 간격이 1반음 좁아지면 감5도, 1반음 넓어지면 증5도가 됩니다.")
-                    .font(LumenoteFont.caption(.medium))
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
+                alterationExampleCard(
+                    title: "예시2) 완전5도",
+                    examples: fifthExamples,
+                    caption: "세 음정은 모두 5도입니다. 완전5도(7반음)를 기준으로 간격이 1반음 좁아지면 감5도, 1반음 넓어지면 증5도가 됩니다."
+                )
 
                 namingRecap
             }
@@ -463,6 +453,37 @@ struct IntervalQualityGuideView: View {
                 foreground: colors.onGreen
             ),
         ]
+    }
+
+    private func alterationExampleCard(
+        title: LocalizedStringKey,
+        examples: [QualityStaffExample],
+        caption: LocalizedStringKey
+    ) -> some View {
+        VStack(alignment: .leading, spacing: LumenoteSpacing.xl) {
+            Text(title)
+                .font(LumenoteFont.caption(.semibold))
+                .foregroundStyle(.secondary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .accessibilityAddTraits(.isHeader)
+
+            alterationStaffRow(examples)
+
+            Text(caption)
+                .font(LumenoteFont.caption(.medium))
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(LumenoteSpacing.xl)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: LumenoteRadius.card, style: .continuous)
+                .fill(palette.cardBackground)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: LumenoteRadius.card, style: .continuous)
+                .strokeBorder(palette.divider, lineWidth: LumenoteStroke.compact)
+        )
     }
 
     private func alterationStaffRow(_ examples: [QualityStaffExample]) -> some View {
