@@ -274,6 +274,18 @@ enum ChordSelectionStore {
         let limited = Array(cards.prefix(ChordCard.maximumCount))
         return limited.isEmpty ? fallback : Payload(cards: limited)
     }
+
+    private static let applyRootToAllKey = "chordApplyRootToAllCards"
+
+    /// When true, the root picker writes the chosen root onto every chord card.
+    static func loadApplyRootToAll(defaults: UserDefaults = .standard) -> Bool {
+        guard defaults.object(forKey: applyRootToAllKey) != nil else { return true }
+        return defaults.bool(forKey: applyRootToAllKey)
+    }
+
+    static func saveApplyRootToAll(_ isOn: Bool, defaults: UserDefaults = .standard) {
+        defaults.set(isOn, forKey: applyRootToAllKey)
+    }
 }
 
 enum DiatonicChordSelectionStore {

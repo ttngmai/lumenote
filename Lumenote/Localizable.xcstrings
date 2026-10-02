@@ -2309,6 +2309,17 @@
         }
       }
     },
+    "근음을 변경하면 모든 카드에 적용합니다." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Changing the root applies it to every card."
+          }
+        }
+      }
+    },
     "근음이 바뀌어도 코드의 구성음 사이의 음정 관계는 동일하게 유지됩니다." : {
       "localizations" : {
         "en" : {
