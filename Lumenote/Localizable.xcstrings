@@ -2563,16 +2563,6 @@
         }
       }
     },
-    "다른 도수의 예시 · 완전5도" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Another degree · Perfect 5th"
-          }
-        }
-      }
-    },
     "다음 두 음의 음정은?" : {
       "localizations" : {
         "en" : {
@@ -4215,22 +4205,32 @@
         }
       }
     },
-    "예시 · 장3도" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Example · Major 3rd"
-          }
-        }
-      }
-    },
     "예시. C에서 E까지는 3도이고 4반음이므로 장3도입니다." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Example. C to E is a 3rd and 4 semitones, so it is a major 3rd."
+          }
+        }
+      }
+    },
+    "예시1) 장3도" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Example 1) Major 3rd"
+          }
+        }
+      }
+    },
+    "예시2) 완전5도" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Example 2) Perfect 5th"
           }
         }
       }
