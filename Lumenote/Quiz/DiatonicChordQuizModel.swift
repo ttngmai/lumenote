@@ -839,7 +839,7 @@ private extension DiatonicChordQuality {
         case .minor7: "7"
         case .dominant7: "7"
         case .minorMajor7: "M7"
-        case .halfDiminished7: "7♭5"
+        case .halfDiminished7: "ø7"
         case .diminished7: "°7"
         case .augmentedMajor7: "+M7"
         }
