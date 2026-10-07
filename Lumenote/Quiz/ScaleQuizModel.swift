@@ -22,7 +22,7 @@ enum ScaleQuizDifficulty: String, CaseIterable, Hashable, Identifiable {
     }
 }
 
-/// Mixed scale quiz: complete notes, identify scale, complete step pattern, identify degree.
+/// Mixed scale quiz: complete notes, identify scale, interval pattern, degree formula, identify degree.
 @MainActor
 @Observable
 final class ScaleQuizModel {
@@ -32,7 +32,10 @@ final class ScaleQuizModel {
         /// Given ascending degrees, pick the scale name.
         case identifyScale
         /// Fill one missing whole/half (or aug2) step in the pattern.
+        /// Heptatonic scales only.
         case completePattern
+        /// Fill one degree, or two on Hard, in the scale-degree formula.
+        case completeFormula
         /// Ask which note is a given scale degree.
         case identifyDegree
         /// Ask which note is not a member of the scale.
@@ -43,6 +46,7 @@ final class ScaleQuizModel {
             case .completeScale: LearningSkillToken.Scale.completeScale
             case .identifyScale: LearningSkillToken.Scale.identifyScale
             case .completePattern: LearningSkillToken.Scale.completePattern
+            case .completeFormula: LearningSkillToken.Scale.completeFormula
             case .identifyDegree: LearningSkillToken.Scale.identifyDegree
             case .excludedNote: LearningSkillToken.Scale.excludedNote
             }
@@ -54,6 +58,8 @@ final class ScaleQuizModel {
         case blank
         case step(String)
         case stepBlank
+        case degree(String)
+        case degreeBlank
     }
 
     struct Feedback: Equatable {
@@ -83,7 +89,27 @@ final class ScaleQuizModel {
         let degreeSpellings: [String]
         let blankIndex: Int?
         let degreeNumber: Int?
+        /// Printed degree such as "♭5". Nil when the question is not about one degree.
+        let degreeLabel: String?
         let askedNoteDisplay: String?
+
+        init(
+            tonicSpelling: String,
+            kind: ScaleKind,
+            degreeSpellings: [String],
+            blankIndex: Int?,
+            degreeNumber: Int?,
+            degreeLabel: String? = nil,
+            askedNoteDisplay: String?
+        ) {
+            self.tonicSpelling = tonicSpelling
+            self.kind = kind
+            self.degreeSpellings = degreeSpellings
+            self.blankIndex = blankIndex
+            self.degreeNumber = degreeNumber
+            self.degreeLabel = degreeLabel
+            self.askedNoteDisplay = askedNoteDisplay
+        }
     }
 
     let difficulty: ScaleQuizDifficulty
@@ -195,10 +221,10 @@ final class ScaleQuizModel {
                 headline: "\(answer) ✕ → \(question.correctAnswer) ✓",
                 detail: ""
             )
-        case .completePattern:
+        case .completePattern, .completeFormula:
             return Feedback(
                 headline: "\(answer) ✕ → \(question.correctAnswer) ✓",
-                detail: ""
+                detail: question.kind == .completeFormula ? formulaDetail(kind: ctx.kind) : ""
             )
         case .identifyDegree:
             return degreeWrongFeedback(answer: answer, scaleName: scaleName, degrees: degrees, context: ctx)
@@ -218,18 +244,19 @@ final class ScaleQuizModel {
         }
         for _ in 0..<80 {
             let candidate: Question?
-            // Weight complete-scale highest — it mirrors the learning screen most closely.
-            switch Int.random(in: 0..<10) {
-            case 0..<4:
+            switch weightedQuestionKind() {
+            case .completeScale:
                 candidate = makeCompleteScaleQuestion()
-            case 4..<6:
+            case .identifyScale:
                 candidate = makeIdentifyScaleQuestion()
-            case 6..<8:
+            case .completePattern:
                 candidate = makeCompletePatternQuestion()
-            default:
-                candidate = shouldAskDegreeNote()
-                    ? makeIdentifyDegreeQuestion()
-                    : makeExcludedNoteQuestion()
+            case .completeFormula:
+                candidate = makeCompleteFormulaQuestion()
+            case .identifyDegree:
+                candidate = makeIdentifyDegreeQuestion()
+            case .excludedNote:
+                candidate = makeExcludedNoteQuestion()
             }
             if let question = candidate {
                 previousQuestionID = questionID(for: question)
@@ -253,6 +280,8 @@ final class ScaleQuizModel {
                 candidate = makeIdentifyScaleQuestion()
             case LearningSkillToken.Scale.completePattern:
                 candidate = makeCompletePatternQuestion()
+            case LearningSkillToken.Scale.completeFormula:
+                candidate = makeCompleteFormulaQuestion()
             case LearningSkillToken.Scale.identifyDegree:
                 candidate = makeIdentifyDegreeQuestion()
             case LearningSkillToken.Scale.excludedNote:
@@ -276,18 +305,19 @@ final class ScaleQuizModel {
 
     private func makeCompleteScaleQuestion() -> Question? {
         guard let entry = pickEntry() else { return nil }
-        let blankIndex = noteBlankIndex(for: entry.kind)
+        guard let blankIndex = singleBlankIndex(for: entry.kind) else { return nil }
         let questionID = "complete-\(entry.id)-\(blankIndex)"
         if focusSkillKeys.isEmpty, questionID == previousQuestionID { return nil }
 
         let displays = entry.degreeSpellings.map(ScaleModel.formatNoteName)
         let correct = displays[blankIndex]
+        let degreeLabel = entry.kind.degreeLabels[blankIndex]
         let distractors = noteDistractors(
             correctSpelling: entry.degreeSpellings[blankIndex],
             scaleSpellings: entry.degreeSpellings,
             tonic: entry.tonic,
             kind: entry.kind,
-            degreeIndex: blankIndex
+            degreeLabel: degreeLabel
         )
         guard distractors.count == 3 else { return nil }
 
@@ -315,7 +345,8 @@ final class ScaleQuizModel {
                 kind: entry.kind,
                 degreeSpellings: entry.degreeSpellings,
                 blankIndex: blankIndex,
-                degreeNumber: blankIndex + 1,
+                degreeNumber: degreeNumber(of: degreeLabel),
+                degreeLabel: degreeLabel,
                 askedNoteDisplay: nil
             )
         )
@@ -326,9 +357,7 @@ final class ScaleQuizModel {
         let questionID = "identify-\(entry.id)"
         if focusSkillKeys.isEmpty, questionID == previousQuestionID { return nil }
 
-        let sameTonic = catalog.filter { $0.tonic == entry.tonic && $0.kind != entry.kind }
-        var distractors = sameTonic.map(\.displayName)
-
+        var distractors = preferredScaleNames(for: entry)
         if distractors.count < 3 {
             let others = catalog
                 .filter { $0.displayName != entry.displayName && !distractors.contains($0.displayName) }
@@ -337,8 +366,6 @@ final class ScaleQuizModel {
                 .map(\.displayName)
             distractors.append(contentsOf: others)
         }
-
-        distractors = Array(Set(distractors)).filter { $0 != entry.displayName }.shuffled()
         guard distractors.count >= 3 else { return nil }
         distractors = Array(distractors.prefix(3))
 
@@ -419,11 +446,49 @@ final class ScaleQuizModel {
         )
     }
 
+    private func makeCompleteFormulaQuestion() -> Question? {
+        guard let kind = pickFormulaKind() else { return nil }
+        guard let blankIndices = formulaBlankIndices(for: kind), !blankIndices.isEmpty else { return nil }
+        let labels = Array(kind.degreeLabels.dropLast())
+        guard blankIndices.allSatisfy({ labels.indices.contains($0) }) else { return nil }
+        let questionID = "formula-\(kind.rawValue)-\(blankIndices.map(String.init).joined(separator: ","))"
+        if focusSkillKeys.isEmpty, questionID == previousQuestionID { return nil }
+
+        guard let built = formulaChoices(labels: labels, blankIndices: blankIndices) else { return nil }
+        var tokens: [PromptToken] = []
+        for (index, label) in labels.enumerated() {
+            tokens.append(blankIndices.contains(index) ? .degreeBlank : .degree(label))
+        }
+
+        let tonic = "C"
+        let spellings = spellings(tonic: tonic, kind: kind)
+        return Question(
+            kind: .completeFormula,
+            promptTitle: L10n.s("\(kind.englishTitle) 스케일의 도수 공식을 완성하세요."),
+            scaleLabel: "\(tonic) \(kind.englishTitle)",
+            promptTokens: tokens,
+            staffNotes: [],
+            staffIntervals: [],
+            staffNoteNames: [],
+            choices: (built.distractors + [built.correct]).shuffled(),
+            correctAnswer: built.correct,
+            explanationContext: ExplanationContext(
+                tonicSpelling: tonic,
+                kind: kind,
+                degreeSpellings: spellings,
+                blankIndex: blankIndices[0],
+                degreeNumber: nil,
+                degreeLabel: built.correct,
+                askedNoteDisplay: nil
+            )
+        )
+    }
+
     private func makeIdentifyDegreeQuestion() -> Question? {
         guard let entry = pickEntry() else { return nil }
-        let degreeIndex = noteBlankIndex(for: entry.kind) // 2도…7도
-        let degreeNumber = degreeIndex + 1
-        let questionID = "degree-\(entry.id)-\(degreeNumber)"
+        guard let degreeIndex = singleBlankIndex(for: entry.kind) else { return nil }
+        let degreeLabel = entry.kind.degreeLabels[degreeIndex]
+        let questionID = "degree-\(entry.id)-\(degreeIndex)"
         if focusSkillKeys.isEmpty, questionID == previousQuestionID { return nil }
 
         let displays = entry.degreeSpellings.map(ScaleModel.formatNoteName)
@@ -433,13 +498,13 @@ final class ScaleQuizModel {
             scaleSpellings: entry.degreeSpellings,
             tonic: entry.tonic,
             kind: entry.kind,
-            degreeIndex: degreeIndex
+            degreeLabel: degreeLabel
         )
         guard distractors.count == 3 else { return nil }
 
         return Question(
             kind: .identifyDegree,
-            promptTitle: L10n.s("\(entry.displayName) 스케일의 \(degreeNumber)도 음은?"),
+            promptTitle: L10n.s("\(entry.displayName) 스케일의 \(degreeLabel)도 음은?"),
             scaleLabel: entry.displayName,
             promptTokens: [],
             staffNotes: [],
@@ -451,8 +516,9 @@ final class ScaleQuizModel {
                 tonicSpelling: entry.tonic,
                 kind: entry.kind,
                 degreeSpellings: entry.degreeSpellings,
-                blankIndex: nil,
-                degreeNumber: degreeNumber,
+                blankIndex: degreeIndex,
+                degreeNumber: degreeNumber(of: degreeLabel),
+                degreeLabel: degreeLabel,
                 askedNoteDisplay: nil
             )
         )
@@ -467,7 +533,7 @@ final class ScaleQuizModel {
         let correct = ScaleModel.formatNoteName(correctSpelling)
         var distractors: [String] = []
         var seen: Set<String> = [correct]
-        for spelling in entry.degreeSpellings.prefix(7).shuffled() {
+        for spelling in entry.degreeSpellings.dropLast().shuffled() {
             let display = ScaleModel.formatNoteName(spelling)
             if seen.insert(display).inserted {
                 distractors.append(display)
@@ -512,6 +578,8 @@ final class ScaleQuizModel {
             return ""
         case .completePattern:
             return ""
+        case .completeFormula:
+            return formulaDetail(kind: context.kind)
         case .excludedNote:
             return excludedNoteDetail(scaleName: scaleName)
         case .identifyDegree:
@@ -524,11 +592,18 @@ final class ScaleQuizModel {
         degrees: [String],
         context: ExplanationContext
     ) -> String {
-        guard let degree = context.degreeNumber, degrees.indices.contains(degree - 1) else {
+        guard let index = context.blankIndex, degrees.indices.contains(index) else {
             return scaleName
         }
-        let note = degrees[degree - 1]
-        return L10n.s("\(scaleName) 스케일의 \(degree)도 음은 \(note)입니다.")
+        let note = degrees[index]
+        let label = context.degreeLabel ?? context.degreeNumber.map(String.init) ?? ""
+        guard !label.isEmpty else { return scaleName }
+        return L10n.s("\(scaleName) 스케일의 \(label)도 음은 \(note)입니다.")
+    }
+
+    private func formulaDetail(kind: ScaleKind) -> String {
+        let formula = kind.degreeLabels.dropLast().joined(separator: " ")
+        return L10n.s("\(kind.englishTitle) 스케일의 도수 공식 : \(formula)")
     }
 
     private func excludedNoteDetail(scaleName: String) -> String {
@@ -565,8 +640,8 @@ final class ScaleQuizModel {
 
     // MARK: - Distractors & catalog
 
-    /// Easy keeps Major and Natural Minor common, but still draws the other kinds
-    /// so identify-scale can offer four names.
+    /// Easy favors major, natural minor, and the two pentatonic scales.
+    /// Normal and Hard draw the eight kinds evenly, then a tonic that can spell that kind.
     private func pickEntry() -> CatalogEntry? {
         let pool = catalog.filter { allowedTonics.contains($0.tonic) }
         guard !pool.isEmpty else { return nil }
@@ -575,17 +650,16 @@ final class ScaleQuizModel {
         }
         switch difficulty {
         case .easy:
-            return weightedEntry(
-                from: pool,
-                weights: [.major: 4, .naturalMinor: 4, .harmonicMinor: 1, .melodicMinor: 1]
-            )
+            return weightedEntry(from: pool, weights: Self.easyKindWeights)
         case .normal, .hard:
-            return pool.randomElement()
+            let kinds = Array(Set(pool.map(\.kind)))
+            guard let kind = kinds.randomElement() else { return nil }
+            return pool.filter { $0.kind == kind }.randomElement()
         }
     }
 
     private func weightedEntry(from pool: [CatalogEntry], weights: [ScaleKind: Int]) -> CatalogEntry? {
-        let buckets = ScaleKind.basicCases.compactMap { kind -> (weight: Int, entries: [CatalogEntry])? in
+        let buckets = ScaleKind.allCases.compactMap { kind -> (weight: Int, entries: [CatalogEntry])? in
             let matches = pool.filter { $0.kind == kind }
             let weight = weights[kind] ?? 0
             guard !matches.isEmpty, weight > 0 else { return nil }
@@ -604,6 +678,18 @@ final class ScaleQuizModel {
         return pool.randomElement()
     }
 
+    /// 20 / 20 / 15 / 15 / 7.5 / 7.5 / 7.5 / 7.5 percent across the eight kinds.
+    private static let easyKindWeights: [ScaleKind: Int] = [
+        .major: 8,
+        .naturalMinor: 8,
+        .majorPentatonic: 6,
+        .minorPentatonic: 6,
+        .harmonicMinor: 3,
+        .melodicMinor: 3,
+        .majorBlues: 3,
+        .minorBlues: 3,
+    ]
+
     private var allowedTonics: Set<String> {
         switch difficulty {
         case .easy:
@@ -616,7 +702,9 @@ final class ScaleQuizModel {
     }
 
     private func pickPatternKind() -> ScaleKind? {
-        if let reviewKind { return reviewKind }
+        if let reviewKind {
+            return ScaleKind.basicCases.contains(reviewKind) ? reviewKind : nil
+        }
         switch difficulty {
         case .easy:
             return [.major, .naturalMinor].randomElement()
@@ -625,15 +713,106 @@ final class ScaleQuizModel {
         }
     }
 
-    /// Degree index in 1...6 (2도–7도). Normal prefers the notes that distinguish the kind.
-    private func noteBlankIndex(for kind: ScaleKind) -> Int {
-        let full = Array(1...6)
-        guard difficulty == .normal else { return full.randomElement() ?? 1 }
-        let characteristic = characteristicDegreeIndices(for: kind).filter { full.contains($0) }
-        guard !characteristic.isEmpty, Int.random(in: 0..<10) < 7 else {
-            return full.randomElement() ?? 1
+    private func pickFormulaKind() -> ScaleKind? {
+        if let reviewKind { return reviewKind }
+        switch difficulty {
+        case .easy:
+            return weightedKind(Self.easyKindWeights)
+        case .normal, .hard:
+            return ScaleKind.allCases.randomElement()
         }
-        return characteristic.randomElement() ?? full[0]
+    }
+
+    private func weightedKind(_ weights: [ScaleKind: Int]) -> ScaleKind? {
+        let buckets = ScaleKind.allCases.compactMap { kind -> (ScaleKind, Int)? in
+            let weight = weights[kind] ?? 0
+            return weight > 0 ? (kind, weight) : nil
+        }
+        let total = buckets.reduce(0) { $0 + $1.1 }
+        guard total > 0 else { return ScaleKind.allCases.randomElement() }
+        var roll = Int.random(in: 0..<total)
+        for (kind, weight) in buckets {
+            if roll < weight { return kind }
+            roll -= weight
+        }
+        return buckets.last?.0
+    }
+
+    private func weightedQuestionKind() -> QuestionKind {
+        let weights: [(QuestionKind, Int)] = [
+            (.completeScale, 30),
+            (.identifyScale, 20),
+            (.completePattern, 15),
+            (.completeFormula, 15),
+            (.identifyDegree, 10),
+            (.excludedNote, 10),
+        ]
+        let total = weights.reduce(0) { $0 + $1.1 }
+        var roll = Int.random(in: 0..<total)
+        for (kind, weight) in weights {
+            if roll < weight { return kind }
+            roll -= weight
+        }
+        return .completeScale
+    }
+
+    /// Skips the tonic and the octave. Normal prefers the degrees that identify the kind.
+    private func singleBlankIndex(for kind: ScaleKind) -> Int? {
+        let full = innerDegreeIndices(for: kind)
+        guard !full.isEmpty else { return nil }
+        guard difficulty == .normal else { return full.randomElement() }
+        let characteristic = characteristicIndices(for: kind, allowed: full)
+        guard !characteristic.isEmpty, Int.random(in: 0..<10) < 7 else {
+            return full.randomElement()
+        }
+        return characteristic.randomElement()
+    }
+
+    /// Hard asks for two formula degrees. One of them is a characteristic degree when the kind has one.
+    private func formulaBlankIndices(for kind: ScaleKind) -> [Int]? {
+        if difficulty != .hard {
+            return singleBlankIndex(for: kind).map { [$0] }
+        }
+        let full = innerDegreeIndices(for: kind)
+        guard full.count >= 2 else { return nil }
+        let characteristic = characteristicIndices(for: kind, allowed: full)
+        guard let first = characteristic.randomElement() ?? full.randomElement() else { return nil }
+        guard let second = full.filter({ $0 != first }).randomElement() else { return nil }
+        return [first, second].sorted()
+    }
+
+    private func innerDegreeIndices(for kind: ScaleKind) -> [Int] {
+        let count = kind.degreeLabels.count
+        guard count >= 3 else { return [] }
+        return Array(1..<(count - 1))
+    }
+
+    private func characteristicIndices(for kind: ScaleKind, allowed: [Int]) -> [Int] {
+        let wanted = Set(characteristicDegreeLabels(for: kind))
+        let labels = kind.degreeLabels
+        return allowed.filter { labels.indices.contains($0) && wanted.contains(labels[$0]) }
+    }
+
+    /// Degrees that identify the scale. Major has none, so its blank stays random.
+    private func characteristicDegreeLabels(for kind: ScaleKind) -> [String] {
+        switch kind {
+        case .major:
+            []
+        case .naturalMinor:
+            ["♭3", "♭6", "♭7"]
+        case .harmonicMinor:
+            ["7"]
+        case .melodicMinor:
+            ["6", "7"]
+        case .majorPentatonic:
+            ["3", "6"]
+        case .minorPentatonic:
+            ["♭3", "♭7"]
+        case .majorBlues:
+            ["♭3"]
+        case .minorBlues:
+            ["♭5"]
+        }
     }
 
     /// Step index in 0...6. Normal prefers the intervals that distinguish the kind.
@@ -645,22 +824,6 @@ final class ScaleQuizModel {
             return full.randomElement() ?? 0
         }
         return characteristic.randomElement() ?? full[0]
-    }
-
-    /// 3·6·7 of natural minor, the raised 7th of harmonic minor, and 6·7 of melodic minor.
-    private func characteristicDegreeIndices(for kind: ScaleKind) -> [Int] {
-        switch kind {
-        case .major:
-            []
-        case .naturalMinor:
-            [2, 5, 6]
-        case .harmonicMinor:
-            [6]
-        case .melodicMinor:
-            [5, 6]
-        case .majorPentatonic, .minorPentatonic, .majorBlues, .minorBlues:
-            []
-        }
     }
 
     /// Steps where each kind differs from its nearest relative.
@@ -677,20 +840,10 @@ final class ScaleQuizModel {
         }
     }
 
-    /// Easy keeps degree-note questions more often. The remaining share asks which note is outside the scale.
-    private func shouldAskDegreeNote() -> Bool {
-        switch difficulty {
-        case .easy:
-            Int.random(in: 0..<10) < 7
-        case .normal, .hard:
-            Bool.random()
-        }
-    }
-
     /// A note spelling that is not one of the scale's degree names.
     /// Easy uses a different pitch. Normal prefers a sibling scale's tone. Hard prefers an enharmonic spelling.
     private func excludedSpelling(for entry: CatalogEntry) -> String? {
-        let scaleSpellings = Array(entry.degreeSpellings.prefix(7))
+        let scaleSpellings = Array(entry.degreeSpellings.dropLast())
         let scaleDisplays = Set(scaleSpellings.map(ScaleModel.formatNoteName))
         let scalePitches = Set(scaleSpellings.map { ScaleModel.pitchClass(for: $0) })
         let options = explorer.noteOptions.map(\.spelling)
@@ -708,7 +861,18 @@ final class ScaleQuizModel {
                 return !scalePitches.contains(ScaleModel.pitchClass(for: spelling))
             }
         case .normal:
-            let siblings = siblingOutsiders(tonic: entry.tonic, kind: entry.kind, scaleDisplays: scaleDisplays)
+            let nearest = siblingOutsiders(
+                tonic: entry.tonic,
+                kinds: Self.nearestKinds(for: entry.kind),
+                scaleDisplays: scaleDisplays
+            )
+            let siblings = nearest.isEmpty
+                ? siblingOutsiders(
+                    tonic: entry.tonic,
+                    kinds: ScaleKind.allCases.filter { $0 != entry.kind },
+                    scaleDisplays: scaleDisplays
+                )
+                : nearest
             if !siblings.isEmpty {
                 pool = siblings
             } else {
@@ -732,7 +896,11 @@ final class ScaleQuizModel {
             } else {
                 let altered = sameLetterOutsiders(scaleSpellings: scaleSpellings, outside: outside)
                 pool = altered.isEmpty
-                    ? siblingOutsiders(tonic: entry.tonic, kind: entry.kind, scaleDisplays: scaleDisplays)
+                    ? siblingOutsiders(
+                        tonic: entry.tonic,
+                        kinds: ScaleKind.allCases.filter { $0 != entry.kind },
+                        scaleDisplays: scaleDisplays
+                    )
                     : altered
             }
         }
@@ -740,15 +908,17 @@ final class ScaleQuizModel {
         return uniqueSpellings(pool).randomElement()
     }
 
-    private func siblingOutsiders(tonic: String, kind: ScaleKind, scaleDisplays: Set<String>) -> [String] {
+    private func siblingOutsiders(tonic: String, kinds: [ScaleKind], scaleDisplays: Set<String>) -> [String] {
         var result: [String] = []
-        for other in ScaleKind.basicCases where other != kind {
+        var seen = Set<String>()
+        for other in kinds {
             let spelled = spellings(tonic: tonic, kind: other)
-            guard spelled.count == 8 else { continue }
+            guard spelled.count >= 3 else { continue }
             guard spelled.allSatisfy({ !$0.contains("##") && !$0.hasSuffix("bb") }) else { continue }
-            for spelling in spelled.prefix(7) {
+            for spelling in spelled.dropLast() {
                 let display = ScaleModel.formatNoteName(spelling)
-                if !scaleDisplays.contains(display) {
+                if scaleDisplays.contains(display) { continue }
+                if seen.insert(display).inserted {
                     result.append(spelling)
                 }
             }
@@ -787,7 +957,7 @@ final class ScaleQuizModel {
         scaleSpellings: [String],
         tonic: String,
         kind: ScaleKind,
-        degreeIndex: Int
+        degreeLabel: String
     ) -> [String] {
         let correctDisplay = ScaleModel.formatNoteName(correctSpelling)
         let correctPitch = ScaleModel.pitchClass(for: correctSpelling)
@@ -801,7 +971,7 @@ final class ScaleQuizModel {
             ]
         case .normal:
             tiers = [
-                siblingDegreeDisplays(tonic: tonic, kind: kind, degreeIndex: degreeIndex, correctDisplay: correctDisplay),
+                siblingDegreeDisplays(tonic: tonic, kind: kind, degreeLabel: degreeLabel, correctDisplay: correctDisplay),
                 neighborDisplays(pitchClass: correctPitch, correctDisplay: correctDisplay),
                 sameLetterDisplays(correctSpelling: correctSpelling, correctDisplay: correctDisplay),
                 optionDisplays(excluding: correctDisplay),
@@ -809,7 +979,7 @@ final class ScaleQuizModel {
         case .hard:
             tiers = [
                 enharmonicDisplays(pitchClass: correctPitch, correctDisplay: correctDisplay),
-                siblingDegreeDisplays(tonic: tonic, kind: kind, degreeIndex: degreeIndex, correctDisplay: correctDisplay),
+                siblingDegreeDisplays(tonic: tonic, kind: kind, degreeLabel: degreeLabel, correctDisplay: correctDisplay),
                 neighborDisplays(pitchClass: correctPitch, correctDisplay: correctDisplay),
                 sameLetterDisplays(correctSpelling: correctSpelling, correctDisplay: correctDisplay),
                 optionDisplays(excluding: correctDisplay),
@@ -847,16 +1017,19 @@ final class ScaleQuizModel {
     private func siblingDegreeDisplays(
         tonic: String,
         kind: ScaleKind,
-        degreeIndex: Int,
+        degreeLabel: String,
         correctDisplay: String
     ) -> [String] {
-        ScaleKind.basicCases.compactMap { other in
-            guard other != kind else { return nil }
-            let spellings = spellings(tonic: tonic, kind: other)
-            guard spellings.count == 8, spellings.indices.contains(degreeIndex) else { return nil }
-            guard spellings.allSatisfy({ !$0.contains("##") && !$0.hasSuffix("bb") }) else { return nil }
-            let display = ScaleModel.formatNoteName(spellings[degreeIndex])
-            return display == correctDisplay ? nil : display
+        let number = degreeNumber(of: degreeLabel)
+        return Self.nearestKinds(for: kind).flatMap { other -> [String] in
+            let spelled = spellings(tonic: tonic, kind: other)
+            guard spelled.allSatisfy({ !$0.contains("##") && !$0.hasSuffix("bb") }) else { return [] }
+            return other.degreeLabels.enumerated().compactMap { index, label in
+                guard degreeNumber(of: label) == number, label != degreeLabel else { return nil }
+                guard spelled.indices.contains(index) else { return nil }
+                let display = ScaleModel.formatNoteName(spelled[index])
+                return display == correctDisplay ? nil : display
+            }
         }
     }
 
@@ -931,11 +1104,11 @@ final class ScaleQuizModel {
         let probe = ScaleModel()
         var entries: [CatalogEntry] = []
         for tonic in quizTonics {
-            for kind in ScaleKind.basicCases {
+            for kind in ScaleKind.allCases {
                 probe.tonicSpelling = tonic
                 probe.kind = kind
                 let spellings = probe.degreeSpellings
-                guard spellings.count == 8 else { continue }
+                guard spellings.count == kind.degreeLabels.count, spellings.count >= 3 else { continue }
                 guard spellings.allSatisfy({ !$0.contains("##") && !$0.hasSuffix("bb") }) else {
                     continue
                 }
@@ -962,6 +1135,127 @@ final class ScaleQuizModel {
         "\(ScaleModel.formatNoteName(tonic)) \(kind.englishTitle)"
     }
 
+    /// Scales a learner is most likely to confuse with `kind`, nearest first.
+    private static func nearestKinds(for kind: ScaleKind) -> [ScaleKind] {
+        switch kind {
+        case .major:
+            [.naturalMinor, .majorPentatonic, .majorBlues]
+        case .naturalMinor:
+            [.harmonicMinor, .melodicMinor, .minorPentatonic, .minorBlues]
+        case .harmonicMinor:
+            [.melodicMinor, .naturalMinor]
+        case .melodicMinor:
+            [.harmonicMinor, .naturalMinor]
+        case .majorPentatonic:
+            [.majorBlues, .major, .minorPentatonic]
+        case .minorPentatonic:
+            [.minorBlues, .naturalMinor, .majorPentatonic]
+        case .majorBlues:
+            [.majorPentatonic, .major, .minorBlues]
+        case .minorBlues:
+            [.minorPentatonic, .naturalMinor, .majorBlues]
+        }
+    }
+
+    private func preferredScaleNames(for entry: CatalogEntry) -> [String] {
+        let sameTonic = catalog.filter { $0.tonic == entry.tonic && $0.kind != entry.kind }
+        var names: [String] = []
+        for kind in Self.nearestKinds(for: entry.kind) {
+            guard let match = sameTonic.first(where: { $0.kind == kind }) else { continue }
+            names.append(match.displayName)
+            if names.count == 3 { break }
+        }
+        if names.count < 3 {
+            let rest = sameTonic.map(\.displayName).filter { !names.contains($0) }.shuffled()
+            names.append(contentsOf: rest.prefix(3 - names.count))
+        }
+        return names
+    }
+
+    private func formulaChoices(labels: [String], blankIndices: [Int]) -> (correct: String, distractors: [String])? {
+        let corrects = blankIndices.map { labels[$0] }
+        let correct = formatFormulaChoice(corrects)
+        if blankIndices.count == 1 {
+            let shown = labels.enumerated().compactMap { index, label in
+                blankIndices.contains(index) ? nil : label
+            }
+            let distractors = singleFormulaDistractors(correct: corrects[0], shown: shown)
+            guard distractors.count == 3 else { return nil }
+            return (correct, distractors)
+        }
+        let distractors = pairFormulaDistractors(corrects: corrects)
+        guard distractors.count == 3 else { return nil }
+        return (correct, distractors)
+    }
+
+    /// Easy keeps one near miss and then unrelated degrees. Normal fills with adjacent alterations first.
+    /// Degrees already printed in the formula are not offered again.
+    private func singleFormulaDistractors(correct: String, shown: [String]) -> [String] {
+        let shownSet = Set(shown)
+        func usable(_ label: String) -> Bool {
+            label != correct && !shownSet.contains(label)
+        }
+        let siblings = alterationSiblings(of: correct).filter(usable)
+        let unrelated = Self.formulaChoicePool.filter { candidate in
+            usable(candidate)
+                && !siblings.contains(candidate)
+                && degreeNumber(of: candidate) != degreeNumber(of: correct)
+        }
+        let preferred: [String]
+        switch difficulty {
+        case .easy:
+            preferred = Array(siblings.shuffled().prefix(1)) + unrelated.shuffled()
+        case .normal, .hard:
+            preferred = siblings.shuffled() + unrelated.shuffled()
+        }
+        return takeDistractors([preferred, Self.formulaChoicePool.filter(usable)], correctDisplay: correct)
+    }
+
+    /// Each side of a wrong pair is the correct degree or a nearby alteration, never the correct pair itself.
+    private func pairFormulaDistractors(corrects: [String]) -> [String] {
+        guard corrects.count == 2 else { return [] }
+        let options = corrects.map { correct -> [String] in
+            let siblings = alterationSiblings(of: correct).filter { $0 != correct }.shuffled()
+            let extras = Self.formulaChoicePool.filter { $0 != correct && !siblings.contains($0) }.shuffled()
+            return [correct] + siblings + Array(extras.prefix(2))
+        }
+        var pairs: [String] = []
+        var seen: Set<String> = [formatFormulaChoice(corrects)]
+        for left in options[0].shuffled() {
+            for right in options[1].shuffled() {
+                let text = formatFormulaChoice([left, right])
+                if seen.insert(text).inserted {
+                    pairs.append(text)
+                }
+                if pairs.count == 3 { return pairs }
+            }
+        }
+        return pairs
+    }
+
+    private func formatFormulaChoice(_ parts: [String]) -> String {
+        parts.joined(separator: " / ")
+    }
+
+    private func alterationSiblings(of label: String) -> [String] {
+        Self.degreeAlterationGroups.first { $0.contains(label) } ?? []
+    }
+
+    private func degreeNumber(of label: String) -> Int? {
+        Int(label.filter(\.isNumber))
+    }
+
+    private static let degreeAlterationGroups: [[String]] = [
+        ["♭2", "2", "♯2"],
+        ["♭3", "3", "♯3"],
+        ["4", "♯4"],
+        ["♭5", "5", "♯5"],
+        ["♭6", "6"],
+        ["♭7", "7", "♯7"],
+    ]
+
+    private static let formulaChoicePool = ["2", "♭3", "3", "4", "♯4", "♭5", "5", "♭6", "6", "♭7", "7", "♯7"]
+
     private func questionID(for question: Question) -> String {
         let ctx = question.explanationContext
         switch question.kind {
@@ -971,8 +1265,10 @@ final class ScaleQuizModel {
             return "identify-\(ctx.tonicSpelling)|\(ctx.kind.rawValue)"
         case .completePattern:
             return "pattern-\(ctx.kind.rawValue)-\(ctx.blankIndex ?? -1)"
+        case .completeFormula:
+            return "formula-\(ctx.kind.rawValue)-\(question.correctAnswer)"
         case .identifyDegree:
-            return "degree-\(ctx.tonicSpelling)|\(ctx.kind.rawValue)-\(ctx.degreeNumber ?? 0)"
+            return "degree-\(ctx.tonicSpelling)|\(ctx.kind.rawValue)-\(ctx.blankIndex ?? -1)"
         case .excludedNote:
             return "exclude-\(ctx.tonicSpelling)|\(ctx.kind.rawValue)-\(question.correctAnswer)"
         }

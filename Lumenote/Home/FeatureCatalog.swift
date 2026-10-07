@@ -148,7 +148,7 @@ enum FeatureCatalog {
                 FeatureItem(
                     destination: .scaleQuiz,
                     title: L10n.string("스케일 퀴즈"),
-                    subtitle: L10n.string("구성음 · 패턴 · 도수를 맞춰 보세요"),
+                    subtitle: L10n.string("구성음 · 패턴 · 공식 · 도수를 맞춰 보세요"),
                     icon: .system("music.quarternote.3")
                 ),
                 FeatureItem(

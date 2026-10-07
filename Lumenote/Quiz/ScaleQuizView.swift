@@ -57,7 +57,7 @@ struct ScaleQuizView: View {
             switch model.question.kind {
             case .identifyScale:
                 identifyScalePrompt
-            case .completeScale, .completePattern:
+            case .completeScale, .completePattern, .completeFormula:
                 tokenPrompt
             case .identifyDegree, .excludedNote:
                 EmptyView()
@@ -85,13 +85,13 @@ struct ScaleQuizView: View {
     /// Emphasized phrases in the prompt, such as the scale name and degree.
     private var promptHighlights: [String] {
         switch model.question.kind {
-        case .completePattern:
+        case .completePattern, .completeFormula:
             return [model.question.explanationContext.kind.englishTitle]
         case .identifyDegree:
             guard model.question.explanationContext.askedNoteDisplay == nil,
-                  let degree = model.question.explanationContext.degreeNumber
+                  let label = model.question.explanationContext.degreeLabel
             else { return [] }
-            return [model.question.scaleLabel, L10n.s("\(degree)도")]
+            return [model.question.scaleLabel, L10n.s("\(label)도")]
         case .excludedNote:
             return [model.question.scaleLabel]
         case .completeScale:
@@ -171,10 +171,14 @@ struct ScaleQuizView: View {
                 Text(label)
                     .font(LumenoteFont.callout(.bold))
                     .foregroundStyle(.primary)
-            case .stepBlank:
+            case .stepBlank, .degreeBlank:
                 Text("?")
                     .font(LumenoteFont.callout(.bold))
                     .foregroundStyle(palette.minor)
+            case .degree(let label):
+                Text(label)
+                    .font(LumenoteFont.callout(.bold))
+                    .foregroundStyle(.primary)
             }
 
             if index < total - 1 {
@@ -190,7 +194,7 @@ struct ScaleQuizView: View {
             Image(systemName: "arrow.right")
                 .font(LumenoteFont.caption2(.semibold))
                 .foregroundStyle(palette.minor.opacity(0.85))
-        case .completePattern:
+        case .completePattern, .completeFormula:
             Text("-")
                 .font(LumenoteFont.callout(.semibold))
                 .foregroundStyle(.secondary)
@@ -203,8 +207,8 @@ struct ScaleQuizView: View {
         tokens.map { token in
             switch token {
             case .note(let name): return name
-            case .blank, .stepBlank: return "빈칸".l10n
-            case .step(let label): return label
+            case .blank, .stepBlank, .degreeBlank: return "빈칸".l10n
+            case .step(let label), .degree(let label): return label
             }
         }
         .joined(separator: ", ")
@@ -273,12 +277,12 @@ struct ScaleQuizView: View {
             return model.question.scaleLabel
         case .identifyDegree:
             guard model.question.explanationContext.askedNoteDisplay == nil,
-                  model.question.explanationContext.degreeNumber != nil
+                  model.question.explanationContext.degreeLabel != nil
             else { return nil }
             return L10n.s("\(model.question.scaleLabel) 스케일")
         case .excludedNote:
             return L10n.s("\(model.question.scaleLabel) 스케일")
-        case .completePattern:
+        case .completePattern, .completeFormula:
             return model.question.explanationContext.kind.englishTitle
         case .completeScale:
             return L10n.s("\(model.question.scaleLabel) 스케일")

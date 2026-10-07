@@ -53,9 +53,19 @@ enum LearningSkillToken {
         static let completeScale = "completeScale"
         static let identifyScale = "identifyScale"
         static let completePattern = "completePattern"
+        static let completeFormula = "completeFormula"
         static let identifyDegree = "identifyDegree"
         static let excludedNote = "excludedNote"
-        static let all = [completeScale, identifyScale, completePattern, identifyDegree, excludedNote]
+
+        /// Interval patterns stay on the four heptatonic scales. Every kind gets the degree formula.
+        static func tokens(for kind: ScaleKind) -> [String] {
+            var tokens = [completeScale, identifyScale]
+            if kind.category == .basic {
+                tokens.append(completePattern)
+            }
+            tokens.append(contentsOf: [completeFormula, identifyDegree, excludedNote])
+            return tokens
+        }
     }
 
     enum Chord {
@@ -219,6 +229,7 @@ enum LearningSkillTitle {
         case LearningSkillToken.Scale.completeScale: "구성음"
         case LearningSkillToken.Scale.identifyScale: "스케일 이름"
         case LearningSkillToken.Scale.completePattern: "음정 패턴"
+        case LearningSkillToken.Scale.completeFormula: "도수 공식"
         case LearningSkillToken.Scale.identifyDegree: "도수"
         case LearningSkillToken.Scale.excludedNote: "비구성음"
         default: token
@@ -275,8 +286,8 @@ enum LearningSkillCatalog {
         case .interval:
             intervalKeys
         case .scale:
-            ScaleKind.basicCases.flatMap { kind in
-                LearningSkillToken.Scale.all.map { LearningSkillKey.scale(kind: kind, token: $0) }
+            ScaleKind.allCases.flatMap { kind in
+                LearningSkillToken.Scale.tokens(for: kind).map { LearningSkillKey.scale(kind: kind, token: $0) }
             }
         case .chord:
             ChordKind.allCases.flatMap { kind in

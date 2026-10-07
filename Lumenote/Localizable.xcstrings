@@ -139,7 +139,28 @@
         }
       }
     },
+    "%@ 스케일의 %@도 음은 %@입니다." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Degree %2$@ of the %1$@ scale is %3$@."
+          }
+        }
+      }
+    },
+    "%@ 스케일의 %@도 음은?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "What is degree %2$@ of the %1$@ scale?"
+          }
+        }
+      }
+    },
     "%@ 스케일의 %lld도 음은 %@입니다." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -150,6 +171,7 @@
       }
     },
     "%@ 스케일의 %lld도 음은?" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -165,6 +187,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Diatonic %2$@ rule of the %1$@ scale: %3$@"
+          }
+        }
+      }
+    },
+    "%@ 스케일의 도수 공식 : %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Degree formula of the %1$@ scale: %2$@"
+          }
+        }
+      }
+    },
+    "%@ 스케일의 도수 공식을 완성하세요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Complete the degree formula of the %@ scale."
           }
         }
       }
@@ -339,6 +381,16 @@
         }
       }
     },
+    "%@도" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "degree %@"
+          }
+        }
+      }
+    },
     "%@에서 %@" : {
       "localizations" : {
         "en" : {
@@ -350,6 +402,7 @@
       }
     },
     "%@에서 %@ %@한 음은?" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2021,6 +2074,17 @@
         }
       }
     },
+    "구성음 · 패턴 · 공식 · 도수를 맞춰 보세요" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Match the notes, pattern, formula, and degrees"
+          }
+        }
+      }
+    },
     "구성음 · 패턴 · 도수를 맞춰 보세요" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2753,6 +2817,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Degree (letter names)"
+          }
+        }
+      }
+    },
+    "도수 공식" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Degree formula"
           }
         }
       }
