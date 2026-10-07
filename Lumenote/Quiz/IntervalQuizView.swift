@@ -51,6 +51,25 @@ struct IntervalQuizView: View {
 
     private var promptCard: some View {
         VStack(spacing: LumenoteSpacing.xl) {
+            switch model.question.task {
+            case .identifyInterval:
+                identifyPrompt
+            case .spellTarget:
+                spellPrompt
+            }
+        }
+        .padding(LumenoteSpacing.xxl)
+        .frame(maxWidth: .infinity)
+        .background(palette.cardBackground)
+        .clipShape(RoundedRectangle(cornerRadius: LumenoteRadius.card, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: LumenoteRadius.card, style: .continuous)
+                .strokeBorder(palette.divider, lineWidth: LumenoteStroke.compact)
+        )
+    }
+
+    private var identifyPrompt: some View {
+        VStack(spacing: LumenoteSpacing.xl) {
             Text("다음 두 음의 음정은?")
                 .font(LumenoteFont.callout(.medium))
                 .foregroundStyle(.primary)
@@ -66,14 +85,98 @@ struct IntervalQuizView: View {
             .accessibilityElement(children: .ignore)
             .accessibilityLabel("\(model.question.rootDisplayName)에서 \(model.question.targetDisplayName)")
         }
-        .padding(LumenoteSpacing.xxl)
-        .frame(maxWidth: .infinity)
-        .background(palette.cardBackground)
-        .clipShape(RoundedRectangle(cornerRadius: LumenoteRadius.card, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: LumenoteRadius.card, style: .continuous)
-                .strokeBorder(palette.divider, lineWidth: LumenoteStroke.compact)
-        )
+    }
+
+    private var spellPrompt: some View {
+        emphasizedPrompt(spellPromptFormat, arguments: spellPromptArguments)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .accessibilityLabel(spellPromptTitle)
+    }
+
+    private var spellPromptArguments: [String] {
+        [
+            model.question.rootDisplayName,
+            model.question.intervalName.l10n,
+            model.question.directionName.l10n,
+        ]
+    }
+
+    private var spellPromptFormat: String {
+        L10n.string("%@에서 %@ %@한 음은?")
+    }
+
+    private var spellPromptTitle: String {
+        String(format: spellPromptFormat, locale: L10n.locale, arguments: spellPromptArguments)
+    }
+
+    /// Bolds each format argument so the note, interval, and direction stay emphasized
+    /// after the translated sentence reorders them.
+    private func emphasizedPrompt(_ format: String, arguments: [String]) -> Text {
+        var result = AttributedString()
+        var cursor = format.startIndex
+        var nextAutomatic = 0
+
+        while cursor < format.endIndex {
+            guard format[cursor] == "%" else {
+                let next = format[cursor...].dropFirst().firstIndex(of: "%") ?? format.endIndex
+                result.append(promptText(String(format[cursor..<next]), emphasized: false))
+                cursor = next
+                continue
+            }
+
+            let afterPercent = format.index(after: cursor)
+            if afterPercent < format.endIndex, format[afterPercent] == "%" {
+                result.append(promptText("%", emphasized: false))
+                cursor = format.index(after: afterPercent)
+                continue
+            }
+
+            guard let parsed = formatArgument(in: format, from: cursor, automatic: &nextAutomatic) else {
+                result.append(promptText(String(format[cursor]), emphasized: false))
+                cursor = format.index(after: cursor)
+                continue
+            }
+
+            let value = arguments.indices.contains(parsed.index) ? arguments[parsed.index] : ""
+            result.append(promptText(value, emphasized: true))
+            cursor = parsed.end
+        }
+
+        return Text(result)
+    }
+
+    private func formatArgument(
+        in format: String,
+        from percent: String.Index,
+        automatic: inout Int
+    ) -> (index: Int, end: String.Index)? {
+        var cursor = format.index(after: percent)
+        guard cursor < format.endIndex else { return nil }
+
+        if format[cursor].isNumber {
+            var digits = ""
+            while cursor < format.endIndex, format[cursor].isNumber {
+                digits.append(format[cursor])
+                cursor = format.index(after: cursor)
+            }
+            guard cursor < format.endIndex, format[cursor] == "$" else { return nil }
+            cursor = format.index(after: cursor)
+            guard cursor < format.endIndex, format[cursor] == "@" else { return nil }
+            guard let position = Int(digits), position > 0 else { return nil }
+            return (position - 1, format.index(after: cursor))
+        }
+
+        guard format[cursor] == "@" else { return nil }
+        let index = automatic
+        automatic += 1
+        return (index, format.index(after: cursor))
+    }
+
+    private func promptText(_ value: String, emphasized: Bool) -> AttributedString {
+        var text = AttributedString(value)
+        text.font = LumenoteFont.callout(emphasized ? .bold : .medium)
+        text.foregroundColor = emphasized ? palette.minor : .primary
+        return text
     }
 
     private var choices: some View {
