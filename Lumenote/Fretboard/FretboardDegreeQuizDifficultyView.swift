@@ -189,8 +189,6 @@ struct FretboardDegreeQuizDifficultyView: View {
                     self.model = nil
                 }
 
-                LearningTopicShortcut(topic: .fretboardDegree)
-
                 Button {
                     dismiss()
                 } label: {

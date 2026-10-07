@@ -171,8 +171,6 @@ struct KeySignatureQuizDifficultyView: View {
                     self.model = nil
                 }
 
-                LearningTopicShortcut(topic: .keySignature)
-
                 Button {
                     dismiss()
                 } label: {

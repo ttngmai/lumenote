@@ -352,22 +352,6 @@ private struct StandingGuidePopup: View {
     }
 }
 
-struct LearningTopicShortcut: View {
-    let topic: LearningTopic
-
-    var body: some View {
-        NavigationLink(value: LearningRoute.topic(topic)) {
-            Text("이 주제의 오답".l10n)
-                .font(LumenoteFont.body(.bold))
-                .foregroundStyle(.primary)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, LumenoteSpacing.xxl)
-                .lumenoteCard()
-        }
-        .buttonStyle(.plain)
-    }
-}
-
 private struct LearningMenuRow: View {
     let title: String
     let subtitle: String

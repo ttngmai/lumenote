@@ -135,7 +135,7 @@ struct DiatonicChordGuideView: View {
                 } label: {
                     Text(option.title.l10n)
                         .font(LumenoteFont.caption(.bold))
-                        .foregroundStyle(selected ? palette.emphasisStroke : .secondary)
+                        .foregroundStyle(selected ? .primary : .secondary)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, LumenoteSpacing.md)
                         .background(
@@ -398,7 +398,7 @@ struct DiatonicChordGuideView: View {
         } label: {
             Text(degree.functionRoman)
                 .font(LumenoteFont.caption(.bold))
-                .foregroundStyle(selected ? palette.emphasisStroke : .primary)
+                .foregroundStyle(.primary)
                 .lineLimit(1)
                 .minimumScaleFactor(0.65)
                 .frame(maxWidth: .infinity)

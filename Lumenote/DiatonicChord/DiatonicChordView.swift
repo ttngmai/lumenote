@@ -222,7 +222,7 @@ struct DiatonicChordView: View {
         } label: {
             Text(name)
                 .font(LumenoteFont.caption(.bold))
-                .foregroundStyle(selected ? palette.emphasisStroke : .primary)
+                .foregroundStyle(.primary)
                 .lineLimit(1)
                 .minimumScaleFactor(0.6)
                 .frame(maxWidth: .infinity)
@@ -254,7 +254,7 @@ struct DiatonicChordView: View {
                 } label: {
                     Text(voicing.title.l10n)
                         .font(LumenoteFont.caption2(.bold))
-                        .foregroundStyle(selected ? palette.emphasisStroke : .secondary)
+                        .foregroundStyle(selected ? .primary : .secondary)
                         .padding(.horizontal, LumenoteSpacing.md)
                         .padding(.vertical, LumenoteSpacing.xs)
                         .background(
@@ -459,7 +459,7 @@ struct DiatonicChordView: View {
                         } label: {
                             Text(option.displayName)
                                 .font(.system(size: 17, weight: selected ? .bold : .semibold))
-                                .foregroundStyle(selected ? palette.emphasisStroke : .primary)
+                                .foregroundStyle(.primary)
                                 .lineLimit(1)
                                 .minimumScaleFactor(0.75)
                                 .frame(width: noteChipWidth, height: 40)
@@ -507,7 +507,7 @@ struct DiatonicChordView: View {
                         } label: {
                             Text(kind.englishTitle)
                                 .font(.system(size: 17, weight: selected ? .bold : .semibold))
-                                .foregroundStyle(selected ? palette.emphasisStroke : .primary)
+                                .foregroundStyle(.primary)
                                 .lineLimit(1)
                                 .minimumScaleFactor(0.7)
                                 .padding(.horizontal, LumenoteSpacing.xl)

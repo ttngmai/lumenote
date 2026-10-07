@@ -326,7 +326,7 @@ struct FretboardExplorerView: View {
         } label: {
             Text(name)
                 .font(LumenoteFont.caption(.bold))
-                .foregroundStyle(selected ? palette.emphasisStroke : .primary)
+                .foregroundStyle(.primary)
                 .contentTransition(.identity)
                 .minimumScaleFactor(0.65)
                 .lineLimit(1)

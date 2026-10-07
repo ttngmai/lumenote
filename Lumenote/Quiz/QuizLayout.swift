@@ -94,3 +94,71 @@ struct QuizChoiceLayout<Content: View>: View {
         }
     }
 }
+
+/// Top line of a quiz explanation card.
+/// A correct answer shows a green check before “정답”. A miss shows the chosen
+/// answer and the right answer, each preceded by a red or green circle mark.
+struct QuizFeedbackHeadline: View {
+    let headline: String
+    let isCorrect: Bool
+
+    @Environment(\.appPalette) private var palette
+
+    var body: some View {
+        if let comparison = QuizMissComparison.parse(headline), !isCorrect {
+            HStack(alignment: .center, spacing: LumenoteSpacing.xs) {
+                verdictMark(systemImage: "xmark.circle.fill", color: palette.quizIncorrect, label: "오답")
+                Text(comparison.chosen)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+                Text("→")
+                    .accessibilityHidden(true)
+                verdictMark(systemImage: "checkmark.circle.fill", color: palette.quizCorrect, label: "정답")
+                Text(comparison.expected)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+            }
+            .font(LumenoteFont.body(.bold))
+            .foregroundStyle(.primary)
+        } else if isCorrect {
+            HStack(alignment: .center, spacing: LumenoteSpacing.xs) {
+                verdictMark(systemImage: "checkmark.circle.fill", color: palette.quizCorrect, label: "정답")
+                    .accessibilityHidden(true)
+                Text(headline.l10n)
+            }
+            .font(LumenoteFont.body(.bold))
+            .foregroundStyle(palette.quizCorrect)
+        } else {
+            Text(headline.l10n)
+                .font(LumenoteFont.body(.bold))
+                .foregroundStyle(.primary)
+        }
+    }
+
+    private func verdictMark(systemImage: String, color: Color, label: String) -> some View {
+        Image(systemName: systemImage)
+            .symbolRenderingMode(.palette)
+            .foregroundStyle(.white, color)
+            .font(LumenoteFont.rounded(size: 18, weight: .semibold))
+            .accessibilityLabel(label.l10n)
+    }
+}
+
+/// Splits a miss headline such as `Ebm7 ✕ → F°7 ✓` into the two answers.
+private struct QuizMissComparison {
+    let chosen: String
+    let expected: String
+
+    static func parse(_ headline: String) -> QuizMissComparison? {
+        let separator = " ✕ → "
+        let suffix = " ✓"
+        guard headline.hasSuffix(suffix),
+              let separatorRange = headline.range(of: separator) else { return nil }
+        let chosen = String(headline[..<separatorRange.lowerBound])
+        let expectedEnd = headline.index(headline.endIndex, offsetBy: -suffix.count)
+        guard separatorRange.upperBound < expectedEnd else { return nil }
+        let expected = String(headline[separatorRange.upperBound..<expectedEnd])
+        guard !chosen.isEmpty, !expected.isEmpty else { return nil }
+        return QuizMissComparison(chosen: chosen, expected: expected)
+    }
+}

@@ -200,9 +200,7 @@ struct DiatonicChordQuizView: View {
         let isCorrect = model.isSelectionCorrect
 
         return VStack(alignment: .leading, spacing: LumenoteSpacing.sm) {
-            Text(feedback.headline.l10n)
-                .font(LumenoteFont.body(.bold))
-                .foregroundStyle(isCorrect ? palette.quizCorrect : .primary)
+            QuizFeedbackHeadline(headline: feedback.headline, isCorrect: isCorrect)
             if !feedback.detail.isEmpty {
                 Text(feedback.detail.l10n)
                     .font(LumenoteFont.callout(.medium))
