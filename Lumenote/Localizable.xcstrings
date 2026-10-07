@@ -2478,6 +2478,26 @@
         }
       }
     },
+    "기타 지판, %@ %@, 도수 표시" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Guitar fretboard, %@ %@, degrees"
+          }
+        }
+      }
+    },
+    "기타 지판, %@ %@, 음이름 표시" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Guitar fretboard, %@ %@, note names"
+          }
+        }
+      }
+    },
     "기타 지판, 도수 표시, 기준음 %@" : {
       "localizations" : {
         "en" : {
@@ -3757,6 +3777,17 @@
         }
       }
     },
+    "선택한 스케일의 구성음을 지판에서 살펴보세요" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "See the notes of a selected scale on the fretboard"
+          }
+        }
+      }
+    },
     "선택한 방향으로 한 칸 이동합니다" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -3933,6 +3964,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Compare how the chords change from one scale to another."
+          }
+        }
+      }
+    },
+    "스케일로 설정하려면 두 번 탭하세요" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Double-tap to select this scale"
           }
         }
       }
@@ -5054,6 +5096,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Fretboard"
+          }
+        }
+      }
+    },
+    "지판 보기 (스케일)" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fretboard (Scales)"
+          }
+        }
+      }
+    },
+    "지판 보기 (음이름, 도수)" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fretboard (Note Names, Degrees)"
           }
         }
       }
