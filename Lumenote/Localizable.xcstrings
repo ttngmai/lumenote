@@ -349,6 +349,16 @@
         }
       }
     },
+    "%@에서 %@ %@한 음은?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Which note is a %2$@ %3$@ from %1$@?"
+          }
+        }
+      }
+    },
     "%@의 다이아토닉 %@ : %@ (%@)\n%@는 %@의 다이아토닉 코드가 아닙니다." : {
       "localizations" : {
         "en" : {

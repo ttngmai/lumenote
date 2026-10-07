@@ -72,6 +72,16 @@ final class IntervalModel {
         )
     }
 
+    /// Spelling-based descending interval, named from the lower note up to the higher note.
+    /// Nil when the pair cannot be named without the semitone fallback.
+    func descendingResolution() -> IntervalResolution? {
+        Self.resolution(
+            root: targetSpelling,
+            target: rootSpelling,
+            semitones: descendingSemitoneDistance
+        )
+    }
+
     /// English name for the ascending interval (root → target upward).
     var ascendingIntervalNameEnglish: String {
         Self.englishIntervalName(

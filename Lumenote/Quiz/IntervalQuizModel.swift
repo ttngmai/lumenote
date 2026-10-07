@@ -22,21 +22,41 @@ enum IntervalQuizDifficulty: String, CaseIterable, Hashable, Identifiable {
     }
 }
 
-/// Multiple-choice quiz: identify the ascending interval between two notes.
+/// Multiple-choice quiz over ascending and descending intervals.
+/// One task names the interval. The other names the note reached by that interval.
 @Observable
 final class IntervalQuizModel {
+    enum Task: Equatable {
+        /// Two notes are shown. Choose the interval name.
+        case identifyInterval
+        /// A start note, interval, and direction are given. Choose the note reached.
+        case spellTarget
+    }
+
     struct Question: Equatable {
+        let task: Task
         let rootDisplayName: String
         let targetDisplayName: String
+        /// Korean interval name, such as `장3도`.
+        let intervalName: String
+        /// Korean direction word, `상행` or `하행`.
+        let directionName: String
         let staffNotes: [IntervalStaffNote]
         let choices: [String]
         let correctAnswer: String
         let skillKey: String
     }
 
+    /// Melodic direction on the staff. The named interval is always lower note → upper note.
+    private enum IntervalDirection: Hashable {
+        case ascending
+        case descending
+    }
+
     private struct Prompt {
         let root: String
         let target: String
+        let direction: IntervalDirection
         let name: String
         let degree: Int
         let qualityOffset: Int
@@ -65,7 +85,7 @@ final class IntervalQuizModel {
     private let focusSkillKeys: Set<String>
     private let explorer = IntervalModel()
     private let catalog: [Prompt]
-    private var previousPair: (root: String, target: String)?
+    private var previousPair: (root: String, target: String, direction: IntervalDirection)?
 
     private(set) var question: Question
     private(set) var selectedAnswer: String?
@@ -101,8 +121,11 @@ final class IntervalQuizModel {
             : min(10, max(1, questionLimit))
         catalog = Self.makeCatalog(for: difficulty)
         question = Question(
+            task: .identifyInterval,
             rootDisplayName: "C",
             targetDisplayName: "E",
+            intervalName: "장3도",
+            directionName: "상행",
             staffNotes: [],
             choices: [],
             correctAnswer: "장3도",
@@ -150,32 +173,59 @@ final class IntervalQuizModel {
 
     private func makeQuestion() -> Question {
         for _ in 0..<40 {
-            guard let prompt = pickPrompt(),
-                  let choices = makeChoices(correct: prompt)
-            else { continue }
-
+            guard let prompt = pickPrompt() else { continue }
             explorer.rootSpelling = prompt.root
             explorer.targetSpelling = prompt.target
-            guard explorer.ascendingIntervalName == prompt.name else { continue }
-            previousPair = (prompt.root, prompt.target)
-            return Question(
-                rootDisplayName: explorer.rootDisplayName,
-                targetDisplayName: explorer.targetDisplayName,
-                staffNotes: explorer.ascendingStaffNotes,
-                choices: choices,
-                correctAnswer: prompt.name,
-                skillKey: prompt.skillKey
-            )
+            guard intervalName(for: prompt.direction) == prompt.name else { continue }
+
+            let question = Bool.random()
+                ? (spellQuestion(for: prompt) ?? identifyQuestion(for: prompt))
+                : identifyQuestion(for: prompt)
+            guard let question else { continue }
+            previousPair = (prompt.root, prompt.target, prompt.direction)
+            return question
         }
 
         return fallbackQuestion
+    }
+
+    private func identifyQuestion(for prompt: Prompt) -> Question? {
+        guard let choices = makeChoices(correct: prompt) else { return nil }
+        return Question(
+            task: .identifyInterval,
+            rootDisplayName: explorer.rootDisplayName,
+            targetDisplayName: explorer.targetDisplayName,
+            intervalName: prompt.name,
+            directionName: directionName(for: prompt.direction),
+            staffNotes: staffNotes(for: prompt.direction),
+            choices: choices,
+            correctAnswer: prompt.name,
+            skillKey: prompt.skillKey
+        )
+    }
+
+    private func spellQuestion(for prompt: Prompt) -> Question? {
+        guard let choices = spellChoices(correctSpelling: prompt.target) else { return nil }
+        return Question(
+            task: .spellTarget,
+            rootDisplayName: explorer.rootDisplayName,
+            targetDisplayName: explorer.targetDisplayName,
+            intervalName: prompt.name,
+            directionName: directionName(for: prompt.direction),
+            staffNotes: [],
+            choices: choices,
+            correctAnswer: explorer.targetDisplayName,
+            skillKey: prompt.skillKey
+        )
     }
 
     /// Draw an interval family by the difficulty's weights, then a spelling pair that produces it.
     private func pickPrompt() -> Prompt? {
         let pool = focusPool
         let avoidingRepeat = pool.filter { prompt in
-            previousPair?.root != prompt.root || previousPair?.target != prompt.target
+            previousPair?.root != prompt.root
+                || previousPair?.target != prompt.target
+                || previousPair?.direction != prompt.direction
         }
         let source = avoidingRepeat.isEmpty ? pool : avoidingRepeat
         var buckets = Self.distribution(for: difficulty)
@@ -244,15 +294,115 @@ final class IntervalQuizModel {
         return (picked + [correct.name]).shuffled()
     }
 
+    /// Four note names. Distractors stay inside this difficulty's spelling list.
+    /// Easy prefers distant letters, Normal a same-letter accidental and a step neighbor,
+    /// Hard the enharmonic spelling first.
+    private func spellChoices(correctSpelling: String) -> [String]? {
+        let correctDisplay = IntervalModel.formatNoteName(correctSpelling)
+        let correctPitch = IntervalModel.pitchClass(for: correctSpelling)
+        let correctLetter = correctSpelling.first
+        let allowed = Self.spellings(for: difficulty, explorer: explorer)
+
+        struct Candidate {
+            let spelling: String
+            let display: String
+            let pitch: Int
+        }
+
+        let pool = allowed.compactMap { spelling -> Candidate? in
+            let display = IntervalModel.formatNoteName(spelling)
+            guard display != correctDisplay else { return nil }
+            return Candidate(
+                spelling: spelling,
+                display: display,
+                pitch: IntervalModel.pitchClass(for: spelling)
+            )
+        }
+
+        func distance(_ pitch: Int) -> Int {
+            let delta = abs(pitch - correctPitch)
+            return min(delta, 12 - delta)
+        }
+
+        func matching(_ include: (Candidate) -> Bool) -> [String] {
+            pool.filter(include).map(\.display)
+        }
+
+        let tiers: [[String]]
+        switch difficulty {
+        case .easy:
+            tiers = [
+                matching {
+                    $0.spelling.first != correctLetter && $0.pitch != correctPitch && distance($0.pitch) >= 3
+                },
+                matching {
+                    $0.spelling.first != correctLetter && $0.pitch != correctPitch && distance($0.pitch) >= 2
+                },
+                matching { _ in true },
+            ]
+        case .normal:
+            tiers = [
+                matching { $0.spelling.first == correctLetter && $0.pitch != correctPitch },
+                matching { $0.spelling.first != correctLetter && distance($0.pitch) == 1 },
+                matching { $0.pitch != correctPitch && distance($0.pitch) <= 2 },
+                matching { $0.pitch != correctPitch },
+                matching { _ in true },
+            ]
+        case .hard:
+            tiers = [
+                matching { $0.pitch == correctPitch },
+                matching { $0.spelling.first == correctLetter && $0.pitch != correctPitch },
+                matching { distance($0.pitch) == 1 },
+                matching { _ in true },
+            ]
+        }
+
+        let distractors = takeDisplays(tiers, excluding: correctDisplay, count: 3)
+        guard distractors.count == 3, Set(distractors).count == 3 else { return nil }
+        return (distractors + [correctDisplay]).shuffled()
+    }
+
+    private func takeDisplays(_ tiers: [[String]], excluding correct: String, count: Int) -> [String] {
+        var unique: [String] = []
+        var seen: Set<String> = [correct]
+        for tier in tiers {
+            for name in tier.shuffled() {
+                if seen.insert(name).inserted {
+                    unique.append(name)
+                }
+                if unique.count == count { return unique }
+            }
+        }
+        return unique
+    }
+
+    private func directionName(for direction: IntervalDirection) -> String {
+        switch direction {
+        case .ascending: "상행"
+        case .descending: "하행"
+        }
+    }
+
     private var fallbackQuestion: Question {
         explorer.rootSpelling = "C"
         explorer.targetSpelling = "E"
-        previousPair = ("C", "E")
-        let prompt = Prompt(root: "C", target: "E", name: "장3도", degree: 3, qualityOffset: 0, weight: .major)
+        previousPair = ("C", "E", .ascending)
+        let prompt = Prompt(
+            root: "C",
+            target: "E",
+            direction: .ascending,
+            name: "장3도",
+            degree: 3,
+            qualityOffset: 0,
+            weight: .major
+        )
         let choices = makeChoices(correct: prompt) ?? ["장3도", "단3도", "완전4도", "완전5도"]
         return Question(
+            task: .identifyInterval,
             rootDisplayName: explorer.rootDisplayName,
             targetDisplayName: explorer.targetDisplayName,
+            intervalName: prompt.name,
+            directionName: "상행",
             staffNotes: explorer.ascendingStaffNotes,
             choices: choices.shuffled(),
             correctAnswer: "장3도",
@@ -264,31 +414,78 @@ final class IntervalQuizModel {
         let explorer = IntervalModel()
         let spellings = spellings(for: difficulty, explorer: explorer)
         let allowed = allowedWeights(for: difficulty)
-        var prompts: [Prompt] = []
+        var ascending: [Prompt] = []
+        var descending: [Prompt] = []
 
         for root in spellings {
             for target in spellings {
                 explorer.rootSpelling = root
                 explorer.targetSpelling = target
-                guard let resolution = explorer.ascendingResolution(),
-                      let weight = weight(degree: resolution.degree, offset: resolution.qualityOffset),
-                      allowed.contains(weight)
-                else { continue }
-
-                prompts.append(
-                    Prompt(
-                        root: root,
-                        target: target,
-                        name: resolution.koreanName,
-                        degree: resolution.degree,
-                        qualityOffset: resolution.qualityOffset,
-                        weight: weight
-                    )
-                )
+                if let prompt = prompt(
+                    root: root,
+                    target: target,
+                    direction: .ascending,
+                    resolution: explorer.ascendingResolution(),
+                    allowed: allowed
+                ) {
+                    ascending.append(prompt)
+                }
+                if let prompt = prompt(
+                    root: root,
+                    target: target,
+                    direction: .descending,
+                    resolution: explorer.descendingResolution(),
+                    allowed: allowed
+                ) {
+                    descending.append(prompt)
+                }
             }
         }
 
-        return prompts
+        // Ascending entries stay first so skill-key order matches the previous catalog.
+        return ascending + descending
+    }
+
+    /// Keeps a direction only when its own lower-to-upper name is allowed at this difficulty.
+    private static func prompt(
+        root: String,
+        target: String,
+        direction: IntervalDirection,
+        resolution: IntervalResolution?,
+        allowed: Set<IntervalWeight>
+    ) -> Prompt? {
+        guard let resolution,
+              let weight = weight(degree: resolution.degree, offset: resolution.qualityOffset),
+              allowed.contains(weight)
+        else { return nil }
+
+        return Prompt(
+            root: root,
+            target: target,
+            direction: direction,
+            name: resolution.koreanName,
+            degree: resolution.degree,
+            qualityOffset: resolution.qualityOffset,
+            weight: weight
+        )
+    }
+
+    private func intervalName(for direction: IntervalDirection) -> String {
+        switch direction {
+        case .ascending:
+            explorer.ascendingIntervalName
+        case .descending:
+            explorer.descendingIntervalName
+        }
+    }
+
+    private func staffNotes(for direction: IntervalDirection) -> [IntervalStaffNote] {
+        switch direction {
+        case .ascending:
+            explorer.ascendingStaffNotes
+        case .descending:
+            explorer.descendingStaffNotes
+        }
     }
 
     static func learningSkillKeys() -> [String] {
