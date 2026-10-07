@@ -17,6 +17,12 @@ struct FretboardDiagramView: View {
     var visiblePitchClasses: Set<Int>? = nil
     var labelMode: Fretboard.LabelMode = .noteName
     var rootPitchClass: Int = 0
+    /// Replaces generated explorer labels. Keyed by pitch class.
+    var pitchClassLabels: [Int: String]? = nil
+    /// Replaces the color index used for explorer markers. Keyed by pitch class.
+    var pitchClassSwatches: [Int: Int]? = nil
+    /// Replaces generated explorer accessibility names. Keyed by pitch class.
+    var pitchClassAccessibilityLabels: [Int: String]? = nil
     var onSelect: (Fretboard.Position) -> Void = { _ in }
 
     @Environment(\.appPalette) private var palette
@@ -49,7 +55,6 @@ struct FretboardDiagramView: View {
     private var frets: ClosedRange<Int> { firstFret...lastFret }
     private let singleInlayFrets: Set<Int> = [3, 5, 7, 9, 15, 17, 19, 21]
     private let doubleInlayFrets: Set<Int> = [12]
-    private let markerSize: CGFloat = 30
 
     var body: some View {
         HStack(alignment: .top, spacing: 0) {
@@ -217,19 +222,7 @@ struct FretboardDiagramView: View {
         } label: {
             ZStack {
                 if let marker {
-                    Circle()
-                        .fill(marker.fill)
-                        .overlay(
-                            Circle()
-                                .strokeBorder(marker.stroke, lineWidth: LumenoteStroke.compact)
-                        )
-                        .frame(width: markerSize, height: markerSize)
-                    Text(marker.name)
-                        .font(LumenoteFont.rounded(size: 11, weight: .bold))
-                        .foregroundStyle(.white)
-                        .minimumScaleFactor(0.7)
-                        .lineLimit(1)
-                        .frame(width: markerSize - 4)
+                    FretboardNoteMarker(name: marker.name, color: marker.fill)
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -250,22 +243,11 @@ struct FretboardDiagramView: View {
         for position: Fretboard.Position
     ) -> (fill: Color, stroke: Color, name: String)? {
         let pitchClass = Fretboard.pitchClass(at: position)
-        let name = Fretboard.displayLabel(
-            pitchClass: pitchClass,
-            accidental: accidental,
-            labelMode: labelMode,
-            rootPitchClass: rootPitchClass
-        )
+        let name = explorerName(pitchClass: pitchClass)
 
         if let visiblePitchClasses {
             guard visiblePitchClasses.contains(pitchClass) else { return nil }
-            let color = palette.fretboardNote(
-                Fretboard.swatchPitchClass(
-                    for: pitchClass,
-                    labelMode: labelMode,
-                    rootPitchClass: rootPitchClass
-                )
-            )
+            let color = palette.fretboardNote(explorerSwatch(pitchClass: pitchClass))
             return (color, color, name)
         }
 
@@ -294,9 +276,35 @@ struct FretboardDiagramView: View {
     private func markerAccessibilityName(for position: Fretboard.Position) -> String? {
         guard markerStyle(for: position) != nil else { return nil }
         let pitchClass = Fretboard.pitchClass(at: position)
+        if let label = pitchClassAccessibilityLabels?[pitchClass] {
+            return label
+        }
         return Fretboard.accessibilityName(
             pitchClass: pitchClass,
             accidental: accidental,
+            labelMode: labelMode,
+            rootPitchClass: rootPitchClass
+        )
+    }
+
+    private func explorerName(pitchClass: Int) -> String {
+        if let label = pitchClassLabels?[pitchClass] {
+            return label
+        }
+        return Fretboard.displayLabel(
+            pitchClass: pitchClass,
+            accidental: accidental,
+            labelMode: labelMode,
+            rootPitchClass: rootPitchClass
+        )
+    }
+
+    private func explorerSwatch(pitchClass: Int) -> Int {
+        if let swatch = pitchClassSwatches?[pitchClass] {
+            return swatch
+        }
+        return Fretboard.swatchPitchClass(
+            for: pitchClass,
             labelMode: labelMode,
             rootPitchClass: rootPitchClass
         )
@@ -318,6 +326,32 @@ struct FretboardDiagramView: View {
             return "\(location), \(markerName)"
         }
         return location
+    }
+}
+
+/// Colored circle used for a sounding pitch on the fretboard.
+struct FretboardNoteMarker: View {
+    let name: String
+    let color: Color
+
+    static let size: CGFloat = 30
+
+    var body: some View {
+        ZStack {
+            Circle()
+                .fill(color)
+                .overlay(
+                    Circle()
+                        .strokeBorder(color, lineWidth: LumenoteStroke.compact)
+                )
+            Text(name)
+                .font(LumenoteFont.rounded(size: 11, weight: .bold))
+                .foregroundStyle(.white)
+                .minimumScaleFactor(0.7)
+                .lineLimit(1)
+                .frame(width: Self.size - 4)
+        }
+        .frame(width: Self.size, height: Self.size)
     }
 }
 

@@ -83,6 +83,7 @@ enum FeatureDestination: Hashable {
     case fretboardNoteNames
     case fretboardDegrees
     case fretboardExplorer
+    case fretboardScale
 }
 
 enum FeatureIcon: Hashable {
@@ -173,8 +174,14 @@ enum FeatureCatalog {
             [
                 FeatureItem(
                     destination: .fretboardExplorer,
-                    title: L10n.string("지판 보기"),
+                    title: L10n.string("지판 보기 (음이름, 도수)"),
                     subtitle: L10n.string("음이름과 도수로 지판 위치를 살펴보세요"),
+                    icon: .system("guitars")
+                ),
+                FeatureItem(
+                    destination: .fretboardScale,
+                    title: L10n.string("지판 보기 (스케일)"),
+                    subtitle: L10n.string("선택한 스케일의 구성음을 지판에서 살펴보세요"),
                     icon: .system("guitars")
                 ),
             ]

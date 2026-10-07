@@ -39,7 +39,7 @@ struct FretboardExplorerView: View {
         }
         .scrollIndicators(.hidden)
         .background(background)
-        .lumenoteCompactHeader(title: "지판 보기", showsBackButton: true)
+        .lumenoteCompactHeader(title: "지판 보기 (음이름, 도수)", showsBackButton: true)
     }
 
     private var displayControls: some View {

@@ -108,6 +108,8 @@ struct FeatureMenuView: View {
             FretboardDegreeQuizDifficultyView()
         case .fretboardExplorer:
             FretboardExplorerView()
+        case .fretboardScale:
+            FretboardScaleExplorerView()
         }
     }
 }

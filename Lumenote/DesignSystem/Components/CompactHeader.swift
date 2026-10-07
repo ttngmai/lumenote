@@ -17,6 +17,9 @@ struct CompactHeader<Trailing: View>: View {
                 .font(LumenoteFont.headline(.bold))
                 .foregroundStyle(.primary)
                 .lineLimit(1)
+                .minimumScaleFactor(0.65)
+                .padding(.horizontal, 44)
+                .frame(maxWidth: .infinity)
                 .accessibilityAddTraits(.isHeader)
 
             HStack(spacing: LumenoteSpacing.sm) {
