@@ -23,7 +23,7 @@ enum FeatureDomain: String, CaseIterable, Hashable, Identifiable {
         case .harmony:
             L10n.string("음정 · 스케일 · 조표 · 코드 · 다이아토닉")
         case .guitar:
-            L10n.string("지판과 주법")
+            L10n.string("지판과 스케일")
         }
     }
 

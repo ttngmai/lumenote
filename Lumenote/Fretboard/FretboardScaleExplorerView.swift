@@ -247,7 +247,7 @@ struct FretboardScaleExplorerView: View {
         } label: {
             Text(name)
                 .font(LumenoteFont.caption(.bold))
-                .foregroundStyle(selected ? palette.emphasisStroke : .primary)
+                .foregroundStyle(.primary)
                 .contentTransition(.identity)
                 .minimumScaleFactor(0.65)
                 .lineLimit(1)
@@ -332,7 +332,7 @@ struct FretboardScaleExplorerView: View {
         } label: {
             Text(kind.englishTitle)
                 .font(LumenoteFont.caption(.bold))
-                .foregroundStyle(selected ? palette.emphasisStroke : .primary)
+                .foregroundStyle(.primary)
                 .contentTransition(.identity)
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)

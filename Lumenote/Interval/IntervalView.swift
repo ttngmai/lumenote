@@ -350,7 +350,7 @@ struct IntervalView: View {
                         } label: {
                             Text(option.displayName)
                                 .font(.system(size: 17, weight: selected ? .bold : .semibold))
-                                .foregroundStyle(selected ? palette.emphasisStroke : .primary)
+                                .foregroundStyle(.primary)
                                 .lineLimit(1)
                                 .minimumScaleFactor(0.75)
                                 .frame(width: noteChipWidth, height: 40)

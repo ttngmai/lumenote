@@ -198,7 +198,7 @@ struct ChordView: View {
                     ForEach(Array(card.kind.tones.enumerated()), id: \.offset) { _, tone in
                         Text(tone.degreeLabel)
                             .font(LumenoteFont.callout(.bold))
-                            .foregroundStyle(tone.isAltered ? palette.emphasisStroke : .primary)
+                            .foregroundStyle(.primary)
                             .padding(.horizontal, LumenoteSpacing.md)
                             .frame(minHeight: 28)
                             .background(
@@ -421,7 +421,7 @@ struct ChordView: View {
                         } label: {
                             Text(option.displayName)
                                 .font(.system(size: 17, weight: selected ? .bold : .semibold))
-                                .foregroundStyle(selected ? palette.emphasisStroke : .primary)
+                                .foregroundStyle(.primary)
                                 .lineLimit(1)
                                 .minimumScaleFactor(0.75)
                                 .frame(width: noteChipWidth, height: 40)
@@ -489,7 +489,7 @@ struct ChordView: View {
                         } label: {
                             Text(kind.englishTitle)
                                 .font(.system(size: 16, weight: selected ? .bold : .semibold))
-                                .foregroundStyle(selected ? palette.emphasisStroke : .primary)
+                                .foregroundStyle(.primary)
                                 .lineLimit(1)
                                 .minimumScaleFactor(0.7)
                                 .padding(.horizontal, LumenoteSpacing.xl)

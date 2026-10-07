@@ -171,8 +171,6 @@ struct DiatonicChordQuizDifficultyView: View {
                     self.model = nil
                 }
 
-                LearningTopicShortcut(topic: .diatonicChord)
-
                 Button {
                     dismiss()
                 } label: {

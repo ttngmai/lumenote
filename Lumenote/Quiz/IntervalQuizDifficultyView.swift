@@ -171,8 +171,6 @@ struct IntervalQuizDifficultyView: View {
                     self.model = nil
                 }
 
-                LearningTopicShortcut(topic: .interval)
-
                 Button {
                     dismiss()
                 } label: {

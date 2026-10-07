@@ -171,8 +171,6 @@ struct ScaleQuizDifficultyView: View {
                     self.model = nil
                 }
 
-                LearningTopicShortcut(topic: .scale)
-
                 Button {
                     dismiss()
                 } label: {

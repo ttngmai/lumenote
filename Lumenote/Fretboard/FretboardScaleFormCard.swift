@@ -106,7 +106,7 @@ struct FretboardScaleFormCard: View {
         } label: {
             Text(item.title)
                 .font(LumenoteFont.caption(.bold))
-                .foregroundStyle(selected ? palette.emphasisStroke : .primary)
+                .foregroundStyle(.primary)
                 .padding(.horizontal, LumenoteSpacing.md)
                 .frame(height: 28)
                 .background(
