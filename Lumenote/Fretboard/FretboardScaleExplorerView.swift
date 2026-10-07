@@ -20,6 +20,7 @@ struct FretboardScaleExplorerView: View {
                 displayControls
                 fretboardCard
                 toneList
+                FretboardScaleFormCard(model: model)
             }
             .padding(
                 .horizontal,
