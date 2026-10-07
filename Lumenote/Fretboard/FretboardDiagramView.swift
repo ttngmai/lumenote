@@ -15,6 +15,8 @@ struct FretboardDiagramView: View {
     var showsStringLabels: Bool = true
     /// When set, matching pitch classes are shown in distinct colors and cells are not tappable.
     var visiblePitchClasses: Set<Int>? = nil
+    /// When set, only these cells are marked. Used for one scale position rather than every matching pitch class.
+    var visiblePositions: Set<Fretboard.Position>? = nil
     var labelMode: Fretboard.LabelMode = .noteName
     var rootPitchClass: Int = 0
     /// Replaces generated explorer labels. Keyed by pitch class.
@@ -235,7 +237,9 @@ struct FretboardDiagramView: View {
         .accessibilityAddTraits(selectedPositions.contains(position) ? .isSelected : [])
     }
 
-    private var isExploring: Bool { visiblePitchClasses != nil }
+    private var isExploring: Bool {
+        visiblePitchClasses != nil || visiblePositions != nil
+    }
 
     private var isInteractive: Bool { !isExploring && !hasAnswered }
 
@@ -244,6 +248,12 @@ struct FretboardDiagramView: View {
     ) -> (fill: Color, stroke: Color, name: String)? {
         let pitchClass = Fretboard.pitchClass(at: position)
         let name = explorerName(pitchClass: pitchClass)
+
+        if let visiblePositions {
+            guard visiblePositions.contains(position) else { return nil }
+            let color = palette.fretboardNote(explorerSwatch(pitchClass: pitchClass))
+            return (color, color, name)
+        }
 
         if let visiblePitchClasses {
             guard visiblePitchClasses.contains(pitchClass) else { return nil }

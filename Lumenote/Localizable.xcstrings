@@ -249,6 +249,16 @@
         }
       }
     },
+    "%@ 포지션" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ position"
+          }
+        }
+      }
+    },
     "%@, %@" : {
       "localizations" : {
         "ko" : {
@@ -362,6 +372,16 @@
     "%lld" : {
 
     },
+    "%lld / %lld" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld / %2$lld"
+          }
+        }
+      }
+    },
     "%lld / %lld, %@" : {
       "localizations" : {
         "ko" : {
@@ -439,6 +459,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "String %lld, open"
+          }
+        }
+      }
+    },
+    "%lld포지션" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Position %lld"
           }
         }
       }
@@ -776,17 +806,6 @@
         }
       }
     },
-    "Heptatonic 스케일" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Heptatonic Scale"
-          }
-        }
-      }
-    },
     "8반음" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -820,435 +839,6 @@
         }
       }
     },
-    "각 음의 아래에 해당하는 도수를 표시했습니다." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The degree is shown under each note."
-          }
-        }
-      }
-    },
-    "같은 조표를 사용하는 장조와 관계단조는 5도권에서 같은 칸에 표시됩니다." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "A major key and its relative minor share the same wedge on the circle of fifths."
-          }
-        }
-      }
-    },
-    "공식" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Formula"
-          }
-        }
-      }
-    },
-    "공식에서 ♭은 메이저 스케일의 해당 도수보다 반음 낮은 음을, ♯은 반음 높은 음을 나타냅니다." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "In a formula, ♭ is one semitone below that major-scale degree, and ♯ is one semitone above it."
-          }
-        }
-      }
-    },
-    "관계장조·관계단조" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Relative major and minor"
-          }
-        }
-      }
-    },
-    "관계장조와 관계단조는 동일한 조표를 사용하는 장조와 단조의 관계입니다. Natural Minor 스케일을 기준으로 비교하면 구성음은 같지만 으뜸음이 서로 다릅니다." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Relative major and relative minor share a key signature. Compared as a Natural Minor scale, they use the same notes but a different tonic."
-          }
-        }
-      }
-    },
-    "다른 도수" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Different degrees"
-          }
-        }
-      }
-    },
-    "다섯 개의 서로 다른 음으로 구성된 스케일입니다." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "A scale made of five different notes."
-          }
-        }
-      }
-    },
-    "도수와 스케일 공식" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Degrees and Scale Formulas"
-          }
-        }
-      }
-    },
-    "동일한 구성음을 사용하지만 시작하는 음이 다릅니다." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "They use the same notes, but they start on different tonics."
-          }
-        }
-      }
-    },
-    "Major Blues의 ♭3과 Minor Blues의 ♭5는 블루스 특유의 표현을 만드는 데 사용됩니다." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The ♭3 in Major Blues and the ♭5 in Minor Blues create the characteristic blues color."
-          }
-        }
-      }
-    },
-    "Major 스케일의 6도 음을 으뜸음으로 하는 Natural Minor 스케일이 관계단조이며, Natural Minor 스케일의 ♭3도 음을 으뜸음으로 하는 Major 스케일이 관계장조입니다." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The Natural Minor scale built on degree 6 of a Major scale is its relative minor. The Major scale built on ♭3 of a Natural Minor scale is its relative major."
-          }
-        }
-      }
-    },
-    "Major 스케일의 간격 패턴" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Major Scale Step Pattern"
-          }
-        }
-      }
-    },
-    "모든 카드에 적용" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Apply to All Cards"
-          }
-        }
-      }
-    },
-    "병행조" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Parallel Keys"
-          }
-        }
-      }
-    },
-    "병행조는 동일한 으뜸음을 사용하지만 조성이 서로 다른 장조와 단조의 관계입니다." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Parallel keys share a tonic, but one is major and the other is minor."
-          }
-        }
-      }
-    },
-    "Blues 스케일" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Blues Scale"
-          }
-        }
-      }
-    },
-    "스케일 사이의 관계" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Relationships Between Scales"
-          }
-        }
-      }
-    },
-    "스케일 안내" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Scale Guide"
-          }
-        }
-      }
-    },
-    "스케일(Scale)은 음을 일정한 규칙에 따라 배열한 것입니다. 각 음 사이의 간격에 따라 다양한 스케일이 만들어지며, 멜로디와 화성을 구성하는 기초가 됩니다." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "A scale is a series of notes arranged by a consistent rule. The intervals between those notes create different scales, and they are the basis of melody and harmony."
-          }
-        }
-      }
-    },
-    "스케일은 구성음의 개수와 음 사이의 간격에 따라 다양한 종류로 나뉩니다." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Scales are grouped by how many notes they contain and the intervals between them."
-          }
-        }
-      }
-    },
-    "스케일은 음 사이의 간격을 일정한 규칙에 따라 배열하여 만들어집니다. 이 간격을 온음과 반음으로 나타내면 스케일의 구조를 쉽게 이해할 수 있습니다." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "A scale is built by arranging the distances between notes according to a fixed rule. Writing those distances as whole steps and half steps makes the structure easier to see."
-          }
-        }
-      }
-    },
-    "스케일의 각 음은 시작음을 기준으로 도수(Degree)를 가집니다. 스케일 공식은 메이저 스케일을 기준으로 각 음의 위치를 나타낸 것입니다." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Each note has a degree counted from the starting note. A scale formula shows each note's position relative to the major scale."
-          }
-        }
-      }
-    },
-    "스케일의 구성 원리" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "How a Scale Is Built"
-          }
-        }
-      }
-    },
-    "스케일의 이해" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Understanding Scales"
-          }
-        }
-      }
-    },
-    "스케일의 종류" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Types of Scales"
-          }
-        }
-      }
-    },
-    "스케일의 종류와 공식" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Scale Types and Formulas"
-          }
-        }
-      }
-    },
-    "스케일이란?" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "What Is a Scale?"
-          }
-        }
-      }
-    },
-    "예시) C Natural Minor" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Example: C Natural Minor"
-          }
-        }
-      }
-    },
-    "으뜸음을 변경하면 모든 카드에 적용합니다." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Changing the tonic applies it to every card."
-          }
-        }
-      }
-    },
-    "으뜸음이 같고 조표가 다릅니다." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Same tonic, different key signature."
-          }
-        }
-      }
-    },
-    "이 패턴을 어떤 시작음에 적용하더라도 Major 스케일을 만들 수 있습니다." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "This pattern produces a Major scale from any starting note."
-          }
-        }
-      }
-    },
-    "일곱 개의 서로 다른 음으로 구성된 스케일입니다." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "A scale made of seven different notes."
-          }
-        }
-      }
-    },
-    "Natural Minor 스케일을 기준으로 비교하면 3도, 6도, 7도가 서로 다릅니다." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Compared as a Natural Minor scale, degrees 3, 6, and 7 differ."
-          }
-        }
-      }
-    },
-    "조표가 같고 으뜸음이 다릅니다." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Same key signature, different tonic."
-          }
-        }
-      }
-    },
-    "종류" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Type"
-          }
-        }
-      }
-    },
-    "Pentatonic 스케일" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pentatonic Scale"
-          }
-        }
-      }
-    },
-    "Pentatonic 스케일에 특징적인 음을 추가하여 만들어집니다." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Made by adding a characteristic note to a Pentatonic scale."
-          }
-        }
-      }
-    },
-    "핵심 정리" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Key Points"
-          }
-        }
-      }
-    },
     "A 단조" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -1267,6 +857,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Augmented"
+          }
+        }
+      }
+    },
+    "Blues" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Blues"
+          }
+        }
+      }
+    },
+    "Blues 스케일" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Blues Scale"
           }
         }
       }
@@ -1370,6 +982,39 @@
         }
       }
     },
+    "C Major와 A Natural Minor" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "C Major and A Natural Minor"
+          }
+        }
+      }
+    },
+    "C Major와 C Natural Minor" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "C Major and C Natural Minor"
+          }
+        }
+      }
+    },
+    "C Major와 비교하면 3도, 6도, 7도가 반음 낮아집니다." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compared with C Major, degrees 3, 6, and 7 are one semitone lower."
+          }
+        }
+      }
+    },
     "C 장조" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -1398,39 +1043,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "C major and its relative minor, A minor, share a slice."
-          }
-        }
-      }
-    },
-    "C Major와 비교하면 3도, 6도, 7도가 반음 낮아집니다." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Compared with C Major, degrees 3, 6, and 7 are one semitone lower."
-          }
-        }
-      }
-    },
-    "C Major와 A Natural Minor" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "C Major and A Natural Minor"
-          }
-        }
-      }
-    },
-    "C Major와 C Natural Minor" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "C Major and C Natural Minor"
           }
         }
       }
@@ -1595,6 +1207,28 @@
         }
       }
     },
+    "Heptatonic" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Heptatonic"
+          }
+        }
+      }
+    },
+    "Heptatonic 스케일" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Heptatonic Scale"
+          }
+        }
+      }
+    },
     "I 코드와 공통음을 가지고 있어 토닉을 어느 정도 대신할 수 있는 코드입니다." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -1630,6 +1264,39 @@
     },
     "Key" : {
 
+    },
+    "Major Blues의 ♭3과 Minor Blues의 ♭5는 블루스 특유의 표현을 만드는 데 사용됩니다." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The ♭3 in Major Blues and the ♭5 in Minor Blues create the characteristic blues color."
+          }
+        }
+      }
+    },
+    "Major 스케일의 6도 음을 으뜸음으로 하는 Natural Minor 스케일이 관계단조이며, Natural Minor 스케일의 ♭3도 음을 으뜸음으로 하는 Major 스케일이 관계장조입니다." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The Natural Minor scale built on degree 6 of a Major scale is its relative minor. The Major scale built on ♭3 of a Natural Minor scale is its relative major."
+          }
+        }
+      }
+    },
+    "Major 스케일의 간격 패턴" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Major Scale Step Pattern"
+          }
+        }
+      }
     },
     "Major 스케일의 다이아토닉 Triad 코드 규칙을 완성하세요." : {
       "extractionState" : "stale",
@@ -1680,6 +1347,50 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Minor"
+          }
+        }
+      }
+    },
+    "Natural Minor 스케일을 기준으로 비교하면 3도, 6도, 7도가 서로 다릅니다." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compared as a Natural Minor scale, degrees 3, 6, and 7 differ."
+          }
+        }
+      }
+    },
+    "Pentatonic" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pentatonic"
+          }
+        }
+      }
+    },
+    "Pentatonic 스케일" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pentatonic Scale"
+          }
+        }
+      }
+    },
+    "Pentatonic 스케일에 특징적인 음을 추가하여 만들어집니다." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Made by adding a characteristic note to a Pentatonic scale."
           }
         }
       }
@@ -1744,6 +1455,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "The diatonic chords built from each scale, written in Roman numerals."
+          }
+        }
+      }
+    },
+    "각 음의 아래에 해당하는 도수를 표시했습니다." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The degree is shown under each note."
           }
         }
       }
@@ -1959,6 +1681,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Same note"
+          }
+        }
+      }
+    },
+    "같은 조표를 사용하는 장조와 관계단조는 5도권에서 같은 칸에 표시됩니다." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A major key and its relative minor share the same wedge on the circle of fifths."
           }
         }
       }
@@ -2192,12 +1925,56 @@
         }
       }
     },
+    "공식" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Formula"
+          }
+        }
+      }
+    },
+    "공식에서 ♭은 메이저 스케일의 해당 도수보다 반음 낮은 음을, ♯은 반음 높은 음을 나타냅니다." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In a formula, ♭ is one semitone below that major-scale degree, and ♯ is one semitone above it."
+          }
+        }
+      }
+    },
     "공통으로 사용하는 음이 많아 전조하거나 코드를 연결할 때 활용할 수 있습니다." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "They share most of their notes, which helps when modulating or connecting chords."
+          }
+        }
+      }
+    },
+    "관계장조·관계단조" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Relative major and minor"
+          }
+        }
+      }
+    },
+    "관계장조와 관계단조는 동일한 조표를 사용하는 장조와 단조의 관계입니다. Natural Minor 스케일을 기준으로 비교하면 구성음은 같지만 으뜸음이 서로 다릅니다." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Relative major and relative minor share a key signature. Compared as a Natural Minor scale, they use the same notes but a different tonic."
           }
         }
       }
@@ -2353,6 +2130,7 @@
       }
     },
     "기준" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2385,6 +2163,7 @@
       }
     },
     "기준음 %@" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2583,6 +2362,28 @@
         }
       }
     },
+    "다른 도수" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Different degrees"
+          }
+        }
+      }
+    },
+    "다섯 개의 서로 다른 음으로 구성된 스케일입니다." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A scale made of five different notes."
+          }
+        }
+      }
+    },
     "다음 두 음의 음정은?" : {
       "localizations" : {
         "en" : {
@@ -2676,6 +2477,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Next Page"
+          }
+        }
+      }
+    },
+    "다음 포지션" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Next Position"
           }
         }
       }
@@ -2977,6 +2789,28 @@
         }
       }
     },
+    "도수와 스케일 공식" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Degrees and Scale Formulas"
+          }
+        }
+      }
+    },
+    "동일한 구성음을 사용하지만 시작하는 음이 다릅니다." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "They use the same notes, but they start on different tonics."
+          }
+        }
+      }
+    },
     "두 음 사이의 거리" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3237,6 +3071,17 @@
         }
       }
     },
+    "모든 카드에 적용" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apply to All Cards"
+          }
+        }
+      }
+    },
     "목표 도수 %@" : {
       "localizations" : {
         "en" : {
@@ -3471,6 +3316,28 @@
         }
       }
     },
+    "병행조" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Parallel Keys"
+          }
+        }
+      }
+    },
+    "병행조는 동일한 으뜸음을 사용하지만 조성이 서로 다른 장조와 단조의 관계입니다." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Parallel keys share a tonic, but one is major and the other is minor."
+          }
+        }
+      }
+    },
     "복습" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3565,17 +3432,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Unsteady %1$lld · Review %2$lld"
-          }
-        }
-      }
-    },
-    "Blues" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Blues"
           }
         }
       }
@@ -3777,17 +3633,6 @@
         }
       }
     },
-    "선택한 스케일의 구성음을 지판에서 살펴보세요" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "See the notes of a selected scale on the fretboard"
-          }
-        }
-      }
-    },
     "선택한 방향으로 한 칸 이동합니다" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -3795,6 +3640,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Moves one step in the selected direction"
+          }
+        }
+      }
+    },
+    "선택한 스케일의 구성음을 지판에서 살펴보세요" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "See the notes of a selected scale on the fretboard"
           }
         }
       }
@@ -3906,6 +3762,28 @@
         }
       }
     },
+    "스케일 사이의 관계" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Relationships Between Scales"
+          }
+        }
+      }
+    },
+    "스케일 안내" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scale Guide"
+          }
+        }
+      }
+    },
     "스케일 이름" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3958,12 +3836,13 @@
         }
       }
     },
-    "스케일에 따라 코드의 구성이 어떻게 달라지는지 비교해 보세요." : {
+    "스케일(Scale)은 음을 일정한 규칙에 따라 배열한 것입니다. 각 음 사이의 간격에 따라 다양한 스케일이 만들어지며, 멜로디와 화성을 구성하는 기초가 됩니다." : {
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Compare how the chords change from one scale to another."
+            "value" : "A scale is a series of notes arranged by a consistent rule. The intervals between those notes create different scales, and they are the basis of melody and harmony."
           }
         }
       }
@@ -3979,6 +3858,38 @@
         }
       }
     },
+    "스케일에 따라 코드의 구성이 어떻게 달라지는지 비교해 보세요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compare how the chords change from one scale to another."
+          }
+        }
+      }
+    },
+    "스케일은 구성음의 개수와 음 사이의 간격에 따라 다양한 종류로 나뉩니다." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scales are grouped by how many notes they contain and the intervals between them."
+          }
+        }
+      }
+    },
+    "스케일은 음 사이의 간격을 일정한 규칙에 따라 배열하여 만들어집니다. 이 간격을 온음과 반음으로 나타내면 스케일의 구조를 쉽게 이해할 수 있습니다." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A scale is built by arranging the distances between notes according to a fixed rule. Writing those distances as whole steps and half steps makes the structure easier to see."
+          }
+        }
+      }
+    },
     "스케일을 변경하려면 두 번 탭하세요" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -3986,6 +3897,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Double-tap to change the scale"
+          }
+        }
+      }
+    },
+    "스케일의 각 음은 시작음을 기준으로 도수(Degree)를 가집니다. 스케일 공식은 메이저 스케일을 기준으로 각 음의 위치를 나타낸 것입니다." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Each note has a degree counted from the starting note. A scale formula shows each note's position relative to the major scale."
           }
         }
       }
@@ -4000,6 +3922,17 @@
         }
       }
     },
+    "스케일의 구성 원리" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "How a Scale Is Built"
+          }
+        }
+      }
+    },
     "스케일의 구성음으로 만들어지는 코드" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -4007,6 +3940,50 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Chords built from the notes of a scale"
+          }
+        }
+      }
+    },
+    "스케일의 이해" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Understanding Scales"
+          }
+        }
+      }
+    },
+    "스케일의 종류" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Types of Scales"
+          }
+        }
+      }
+    },
+    "스케일의 종류와 공식" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scale Types and Formulas"
+          }
+        }
+      }
+    },
+    "스케일이란?" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "What Is a Scale?"
           }
         }
       }
@@ -4257,6 +4234,17 @@
         }
       }
     },
+    "예시) C Natural Minor" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Example: C Natural Minor"
+          }
+        }
+      }
+    },
     "예시1) 장3도" : {
       "localizations" : {
         "en" : {
@@ -4429,6 +4417,28 @@
         }
       }
     },
+    "으뜸음을 변경하면 모든 카드에 적용합니다." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Changing the tonic applies it to every card."
+          }
+        }
+      }
+    },
+    "으뜸음이 같고 조표가 다릅니다." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Same tonic, different key signature."
+          }
+        }
+      }
+    },
     "음이름" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -4569,6 +4579,17 @@
         }
       }
     },
+    "이 방식으로 보려면 두 번 탭하세요" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Double tap to view positions this way"
+          }
+        }
+      }
+    },
     "이 주제의 오답" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -4586,6 +4607,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Double-tap to see this chord's role"
+          }
+        }
+      }
+    },
+    "이 패턴을 어떤 시작음에 적용하더라도 Major 스케일을 만들 수 있습니다." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This pattern produces a Major scale from any starting note."
           }
         }
       }
@@ -4682,6 +4714,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Previous Page"
+          }
+        }
+      }
+    },
+    "이전 포지션" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Previous Position"
+          }
+        }
+      }
+    },
+    "일곱 개의 서로 다른 음으로 구성된 스케일입니다." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A scale made of seven different notes."
           }
         }
       }
@@ -4968,6 +5022,17 @@
         }
       }
     },
+    "조표가 같고 으뜸음이 다릅니다." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Same key signature, different tonic."
+          }
+        }
+      }
+    },
     "조표가 표시된 오선" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -4975,6 +5040,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Staff with a signature"
+          }
+        }
+      }
+    },
+    "종류" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Type"
           }
         }
       }
@@ -5197,17 +5273,6 @@
         }
       }
     },
-    "최근 10회 풀이 중 정답 기록이 있지만, 마지막 풀이에서 틀린 항목입니다." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Items with a correct answer in the last 10 tries whose latest answer is wrong."
-          }
-        }
-      }
-    },
     "최근 3회 연속으로 정답을 맞힌 항목입니다." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -5215,6 +5280,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Items answered correctly three times in a row."
+          }
+        }
+      }
+    },
+    "최근 10회 풀이 중 정답 기록이 있지만, 마지막 풀이에서 틀린 항목입니다." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Items with a correct answer in the last 10 tries whose latest answer is wrong."
           }
         }
       }
@@ -5529,17 +5605,6 @@
         }
       }
     },
-    "Pentatonic" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pentatonic"
-          }
-        }
-      }
-    },
     "펼치기" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -5824,23 +5889,23 @@
         }
       }
     },
+    "핵심 정리" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Key Points"
+          }
+        }
+      }
+    },
     "핵심: %@" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Key point: %@"
-          }
-        }
-      }
-    },
-    "Heptatonic" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Heptatonic"
           }
         }
       }
