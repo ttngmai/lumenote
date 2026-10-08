@@ -450,23 +450,8 @@ final class DiatonicChordQuizModel {
     }
 
     private func nonDiatonicExplanation(context: ExplanationContext) -> String {
-        let phrase = constructedChordPhrase(context.voicing)
         let scale = L10n.s("\(scaleLabel(tonic: context.tonicSpelling, kind: context.kind)) 스케일")
-        let names = context.diatonicNames.joined(separator: " · ")
-        let romans = DiatonicDegree.allCases.map {
-            DiatonicChordModel.roman(
-                kind: context.kind,
-                voicing: context.voicing,
-                degree: $0
-            )
-        }
-        .joined(separator: " · ")
-        return L10n.s(
-            """
-            \(scale)의 다이아토닉 \(phrase) : \(names) (\(romans))
-            \(context.compactName)는 \(scale)의 다이아토닉 코드가 아닙니다.
-            """
-        )
+        return L10n.s("\(context.compactName)는 \(scale)의 다이아토닉 코드가 아닙니다.")
     }
 
     // MARK: - Distractors & catalog

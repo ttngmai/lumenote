@@ -207,6 +207,13 @@ struct DiatonicChordQuizView: View {
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
+            if model.question.kind == .identifyNonDiatonic {
+                DiatonicExplanationStaff(
+                    tonicSpelling: model.question.explanationContext.tonicSpelling,
+                    kind: model.question.explanationContext.kind,
+                    voicing: model.question.explanationContext.voicing
+                )
+            }
         }
         .padding(LumenoteSpacing.xxl)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -257,6 +264,53 @@ struct DiatonicChordQuizView: View {
         }
         .buttonStyle(.plain)
         .accessibilityHint((showsResult ? "결과를 보려면 두 번 탭하세요" : "다음 문제로 넘어가려면 두 번 탭하세요").l10n)
+    }
+}
+
+/// Seven diatonic chords of the non-diatonic question, under the explanation sentence.
+private struct DiatonicExplanationStaff: View {
+    let tonicSpelling: String
+    let kind: ScaleKind
+    let voicing: DiatonicVoicing
+
+    @State private var width: CGFloat = 0
+
+    var body: some View {
+        let columns = DiatonicChordModel.staffColumns(
+            tonic: tonicSpelling,
+            kind: kind,
+            voicing: voicing
+        )
+
+        ScrollView(.horizontal, showsIndicators: false) {
+            DiatonicChordStaffView(
+                columns: columns,
+                highlightedDegree: nil,
+                staffSpace: staffSpace,
+                targetWidth: width > 0 ? width : nil,
+                lineColor: Color.primary.opacity(0.75),
+                noteColor: Color.primary,
+                highlightColor: .primary,
+                dimmedNoteColor: Color.primary.opacity(0.28),
+                highlightFill: .clear
+            )
+        }
+        .scrollBounceBehavior(.basedOnSize, axes: .horizontal)
+        .padding(.top, LumenoteSpacing.sm)
+        .background {
+            GeometryReader { geo in
+                Color.clear
+                    .onAppear { width = geo.size.width }
+                    .onChange(of: geo.size.width) { _, newValue in
+                        width = newValue
+                    }
+            }
+        }
+    }
+
+    private var staffSpace: CGFloat {
+        guard width > 0 else { return 9 }
+        return min(13, max(8.5, width / 26))
     }
 }
 
