@@ -31,6 +31,8 @@ struct LearningReviewSessionView: View {
                     FretboardNoteReviewHost(skillKeys: skillKeys, recorder: learningLog)
                 case .fretboardDegree:
                     FretboardDegreeReviewHost(skillKeys: skillKeys, recorder: learningLog)
+                case .fretboardScale:
+                    FretboardScaleReviewHost(skillKeys: skillKeys, recorder: learningLog)
                 }
             }
         }
@@ -288,6 +290,32 @@ private struct FretboardDegreeReviewHost: View {
             )
         } else {
             FretboardDegreeQuizView(model: model)
+        }
+    }
+}
+
+private struct FretboardScaleReviewHost: View {
+    @State private var model: FretboardScaleQuizModel
+
+    init(skillKeys: Set<String>, recorder: (any LearningRecording)?) {
+        _model = State(
+            initialValue: FretboardScaleQuizModel(
+                difficulty: .hard,
+                questionLimit: reviewQuestionLimit(for: skillKeys),
+                recorder: recorder,
+                focusSkillKeys: skillKeys
+            )
+        )
+    }
+
+    var body: some View {
+        if model.isFinished {
+            LearningReviewResult(
+                correctCount: model.correctCount,
+                incorrectCount: model.incorrectCount
+            )
+        } else {
+            FretboardScaleQuizView(model: model)
         }
     }
 }
