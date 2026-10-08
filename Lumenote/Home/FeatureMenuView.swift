@@ -106,6 +106,8 @@ struct FeatureMenuView: View {
             FretboardNoteQuizDifficultyView()
         case .fretboardDegrees:
             FretboardDegreeQuizDifficultyView()
+        case .fretboardScaleQuiz:
+            FretboardScaleQuizDifficultyView()
         case .fretboardExplorer:
             FretboardExplorerView()
         case .fretboardScale:

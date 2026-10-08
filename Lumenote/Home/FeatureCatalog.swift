@@ -82,6 +82,7 @@ enum FeatureDestination: Hashable {
     case diatonicChordQuiz
     case fretboardNoteNames
     case fretboardDegrees
+    case fretboardScaleQuiz
     case fretboardExplorer
     case fretboardScale
 }
@@ -197,6 +198,12 @@ enum FeatureCatalog {
                     destination: .fretboardDegrees,
                     title: L10n.string("지판 퀴즈 (도수)"),
                     subtitle: L10n.string("1도를 기준으로 도수의 위치를 찾아 보세요"),
+                    icon: .system("guitars")
+                ),
+                FeatureItem(
+                    destination: .fretboardScaleQuiz,
+                    title: L10n.string("지판 퀴즈 (스케일)"),
+                    subtitle: L10n.string("스케일 포지션을 지판에서 완성해 보세요"),
                     icon: .system("guitars")
                 ),
             ]

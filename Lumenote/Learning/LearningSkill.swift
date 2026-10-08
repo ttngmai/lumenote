@@ -11,6 +11,7 @@ enum LearningTopic: String, CaseIterable, Hashable, Identifiable {
     case diatonicChord
     case fretboardNote
     case fretboardDegree
+    case fretboardScale
 
     var id: String { rawValue }
 
@@ -18,7 +19,7 @@ enum LearningTopic: String, CaseIterable, Hashable, Identifiable {
         switch self {
         case .interval, .scale, .keySignature, .chord, .diatonicChord:
             .harmony
-        case .fretboardNote, .fretboardDegree:
+        case .fretboardNote, .fretboardDegree, .fretboardScale:
             .guitar
         }
     }
@@ -39,6 +40,8 @@ enum LearningTopic: String, CaseIterable, Hashable, Identifiable {
             L10n.string("지판 음이름")
         case .fretboardDegree:
             L10n.string("지판 도수")
+        case .fretboardScale:
+            L10n.string("지판 스케일")
         }
     }
 
@@ -221,6 +224,8 @@ enum LearningSkillTitle {
                 rootPitchClass: 0,
                 accidental: .sharp
             )
+        case .fretboardScale:
+            return FretboardScaleQuizSkill.title(for: key)
         }
     }
 
@@ -301,6 +306,8 @@ enum LearningSkillCatalog {
             Fretboard.pitchClasses.map { LearningSkillKey.fretboardNote(pitchClass: $0) }
         case .fretboardDegree:
             Fretboard.quizTargetSemitones.map { LearningSkillKey.fretboardDegree(semitones: $0) }
+        case .fretboardScale:
+            FretboardScaleQuizSkill.catalog
         }
     }
 

@@ -25,6 +25,8 @@ struct FretboardDiagramView: View {
     var pitchClassSwatches: [Int: Int]? = nil
     /// Replaces generated explorer accessibility names. Keyed by pitch class.
     var pitchClassAccessibilityLabels: [Int: String]? = nil
+    /// Shape quiz: hints, exact answer cells, and degree labels. Pitch-class grading is not used.
+    var scaleQuizMarks: FretboardScaleQuizMarks? = nil
     var onSelect: (Fretboard.Position) -> Void = { _ in }
 
     @Environment(\.appPalette) private var palette
@@ -224,7 +226,7 @@ struct FretboardDiagramView: View {
         } label: {
             ZStack {
                 if let marker {
-                    FretboardNoteMarker(name: marker.name, color: marker.fill)
+                    FretboardNoteMarker(name: marker.name, color: marker.color, style: marker.style)
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -241,50 +243,91 @@ struct FretboardDiagramView: View {
         visiblePitchClasses != nil || visiblePositions != nil
     }
 
-    private var isInteractive: Bool { !isExploring && !hasAnswered }
+    private var isInteractive: Bool {
+        if scaleQuizMarks != nil { return !hasAnswered }
+        return !isExploring && !hasAnswered
+    }
 
-    private func markerStyle(
-        for position: Fretboard.Position
-    ) -> (fill: Color, stroke: Color, name: String)? {
+    private func markerStyle(for position: Fretboard.Position) -> DrawnMarker? {
+        if let scaleQuizMarks {
+            return scaleMarker(for: position, marks: scaleQuizMarks)
+        }
+
         let pitchClass = Fretboard.pitchClass(at: position)
         let name = explorerName(pitchClass: pitchClass)
 
         if let visiblePositions {
             guard visiblePositions.contains(position) else { return nil }
             let color = palette.fretboardNote(explorerSwatch(pitchClass: pitchClass))
-            return (color, color, name)
+            return DrawnMarker(color: color, name: name)
         }
 
         if let visiblePitchClasses {
             guard visiblePitchClasses.contains(pitchClass) else { return nil }
             let color = palette.fretboardNote(explorerSwatch(pitchClass: pitchClass))
-            return (color, color, name)
+            return DrawnMarker(color: color, name: name)
         }
 
         let isMatch = pitchClass == targetPitchClass
         let isSelected = selectedPositions.contains(position)
 
         if isSelected && isMatch {
-            let color = Self.lightQuizPalette.quizCorrect
-            return (color, color, name)
+            return DrawnMarker(color: Self.lightQuizPalette.quizCorrect, name: name)
         }
         if isSelected {
-            let color = Self.lightQuizPalette.quizIncorrect
-            return (color, color, name)
+            return DrawnMarker(color: Self.lightQuizPalette.quizIncorrect, name: name)
         }
 
         if position == hintPosition {
-            let color = palette.fretboardQuizRoot
-            return (color, color, name)
+            return DrawnMarker(color: palette.fretboardQuizRoot, name: name)
         }
 
         guard hasAnswered, isMatch else { return nil }
-        let color = Self.lightQuizPalette.quizCorrect
-        return (color, color, name)
+        return DrawnMarker(color: Self.lightQuizPalette.quizCorrect, name: name)
+    }
+
+    /// Hints show degrees. Picks before checking stay unlabeled. After checking, misses are an outline.
+    private func scaleMarker(
+        for position: Fretboard.Position,
+        marks: FretboardScaleQuizMarks
+    ) -> DrawnMarker? {
+        let label = marks.labels[position] ?? ""
+        let isHint = marks.hints.contains(position)
+        let isAnswer = marks.answers.contains(position)
+        let isSelected = selectedPositions.contains(position)
+
+        if hasAnswered {
+            if isSelected && !isAnswer {
+                return DrawnMarker(color: Self.lightQuizPalette.quizIncorrect, name: label)
+            }
+            if isAnswer && (isSelected || isHint) {
+                return DrawnMarker(color: Self.lightQuizPalette.quizCorrect, name: label)
+            }
+            if isAnswer {
+                return DrawnMarker(
+                    color: Self.lightQuizPalette.quizCorrect,
+                    name: label,
+                    style: .outline
+                )
+            }
+            return nil
+        }
+
+        if isHint {
+            let swatch = marks.hintSwatches[position] ?? 0
+            return DrawnMarker(color: palette.fretboardNote(swatch), name: label)
+        }
+        if isSelected {
+            return DrawnMarker(color: .primary, name: "", style: .outline)
+        }
+        return nil
     }
 
     private func markerAccessibilityName(for position: Fretboard.Position) -> String? {
         guard markerStyle(for: position) != nil else { return nil }
+        if let marks = scaleQuizMarks {
+            return scaleAccessibilityName(for: position, marks: marks)
+        }
         let pitchClass = Fretboard.pitchClass(at: position)
         if let label = pitchClassAccessibilityLabels?[pitchClass] {
             return label
@@ -320,8 +363,43 @@ struct FretboardDiagramView: View {
         )
     }
 
+    private func scaleAccessibilityName(
+        for position: Fretboard.Position,
+        marks: FretboardScaleQuizMarks
+    ) -> String? {
+        let spoken = marks.accessibilityLabels[position] ?? ""
+        let isHint = marks.hints.contains(position)
+        let isAnswer = marks.answers.contains(position)
+        let isSelected = selectedPositions.contains(position)
+
+        if !hasAnswered {
+            if isHint { return spoken }
+            if isSelected { return "선택됨".l10n }
+            return nil
+        }
+        if isSelected && !isAnswer {
+            return "\("오답".l10n), \(spoken)"
+        }
+        if isAnswer && (isSelected || isHint) {
+            return "\("정답".l10n), \(spoken)"
+        }
+        if isAnswer {
+            return "\("놓친 정답".l10n), \(spoken)"
+        }
+        return nil
+    }
+
     private func accessibilityHint(for position: Fretboard.Position) -> String {
         guard isInteractive else { return "" }
+        if let marks = scaleQuizMarks {
+            if marks.hints.contains(position) {
+                return "표시된 도수입니다".l10n
+            }
+            if selectedPositions.contains(position) {
+                return "선택을 해제하려면 두 번 탭하세요".l10n
+            }
+            return "답을 선택하려면 두 번 탭하세요".l10n
+        }
         if position == hintPosition {
             return "기준음입니다".l10n
         }
@@ -341,28 +419,46 @@ struct FretboardDiagramView: View {
 
 /// Colored circle used for a sounding pitch on the fretboard.
 struct FretboardNoteMarker: View {
+    enum Style {
+        case filled
+        case outline
+    }
+
     let name: String
     let color: Color
+    var style: Style = .filled
 
     static let size: CGFloat = 30
 
     var body: some View {
         ZStack {
-            Circle()
-                .fill(color)
-                .overlay(
-                    Circle()
-                        .strokeBorder(color, lineWidth: LumenoteStroke.compact)
-                )
+            switch style {
+            case .filled:
+                Circle()
+                    .fill(color)
+                    .overlay(
+                        Circle()
+                            .strokeBorder(color, lineWidth: LumenoteStroke.compact)
+                    )
+            case .outline:
+                Circle()
+                    .strokeBorder(color, lineWidth: LumenoteStroke.emphasis)
+            }
             Text(name)
                 .font(LumenoteFont.rounded(size: 11, weight: .bold))
-                .foregroundStyle(.white)
+                .foregroundStyle(style == .filled ? Color.white : color)
                 .minimumScaleFactor(0.7)
                 .lineLimit(1)
                 .frame(width: Self.size - 4)
         }
         .frame(width: Self.size, height: Self.size)
     }
+}
+
+private struct DrawnMarker {
+    var color: Color
+    var name: String
+    var style: FretboardNoteMarker.Style = .filled
 }
 
 #Preview("Quiz") {

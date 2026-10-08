@@ -16,6 +16,16 @@
     "·" : {
 
     },
+    "%@ · %@" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ · %2$@"
+          }
+        }
+      }
+    },
     "%@ · %lld문제" : {
       "localizations" : {
         "en" : {
@@ -341,6 +351,16 @@
         }
       }
     },
+    "%@, %@. %@" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@, %2$@. %3$@"
+          }
+        }
+      }
+    },
     "%@, 구성음 %@, 표기 %@" : {
       "localizations" : {
         "en" : {
@@ -486,7 +506,6 @@
       }
     },
     "%lld문제" : {
-      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -618,6 +637,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Using degree 1 as the reference, find each degree"
+          }
+        }
+      }
+    },
+    "1도만 보여 줍니다." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shows degree 1 only."
+          }
+        }
+      }
+    },
+    "1도와 일부 도수를 보여 줍니다." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shows degree 1 and some other degrees."
           }
         }
       }
@@ -2405,6 +2446,17 @@
         }
       }
     },
+    "난이도, 스케일, 포지션 방식, 문제 수를 선택하세요." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose the difficulty, scales, position system, and number of questions."
+          }
+        }
+      }
+    },
     "난이도, 프렛 범위, 정답 방식, 문제 수를 선택하세요." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -2432,6 +2484,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Choose a difficulty and the number of questions."
+          }
+        }
+      }
+    },
+    "놓친 정답" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Missed answer"
           }
         }
       }
@@ -3554,6 +3617,17 @@
         }
       }
     },
+    "빈 지판에서 포지션을 완성합니다." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Complete the position on an empty fretboard."
+          }
+        }
+      }
+    },
     "빈칸" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -3675,6 +3749,16 @@
         }
       }
     },
+    "선택 %lld / %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld / %2$lld selected"
+          }
+        }
+      }
+    },
     "선택 닫기" : {
       "localizations" : {
         "en" : {
@@ -3718,6 +3802,28 @@
         }
       }
     },
+    "선택됨" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Selected"
+          }
+        }
+      }
+    },
+    "선택을 해제하려면 두 번 탭하세요" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Double-tap to remove this selection"
+          }
+        }
+      }
+    },
     "선택한 방향으로 한 칸 이동합니다" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -3725,6 +3831,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Moves one step in the selected direction"
+          }
+        }
+      }
+    },
+    "선택한 스케일에는 사용할 수 없습니다" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not available for the selected scales"
           }
         }
       }
@@ -3921,6 +4038,28 @@
         }
       }
     },
+    "스케일 포지션을 완성하세요." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Complete the scale position."
+          }
+        }
+      }
+    },
+    "스케일 포지션을 지판에서 완성해 보세요" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Complete scale positions on the fretboard"
+          }
+        }
+      }
+    },
     "스케일(Scale)은 음을 일정한 규칙에 따라 배열한 것입니다. 각 음 사이의 간격에 따라 다양한 스케일이 만들어지며, 멜로디와 화성을 구성하는 기초가 됩니다." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3928,6 +4067,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "A scale is a series of notes arranged by a consistent rule. The intervals between those notes create different scales, and they are the basis of melody and harmony."
+          }
+        }
+      }
+    },
+    "스케일과 포지션 방식을 선택하세요" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose a scale and a position system"
           }
         }
       }
@@ -5032,6 +5182,28 @@
         }
       }
     },
+    "정답 확인" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Check"
+          }
+        }
+      }
+    },
+    "정답을 확인하려면 두 번 탭하세요" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Double-tap to check your answer"
+          }
+        }
+      }
+    },
     "정리" : {
       "localizations" : {
         "en" : {
@@ -5272,6 +5444,17 @@
         }
       }
     },
+    "지판 스케일" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fretboard scales"
+          }
+        }
+      }
+    },
     "지판 음이름" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -5290,6 +5473,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Fretboard Quiz (Degrees)"
+          }
+        }
+      }
+    },
+    "지판 퀴즈 (스케일)" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fretboard Quiz (Scales)"
           }
         }
       }
@@ -5365,6 +5559,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Items with a correct answer in the last 10 tries whose latest answer is wrong."
+          }
+        }
+      }
+    },
+    "출제 스케일" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scales"
           }
         }
       }
@@ -5690,12 +5895,45 @@
         }
       }
     },
+    "포지션 방식" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Position system"
+          }
+        }
+      }
+    },
     "표기" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Symbol"
+          }
+        }
+      }
+    },
+    "표시된 도수를 참고하여 포지션을 완성하세요." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Complete the position using the degrees shown."
+          }
+        }
+      }
+    },
+    "표시된 도수입니다" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shown degree"
           }
         }
       }
